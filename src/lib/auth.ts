@@ -33,11 +33,13 @@ export const { signIn, signOut, auth } = NextAuth({
           if (error instanceof CredentialsSignin) {
             throw error;
           }
+          console.error("[auth][error]authorize:", error);
           throw Error("原因不明のエラー");
         }
       },
     }),
   ],
+  trustHost: true,
   pages: {
     signIn: "/sign-in",
   },
@@ -55,8 +57,15 @@ export const { signIn, signOut, auth } = NextAuth({
     error(code, ...message) {
       if (code instanceof CredentialsSignin) {
         console.warn("[auth][warn]CredentialsSignin:", code.message);
+      } else if (code instanceof Error) {
+        console.error(
+          "[auth][error]",
+          JSON.stringify(code),
+          code["cause"],
+          ...message,
+        );
       } else {
-        console.error("[auth][error]", code, message);
+        console.error("[auth][error]", JSON.stringify(code), message);
       }
     },
   },

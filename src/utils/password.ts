@@ -16,7 +16,7 @@ export const saltAndHashPassword = (
   if (typeof password !== "string") {
     throw new Error("Invalid password type");
   } else {
-    const crypto = require("node:crypto");
+    const crypto = require("crypto");
     const hash = crypto.createHash("sha256")
       .update(password)
       .digest("hex");
