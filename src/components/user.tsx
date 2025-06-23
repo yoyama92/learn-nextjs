@@ -1,0 +1,77 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useId } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import type * as z from "zod/v4";
+
+import { postUser } from "@/actions/user";
+import { userSchema, userSchemaKeys } from "@/lib/zod";
+
+export const UserInfo = (
+  { user }: { user: { name: string; email: string } },
+) => {
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors, isDirty, isSubmitting },
+  } = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      name: user.name,
+    },
+  });
+
+  const onSubmit: SubmitHandler<z.infer<typeof userSchema>> = async (data) => {
+    try {
+      const result = await postUser(data);
+      if (result) {
+        reset({ name: result.name });
+        window.alert(`更新しました\n${JSON.stringify(result, null, 2)}`);
+      } else {
+        window.alert("更新に失敗しました");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        window.alert(`Error updating user: ${error.message}`);
+      }
+    }
+  };
+  const userNameId = useId();
+  return (
+    <form
+      className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <h2 className="text-lg font-bold">
+        ユーザー情報
+      </h2>
+      <div className="flex flex-col ">
+        <span>Email:{user.email}</span>
+      </div>
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">名前</legend>
+        <input
+          id={userNameId}
+          className={`input ${errors.name ? "input-error" : ""}`}
+          type="text"
+          placeholder="名前を入力"
+          {...register(userSchemaKeys.name)}
+        />
+        {errors.name && (
+          <p className="text-error text-xs">{errors.name.message}</p>
+        )}
+      </fieldset>
+      <div>
+        <button
+          className="btn btn-primary"
+          type="submit"
+          disabled={!isDirty || isSubmitting}
+        >
+          更新
+        </button>
+      </div>
+    </form>
+  );
+};
