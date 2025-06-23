@@ -58,6 +58,7 @@ export const UserInfo = (
           type="text"
           placeholder="名前を入力"
           {...register(userSchemaKeys.name)}
+          disabled={isSubmitting}
         />
         {errors.name && (
           <p className="text-error text-xs">{errors.name.message}</p>
@@ -69,7 +70,13 @@ export const UserInfo = (
           type="submit"
           disabled={!isDirty || isSubmitting}
         >
-          更新
+          {isSubmitting
+            ? (
+              <span className="loading loading-spinner loading-md">
+                Loading...
+              </span>
+            )
+            : "更新"}
         </button>
       </div>
     </form>
