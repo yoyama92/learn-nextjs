@@ -12,57 +12,36 @@ export const metadata: Metadata = {
   title: "User Profile - Next.js Sample App",
 };
 
-export default function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function Page() {
   return (
     <Suspense
       fallback={<Loading />}
     >
-      <AsyncPage params={params} />
+      <AsyncPage />
     </Suspense>
   );
 }
 
-const AsyncPage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
+const AsyncPage = async () => {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/sign-in");
   }
 
-  const { id } = await params;
-
-  if (session?.user?.id !== id) {
-    redirect(`/users/${session?.user?.id}`);
+  const userInfo = await getUser(session.user.id);
+  if (!userInfo) {
+    notFound();
   }
 
   return (
     <div className="flex flex-col gap-4">
       <SignOut />
-      <AsyncUserInfo user={{ id: session.user.id }} />
+      <UserInfo
+        user={{
+          name: userInfo.name,
+          email: userInfo.email,
+        }}
+      />
     </div>
-  );
-};
-
-const AsyncUserInfo = async (
-  { user }: { user: { id: string } },
-) => {
-  const userInfo = await getUser(user.id);
-  if (!userInfo) {
-    notFound();
-  }
-  return (
-    <UserInfo
-      user={{
-        name: userInfo.name,
-        email: userInfo.email,
-      }}
-    />
   );
 };

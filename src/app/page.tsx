@@ -20,5 +20,5 @@ const AsyncPage = async () => {
     redirect("/sign-in");
   }
 
-  redirect(`/users/${session?.user?.id}`);
+  redirect("/account");
 };
