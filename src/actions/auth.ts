@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
 import { signIn as auth, signOut as signOutFn } from "@/lib/auth";
-import { signInSchema, signInSchemaKeys } from "@/lib/zod";
+import { signInSchema } from "@/lib/zod";
 
 export const signIn = async (
   _: unknown,
@@ -14,10 +14,9 @@ export const signIn = async (
   formData: FormData;
 }> => {
   try {
-    const parseResult = signInSchema.safeParse({
-      email: formData.get(signInSchemaKeys.email),
-      password: formData.get(signInSchemaKeys.password),
-    });
+    const parseResult = signInSchema.safeParse(
+      Object.fromEntries(formData.entries()),
+    );
 
     if (!parseResult.success) {
       return {
