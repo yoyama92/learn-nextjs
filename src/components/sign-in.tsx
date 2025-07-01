@@ -62,6 +62,9 @@ export const SignIn = () => {
         >
           Sign In
         </button>
+        <a href="/password-reset" className="link link-primary mt-2">
+          Forgot your password?
+        </a>
       </fieldset>
     </form>
   );
