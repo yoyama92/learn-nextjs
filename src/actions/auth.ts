@@ -5,6 +5,7 @@ import { CredentialsSignin } from "next-auth";
 
 import { signIn as auth, signOut as signOutFn } from "@/lib/auth";
 import { signInSchema } from "@/lib/zod";
+import { passwordReminder } from "@/server/services/authService";
 
 export const signIn = async (
   _: unknown,
@@ -25,13 +26,10 @@ export const signIn = async (
       };
     }
 
-    await auth(
-      "credentials",
-      {
-        ...parseResult.data,
-        redirect: false,
-      },
-    );
+    await auth("credentials", {
+      ...parseResult.data,
+      redirect: false,
+    });
   } catch (error) {
     if (error instanceof CredentialsSignin) {
       return {
@@ -51,4 +49,33 @@ export const signOut = async () => {
     redirect: true,
     redirectTo: "/sign-in",
   });
+};
+
+export const resetPassword = async (
+  _: unknown,
+  formData: FormData,
+): Promise<{
+  success?: boolean;
+  error?: string;
+  formData: FormData;
+}> => {
+  const email = formData.get("email")?.toString();
+
+  if (!email) {
+    return { error: "メールアドレスを入力してください。", formData: formData };
+  }
+
+  try {
+    const result = await passwordReminder(email);
+    return {
+      success: result.success,
+      error: result.success ? "" : "パスワードの初期化に失敗しました。",
+      formData: formData,
+    };
+  } catch {
+    return {
+      error: "システムエラーが発生しました。",
+      formData: formData,
+    };
+  }
 };
