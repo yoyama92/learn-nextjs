@@ -45,6 +45,17 @@ export const verifyPassword = (
   inputPassword: string,
   storedPassword: string,
 ): boolean => {
+  const crypto = require("crypto");
   const hashedInput = hashPassword(inputPassword);
-  return hashedInput === storedPassword;
+
+  // Convert both hashes to Buffers for timingSafeEqual
+  const hashedInputBuffer = Buffer.from(hashedInput, "hex");
+  const storedPasswordBuffer = Buffer.from(storedPassword, "hex");
+
+  // If lengths differ, immediately return false to avoid errors
+  if (hashedInputBuffer.length !== storedPasswordBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(hashedInputBuffer, storedPasswordBuffer);
 };
