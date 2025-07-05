@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import type * as z from "zod/v4";
@@ -8,9 +9,11 @@ import type * as z from "zod/v4";
 import { postUser } from "@/actions/user";
 import { userSchema, userSchemaKeys } from "@/lib/zod";
 
-export const UserInfo = (
-  { user }: { user: { name: string; email: string } },
-) => {
+export const UserInfo = ({
+  user,
+}: {
+  user: { name: string; email: string };
+}) => {
   const {
     register,
     reset,
@@ -44,9 +47,7 @@ export const UserInfo = (
       className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <h2 className="text-lg font-bold">
-        ユーザー情報
-      </h2>
+      <h2 className="text-lg font-bold">ユーザー情報</h2>
       <div className="flex flex-col ">
         <span>Email:{user.email}</span>
       </div>
@@ -70,15 +71,18 @@ export const UserInfo = (
           type="submit"
           disabled={!isDirty || isSubmitting}
         >
-          {isSubmitting
-            ? (
-              <span className="loading loading-spinner loading-md">
-                Loading...
-              </span>
-            )
-            : "更新"}
+          {isSubmitting ? (
+            <span className="loading loading-spinner loading-md">
+              Loading...
+            </span>
+          ) : (
+            "更新"
+          )}
         </button>
       </div>
+      <Link href="/account/password" className="link link-primary">
+        パスワードを変更する
+      </Link>
     </form>
   );
 };

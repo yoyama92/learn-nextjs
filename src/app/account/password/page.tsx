@@ -3,12 +3,12 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Loading } from "@/components/loading";
-import { UserInfo } from "@/components/user";
+import { PasswordChangeForm } from "@/components/password-change";
 import { auth } from "@/lib/auth";
 import { getUser } from "@/server/services/userService";
 
 export const metadata: Metadata = {
-  title: "User Profile - Next.js Sample App",
+  title: "Change Password - Next.js Sample App",
 };
 
 export default function Page() {
@@ -31,11 +31,12 @@ const AsyncPage = async () => {
   }
 
   return (
-    <UserInfo
-      user={{
-        name: userInfo.name,
-        email: userInfo.email,
-      }}
-    />
+    <div className="flex justify-center items-center flex-1">
+      <PasswordChangeForm
+        user={{
+          email: userInfo.email,
+        }}
+      />
+    </div>
   );
 };
