@@ -15,18 +15,17 @@ export const hashPassword = (password?: unknown): string => {
 
 /**
  * ランダムなパスワードを生成する関数。
+ * Edge Runtimeではサポートされていないため、通常のNode.js環境でのみ使用する。
  * @param length 生成するパスワードの長さ
+ * @throws エッジランタイムではnode:cryptoがサポートされていないためエラーを投げる。
  * @returns
  */
 export const generateRandomPassword = (length: number): string => {
-  const charset =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    password += charset[randomIndex];
+  if (process.env.NEXT_RUNTIME === "edge") {
+    throw new Error("Password hashing is not supported in Edge Runtime");
   }
-  return password;
+  const crypto = require("node:crypto");
+  return crypto.randomBytes(length).toString("base64").slice(0, length);
 };
 
 /**
@@ -39,6 +38,9 @@ export const verifyPassword = (
   inputPassword: string,
   storedPassword: string,
 ): boolean => {
+  if (process.env.NEXT_RUNTIME === "edge") {
+    throw new Error("Password hashing is not supported in Edge Runtime");
+  }
   const hashedInput = hashPassword(inputPassword);
 
   // Convert both hashes to Buffers for timingSafeEqual
@@ -50,5 +52,6 @@ export const verifyPassword = (
     return false;
   }
 
-  return bcrypt.compareSync(inputPassword, storedPassword);
+  const crypto = require("node:crypto");
+  return crypto.timingSafeEqual(hashedInputBuffer, storedPasswordBuffer);
 };
