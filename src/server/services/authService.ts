@@ -1,7 +1,11 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 import type { User } from "@/generated/prisma";
-import { generateRandomPassword, hashPassword } from "@/utils/password";
+import {
+  generateRandomPassword,
+  hashPassword,
+  verifyPassword,
+} from "@/utils/password";
 import { prisma } from "../db/client";
 
 const sesClient = new SESv2Client({
@@ -20,13 +24,20 @@ export const authorizeUser = async (
   email: string,
   password: string,
 ): Promise<User | null> => {
-  const pwHash = hashPassword(password);
   const user = await prisma.user.findUnique({
     where: {
       email: email,
-      password: pwHash,
+      // password: pwHash,
     },
   });
+  if (!user || !user.password) {
+    return null;
+  }
+  // パスワードの検証
+  const isPasswordValid = verifyPassword(password, user.password);
+  if (!isPasswordValid) {
+    return null;
+  }
   return user;
 };
 
