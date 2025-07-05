@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import type * as z from "zod/v4";
@@ -79,9 +80,9 @@ export const UserInfo = ({
           )}
         </button>
       </div>
-      <a href="/account/password" className="link link-primary">
+      <Link href="/account/password" className="link link-primary">
         パスワードを変更する
-      </a>
+      </Link>
     </form>
   );
 };

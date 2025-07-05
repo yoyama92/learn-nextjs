@@ -1,5 +1,5 @@
 import type { User } from "@/generated/prisma";
-import { saltAndHashPassword } from "@/utils/password";
+import { saltAndHashPassword, verifyPassword } from "@/utils/password";
 import { prisma } from "../db/client";
 
 export const getUser = async (
@@ -65,13 +65,18 @@ export const updateUserPassword = async (
     return { success: false };
   }
 
-  const pwHash = saltAndHashPassword(data.currentPassword);
   const user = await prisma.user.findUnique({
-    where: { id: id, deletedAt: null, password: pwHash },
+    where: { id: id, deletedAt: null },
   });
 
   // パスワードが一致しない場合は失敗
-  if (!user) {
+  if (!user || !user.password) {
+    return { success: false };
+  }
+
+  // パスワード検証関数を使って比較
+  const isPasswordValid = verifyPassword(data.currentPassword, user.password);
+  if (!isPasswordValid) {
     return { success: false };
   }
 

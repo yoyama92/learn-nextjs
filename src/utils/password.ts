@@ -5,9 +5,7 @@
  * @throws エッジランタイムではnode:cryptoがサポートされていないためエラーを投げる。
  * @returns
  */
-export const saltAndHashPassword = (
-  password?: unknown,
-): string => {
+export const saltAndHashPassword = (password?: unknown): string => {
   if (process.env.NEXT_RUNTIME === "edge") {
     throw new Error("Password hashing is not supported in Edge Runtime");
   }
@@ -17,9 +15,7 @@ export const saltAndHashPassword = (
     throw new Error("Invalid password type");
   } else {
     const crypto = require("crypto");
-    const hash = crypto.createHash("sha256")
-      .update(password)
-      .digest("hex");
+    const hash = crypto.createHash("sha256").update(password).digest("hex");
     return hash;
   }
 };
@@ -36,7 +32,19 @@ export const generateRandomPassword = (length: number): string => {
     throw new Error("Password hashing is not supported in Edge Runtime");
   }
   const crypto = require("crypto");
-  return crypto.randomBytes(length)
-    .toString("base64")
-    .slice(0, length);
+  return crypto.randomBytes(length).toString("base64").slice(0, length);
+};
+
+/**
+ * パスワードを検証する関数。
+ * @param inputPassword 検証するパスワード
+ * @param storedPassword 保存されているハッシュ化されたパスワード
+ * @returns 入力されたパスワードが保存されているパスワードと一致するかどうか
+ */
+export const verifyPassword = (
+  inputPassword: string,
+  storedPassword: string,
+): boolean => {
+  const hashedInput = saltAndHashPassword(inputPassword);
+  return hashedInput === storedPassword;
 };
