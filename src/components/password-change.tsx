@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -53,11 +54,10 @@ export const PasswordChangeForm = ({
           Change your account password
         </h2>
         <input
-          type="text"
+          type="hidden"
           name="email"
           autoComplete="email"
           value={user.email}
-          hidden
           readOnly
         />
         <fieldset className="fieldset">
@@ -122,9 +122,9 @@ export const PasswordChangeForm = ({
         >
           Send Password Change Request
         </button>
-        <a href="/account" className="link link-primary mt-2">
+        <Link href="/account" className="link link-primary mt-2">
           Back to Account
-        </a>
+        </Link>
       </fieldset>
     </form>
   );

@@ -1,7 +1,7 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 import type { User } from "@/generated/prisma";
-import { generateRandomPassword, saltAndHashPassword } from "@/utils/password";
+import { generateRandomPassword, hashPassword } from "@/utils/password";
 import { prisma } from "../db/client";
 
 const sesClient = new SESv2Client({
@@ -20,7 +20,7 @@ export const authorizeUser = async (
   email: string,
   password: string,
 ): Promise<User | null> => {
-  const pwHash = saltAndHashPassword(password);
+  const pwHash = hashPassword(password);
   const user = await prisma.user.findUnique({
     where: {
       email: email,
@@ -49,7 +49,7 @@ export const passwordReminder = async (
   const newPassword = generateRandomPassword(
     12 + Math.floor(Math.random() * 4),
   );
-  const pwHash = saltAndHashPassword(newPassword);
+  const pwHash = hashPassword(newPassword);
   await prisma.user.update({
     where: { id: user.id },
     data: { password: pwHash },

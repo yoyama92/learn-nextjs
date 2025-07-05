@@ -5,7 +5,7 @@
  * @throws エッジランタイムではnode:cryptoがサポートされていないためエラーを投げる。
  * @returns
  */
-export const saltAndHashPassword = (password?: unknown): string => {
+export const hashPassword = (password?: unknown): string => {
   if (process.env.NEXT_RUNTIME === "edge") {
     throw new Error("Password hashing is not supported in Edge Runtime");
   }
@@ -45,6 +45,6 @@ export const verifyPassword = (
   inputPassword: string,
   storedPassword: string,
 ): boolean => {
-  const hashedInput = saltAndHashPassword(inputPassword);
+  const hashedInput = hashPassword(inputPassword);
   return hashedInput === storedPassword;
 };

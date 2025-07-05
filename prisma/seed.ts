@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/generated/prisma";
-import { saltAndHashPassword } from "@/utils/password";
+import { hashPassword } from "@/utils/password";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ const main = async () => {
     data: {
       name: "Alice",
       email: "alice@example.com",
-      password: saltAndHashPassword("aaaaaaaa"),
+      password: hashPassword("aaaaaaaa"),
     },
   });
   console.log({ alice });

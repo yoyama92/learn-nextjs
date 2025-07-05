@@ -1,5 +1,5 @@
 import type { User } from "@/generated/prisma";
-import { saltAndHashPassword, verifyPassword } from "@/utils/password";
+import { hashPassword, verifyPassword } from "@/utils/password";
 import { prisma } from "../db/client";
 
 export const getUser = async (
@@ -85,7 +85,7 @@ export const updateUserPassword = async (
       id: user.id,
     },
     data: {
-      password: saltAndHashPassword(data.newPassword),
+      password: hashPassword(data.newPassword),
     },
     select: {
       id: true,
