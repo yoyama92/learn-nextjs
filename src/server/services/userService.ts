@@ -1,22 +1,31 @@
-import type { User } from "@/generated/prisma";
+import type { Prisma, User } from "@/generated/prisma";
 import { hashPassword, verifyPassword } from "@/utils/password";
 import { prisma } from "../db/client";
 
+const userSelectArg = {
+  id: true,
+  name: true,
+  email: true,
+  createdAt: true,
+  updatedAt: true,
+  role: {
+    select: {
+      isAdmin: true,
+    },
+  },
+};
+
 export const getUser = async (
   id: string,
-): Promise<Pick<User, "name" | "email"> | null> => {
+): Promise<Prisma.UserGetPayload<{
+  select: typeof userSelectArg;
+}> | null> => {
   const user = await prisma.user.findUnique({
     where: {
       id: id,
       deletedAt: null,
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-      updatedAt: true,
-    },
+    select: userSelectArg,
   });
   return user;
 };

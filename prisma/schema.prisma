@@ -8,6 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// ユーザー
 model User {
   id       String @id @default(uuid()) @db.Uuid /// ID
   email    String @unique /// メールアドレス
@@ -18,5 +19,16 @@ model User {
   updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") /// 更新日時
   deletedAt DateTime? @map("deleted_at") /// 削除日
 
+  role UserRole? /// ユーザーの権限
+
   @@map("users")
+}
+
+/// ユーザーの権限
+model UserRole {
+  userId  String  @unique @db.Uuid /// ID
+  user    User    @relation(fields: [userId], references: [id]) /// ユーザー  
+  isAdmin Boolean @default(false) @map("is_admin") /// 管理者フラグ
+
+  @@map("user_roles")
 }
