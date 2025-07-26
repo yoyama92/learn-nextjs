@@ -61,29 +61,45 @@ export const passwordReminder = async (
     12 + Math.floor(Math.random() * 4),
   );
   const pwHash = hashPassword(newPassword);
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { password: pwHash },
-  });
-
-  const emailParams = {
-    Destination: {
-      ToAddresses: [email],
-    },
-    Content: {
-      Simple: {
-        Subject: {
-          Data: "Password Reset",
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: user.id },
+        data: { password: pwHash },
+      });
+      if (!updatedUser) {
+        return { success: false };
+      }
+      const emailParams = {
+        Destination: {
+          ToAddresses: [email],
         },
-        Body: {
-          Text: {
-            Data: `Your new password is: ${newPassword}`,
+        Content: {
+          Simple: {
+            Subject: {
+              Data: "Password Reset",
+            },
+            Body: {
+              Text: {
+                Data: `Your new password is: ${newPassword}`,
+              },
+            },
           },
         },
-      },
-    },
-    FromEmailAddress: process.env.AWS_SES_FROM_EMAIL || "",
-  };
-  await sesClient.send(new SendEmailCommand(emailParams));
-  return { success: true };
+        FromEmailAddress: process.env.AWS_SES_FROM_EMAIL || "",
+      };
+      const result = await sesClient.send(new SendEmailCommand(emailParams));
+
+      // メールの送信に失敗した場合は、パスワード更新をロールバックする。
+      if (result.$metadata.httpStatusCode !== 200) {
+        console.error("Failed to send email:", result);
+        throw new Error("Failed to send email");
+      }
+      console.log("Email sent successfully:", result);
+      return { success: true };
+    });
+  } catch (error) {
+    console.error("Error in password reminder:", error);
+    return { success: false };
+  }
 };
