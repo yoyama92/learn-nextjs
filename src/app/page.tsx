@@ -6,9 +6,7 @@ import { auth } from "@/lib/auth";
 
 export default function Home() {
   return (
-    <Suspense
-      fallback={<Loading />}
-    >
+    <Suspense fallback={<Loading />}>
       <AsyncPage />
     </Suspense>
   );
