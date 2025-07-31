@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useId, useRef } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type * as z from "zod/v4";
+import type * as z from "zod";
 
 import { postNewUser } from "@/actions/admin";
 import { createUserSchema, createUserSchemaKeys } from "@/lib/zod";
