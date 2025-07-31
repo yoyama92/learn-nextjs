@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type * as z from "zod/v4";
+import type * as z from "zod";
 
 import { changePassword } from "@/actions/user";
 import { passwordChangeSchema, passwordChangeSchemaKeys } from "@/lib/zod";

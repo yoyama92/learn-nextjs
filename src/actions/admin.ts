@@ -1,6 +1,6 @@
 "use server";
 
-import type * as z from "zod/v4";
+import type * as z from "zod";
 
 import { authHandler } from "@/lib/auth";
 import type { createUserSchema } from "@/lib/zod";
