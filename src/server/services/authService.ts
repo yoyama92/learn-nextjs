@@ -1,24 +1,11 @@
-import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
-
 import type { User } from "@/generated/prisma";
 import {
   generateRandomPassword,
   hashPassword,
   verifyPassword,
 } from "@/utils/password";
-import { prisma } from "../db/client";
-
-const sesClient = new SESv2Client({
-  region: process.env.AWS_REGION,
-  endpoint: process.env.AWS_SES_ENDPOINT,
-  credentials:
-    process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-      ? {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        }
-      : undefined,
-});
+import { prisma } from "../infrastructures/db";
+import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
 export const authorizeUser = async (
   email: string,

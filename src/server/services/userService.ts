@@ -1,24 +1,65 @@
-import type { User } from "@/generated/prisma";
-import { hashPassword, verifyPassword } from "@/utils/password";
-import { prisma } from "../db/client";
+import type { Prisma, User } from "@/generated/prisma";
+import {
+  generateRandomPassword,
+  hashPassword,
+  verifyPassword,
+} from "@/utils/password";
+import { prisma } from "../infrastructures/db";
+import { SendEmailCommand, sesClient } from "../infrastructures/ses";
+
+const userSelectArg = {
+  id: true,
+  name: true,
+  email: true,
+  createdAt: true,
+  updatedAt: true,
+  role: {
+    select: {
+      isAdmin: true,
+    },
+  },
+} satisfies Prisma.UserSelect;
 
 export const getUser = async (
   id: string,
-): Promise<Pick<User, "name" | "email"> | null> => {
+): Promise<Prisma.UserGetPayload<{
+  select: typeof userSelectArg;
+}> | null> => {
   const user = await prisma.user.findUnique({
     where: {
       id: id,
       deletedAt: null,
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-      updatedAt: true,
-    },
+    select: userSelectArg,
   });
   return user;
+};
+
+const usersSelectArg = {
+  id: true,
+  name: true,
+  email: true,
+  createdAt: true,
+  updatedAt: true,
+  role: {
+    select: {
+      isAdmin: true,
+    },
+  },
+} satisfies Prisma.UserSelect;
+
+export const getUsers = async (): Promise<
+  Prisma.UserGetPayload<{
+    select: typeof usersSelectArg;
+  }>[]
+> => {
+  const users = await prisma.user.findMany({
+    where: {
+      deletedAt: null,
+    },
+    select: usersSelectArg,
+  });
+  return users;
 };
 
 export const updateUser = async (
@@ -92,4 +133,59 @@ export const updateUserPassword = async (
     },
   });
   return { success: true };
+};
+
+export const createUser = async (data: {
+  name: string;
+  email: string;
+  isAdmin?: boolean;
+}): Promise<{
+  mailSent: boolean;
+}> => {
+  const newPassword = generateRandomPassword(
+    12 + Math.floor(Math.random() * 4),
+  );
+
+  const user = await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      password: hashPassword(newPassword),
+      role: {
+        create: {
+          isAdmin: data.isAdmin ?? false, // デフォルトは非管理者
+        },
+      },
+    },
+  });
+
+  try {
+    const emailParams = {
+      Destination: {
+        ToAddresses: [user.email],
+      },
+      Content: {
+        Simple: {
+          Subject: {
+            Data: "Invitation to Join",
+          },
+          Body: {
+            Text: {
+              Data: `Your password is: ${newPassword}`,
+            },
+          },
+        },
+      },
+      FromEmailAddress: process.env.AWS_SES_FROM_EMAIL || "",
+    };
+    const result = await sesClient.send(new SendEmailCommand(emailParams));
+    return {
+      mailSent: result.$metadata.httpStatusCode === 200,
+    };
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return {
+      mailSent: false,
+    };
+  }
 };

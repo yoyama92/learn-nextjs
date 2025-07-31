@@ -4,7 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "@/lib/zod";
 import { authorizeUser } from "@/server/services/authService";
 import { getUser } from "@/server/services/userService";
-import { unauthorized } from "@/utils/error";
+import { forbidden, unauthorized } from "@/utils/error";
 
 export const { signIn, signOut, auth } = NextAuth({
   providers: [
@@ -15,9 +15,7 @@ export const { signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          const { email, password } = signInSchema.parse(
-            credentials,
-          );
+          const { email, password } = signInSchema.parse(credentials);
 
           // logic to verify if the user exists
           const user = await authorizeUser(email, password);
@@ -71,8 +69,13 @@ export const { signIn, signOut, auth } = NextAuth({
   },
 });
 
+export type AuthHandlerCallback<T> = (id: string, user: User) => Promise<T>;
+
 export const authHandler = async <T>(
-  callback: (id: string, user: User) => Promise<T>,
+  callback: AuthHandlerCallback<T>,
+  options?: {
+    adminOnly?: boolean;
+  },
 ): Promise<T> => {
   const session = await auth();
   if (!session?.user?.id) {
@@ -82,6 +85,10 @@ export const authHandler = async <T>(
   const user = await getUser(session.user.id);
   if (user === null) {
     unauthorized();
+  }
+
+  if (options?.adminOnly && !user.role?.isAdmin) {
+    forbidden();
   }
 
   return callback(session.user.id, user);
