@@ -2,9 +2,10 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Loading } from "@/components/loading";
+import { UserList } from "@/components/users";
 import { auth } from "@/lib/auth";
-import { getUser } from "@/server/services/userService";
-import { forbidden } from "@/utils/error";
+import { getUser, getUsers } from "@/server/services/userService";
+import { forbidden } from "@/utils/navigation";
 
 export default function AdminPage() {
   return (
@@ -29,11 +30,17 @@ const AsyncPage = async () => {
     forbidden();
   }
 
+  const users = await getUsers();
   return (
-    <div className="flex flex-col justify-center items-center">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-      <p className="mt-4">Welcome, {userInfo.name}!</p>
-      <p className="mt-2">You have administrative privileges.</p>
-    </div>
+    <UserList
+      users={users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isAdmin: user.role?.isAdmin,
+      }))}
+    />
   );
 };

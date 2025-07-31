@@ -9,6 +9,12 @@ z.config({
         return "必須項目です。";
       }
     }
+
+    if (iss.code === "invalid_format") {
+      if (iss.format === "email") {
+        return "メールアドレスの形式が正しくありません。";
+      }
+    }
   },
 });
 
@@ -42,3 +48,11 @@ export const passwordChangeSchema = z
   );
 
 export const passwordChangeSchemaKeys = passwordChangeSchema.keyof().enum;
+
+export const createUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.email().min(1),
+  isAdmin: z.boolean().optional(),
+});
+
+export const createUserSchemaKeys = createUserSchema.keyof().enum;
