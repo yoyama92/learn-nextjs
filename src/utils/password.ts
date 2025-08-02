@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 
+import { envStore } from "@/lib/env";
+
 /**
  * パスワードをハッシュ化する関数。
  * @param password　ハッシュ化するパスワード
@@ -21,10 +23,11 @@ export const hashPassword = (password?: unknown): string => {
  * @returns
  */
 export const generateRandomPassword = (length: number): string => {
-  if (process.env.NEXT_RUNTIME === "edge") {
+  if (envStore.NEXT_RUNTIME === "edge") {
     throw new Error("Password hashing is not supported in Edge Runtime");
   }
-  const crypto = require("node:crypto");
+
+  const crypto = require("crypto");
   return crypto.randomBytes(length).toString("base64").slice(0, length);
 };
 
@@ -38,7 +41,7 @@ export const verifyPassword = (
   inputPassword: string,
   storedPassword: string,
 ): boolean => {
-  if (process.env.NEXT_RUNTIME === "edge") {
+  if (envStore.NEXT_RUNTIME === "edge") {
     throw new Error("Password hashing is not supported in Edge Runtime");
   }
   const hashedInput = hashPassword(inputPassword);
@@ -52,6 +55,6 @@ export const verifyPassword = (
     return false;
   }
 
-  const crypto = require("node:crypto");
+  const crypto = require("crypto");
   return crypto.timingSafeEqual(hashedInputBuffer, storedPasswordBuffer);
 };

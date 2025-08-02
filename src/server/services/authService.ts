@@ -1,4 +1,5 @@
 import type { User } from "@/generated/prisma";
+import { envStore } from "@/lib/env";
 import {
   generateRandomPassword,
   hashPassword,
@@ -73,7 +74,7 @@ export const passwordReminder = async (
             },
           },
         },
-        FromEmailAddress: process.env.AWS_SES_FROM_EMAIL || "",
+        FromEmailAddress: envStore.AWS_SES_FROM_EMAIL || "",
       };
       const result = await sesClient.send(new SendEmailCommand(emailParams));
 
