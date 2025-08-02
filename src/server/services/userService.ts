@@ -1,4 +1,5 @@
 import type { Prisma, User } from "@/generated/prisma";
+import { envStore } from "@/lib/env";
 import {
   generateRandomPassword,
   hashPassword,
@@ -176,7 +177,7 @@ export const createUser = async (data: {
           },
         },
       },
-      FromEmailAddress: process.env.AWS_SES_FROM_EMAIL || "",
+      FromEmailAddress: envStore.AWS_SES_FROM_EMAIL || "",
     };
     const result = await sesClient.send(new SendEmailCommand(emailParams));
     return {
