@@ -24,5 +24,7 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
+      - name: Test App
+        run: pnpm test
       - name: Build App
         run: pnpm build

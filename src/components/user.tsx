@@ -80,7 +80,7 @@ export const UserInfo = ({
           )}
         </button>
       </div>
-      <Link href="/account/password" className="link link-primary">
+      <Link href="/account/password" className="link link-primary w-fit">
         パスワードを変更する
       </Link>
     </form>
