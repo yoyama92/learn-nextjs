@@ -11,11 +11,15 @@ import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 export const authorizeUser = async (
   email: string,
   password: string,
-): Promise<User | null> => {
+): Promise<Pick<User, "id"> | null> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
       // password: pwHash,
+    },
+    select: {
+      id: true,
+      password: true,
     },
   });
   if (!user || !user.password) {
@@ -26,7 +30,11 @@ export const authorizeUser = async (
   if (!isPasswordValid) {
     return null;
   }
-  return user;
+
+  // 漏洩防止のためにパスワードを返さない
+  return {
+    id: user.id,
+  };
 };
 
 /**
@@ -39,6 +47,9 @@ export const passwordReminder = async (
 ): Promise<{ success: boolean }> => {
   const user = await prisma.user.findUnique({
     where: { email: email },
+    select: {
+      id: true,
+    },
   });
   if (!user) {
     return { success: false };

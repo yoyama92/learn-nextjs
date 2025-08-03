@@ -2,8 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useId, useRef } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import {
+  type ForwardedRef,
+  type HTMLInputTypeAttribute,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+} from "react";
+import {
+  type SubmitHandler,
+  type UseFormRegisterReturn,
+  useForm,
+} from "react-hook-form";
 
 import { postNewUser } from "@/actions/admin";
 import {
@@ -12,9 +23,82 @@ import {
   createUserSchemaKeys,
 } from "@/schemas/admin";
 
-export const NewUserModal = () => {
+const useFormIds = (): Record<keyof CreateUserSchema, string> => {
+  const userNameId = useId();
+  const emailId = useId();
+  const isAdminId = useId();
+  return {
+    name: userNameId,
+    email: emailId,
+    isAdmin: isAdminId,
+  };
+};
+
+const TextInput = ({
+  label,
+  id,
+  errors,
+  register,
+  placeholder,
+  type,
+  disabled,
+}: {
+  label: string;
+  id: string;
+  errors?: string;
+  type?: HTMLInputTypeAttribute;
+  placeholder?: string;
+  disabled?: boolean;
+  register: UseFormRegisterReturn<keyof CreateUserSchema>;
+}) => {
+  return (
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">{label}</legend>
+      <input
+        id={id}
+        className={`input ${errors ? "input-error" : ""}`}
+        type={type ?? "text"}
+        placeholder={placeholder}
+        {...register}
+        disabled={disabled}
+      />
+      {errors && <p className="text-error text-xs">{errors}</p>}
+    </fieldset>
+  );
+};
+
+const useDialog = ({ onClose }: { onClose: () => void }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const router = useRouter();
+
+  useEffect(() => {
+    const handleClose = () => {
+      onClose();
+    };
+    if (dialogRef.current) {
+      dialogRef.current.addEventListener("close", handleClose);
+    }
+
+    return () => {
+      if (dialogRef.current) {
+        dialogRef.current.removeEventListener("close", handleClose);
+      }
+    };
+  }, [onClose]);
+
+  return dialogRef;
+};
+
+const NewUserForm = ({
+  done,
+  onClose,
+  ref,
+}: {
+  done: () => void;
+  onClose: () => void;
+  ref: ForwardedRef<{
+    reset: () => void;
+  }>;
+}) => {
   const {
     register,
     reset,
@@ -24,9 +108,12 @@ export const NewUserModal = () => {
     resolver: zodResolver(createUserSchema),
   });
 
-  dialogRef.current?.addEventListener("close", () => {
-    reset();
-  });
+  // 外部に公開するメソッド
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      reset();
+    },
+  }));
 
   const onSubmit: SubmitHandler<CreateUserSchema> = async (data) => {
     try {
@@ -42,8 +129,7 @@ export const NewUserModal = () => {
       } else {
         window.alert(`User created, but email sending failed:${data.email}`);
       }
-      router.refresh();
-      dialogRef.current?.close();
+      done();
     } catch (error) {
       if (error instanceof Error) {
         window.alert(`Error creating user: ${error.message}`);
@@ -51,9 +137,74 @@ export const NewUserModal = () => {
     }
   };
 
-  const userNameId = useId();
-  const emailId = useId();
-  const isAdminId = useId();
+  const formIds = useFormIds();
+  return (
+    <form className="modal-box" onSubmit={handleSubmit(onSubmit)}>
+      <h3 className="font-bold text-lg">Create New User</h3>
+      <TextInput
+        label="名前"
+        id={formIds.name}
+        errors={errors.name?.message}
+        register={register(createUserSchemaKeys.name)}
+        type="text"
+        placeholder="名前を入力"
+        disabled={isSubmitting}
+      />
+      <TextInput
+        label="メールアドレス"
+        id={formIds.email}
+        errors={errors.email?.message}
+        register={register(createUserSchemaKeys.email)}
+        type="email"
+        placeholder="メールアドレスを入力"
+        disabled={isSubmitting}
+      />
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">管理者フラグ</legend>
+        <input
+          id={formIds.isAdmin}
+          className="checkbox"
+          type="checkbox"
+          {...register(createUserSchemaKeys.isAdmin)}
+          disabled={isSubmitting}
+        />
+        {errors.isAdmin && (
+          <p className="text-error text-xs">{errors.isAdmin.message}</p>
+        )}
+      </fieldset>
+      <div className="modal-action flex flex-row gap-1">
+        <button className="btn btn-primary" type="submit">
+          {isSubmitting ? (
+            <span className="loading loading-spinner loading-md">
+              Loading...
+            </span>
+          ) : (
+            "確定"
+          )}
+        </button>
+        <button
+          className="btn"
+          type="button"
+          onClick={() => {
+            onClose();
+          }}
+        >
+          閉じる
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export const NewUserModal = () => {
+  const formRef = useRef<{ reset: () => void }>(null);
+  const dialogRef = useDialog({
+    onClose: () => {
+      formRef.current?.reset();
+    },
+  });
+  const router = useRouter();
+
   return (
     <>
       <button
@@ -64,68 +215,16 @@ export const NewUserModal = () => {
         Add User
       </button>
       <dialog className="modal" ref={dialogRef}>
-        <form className="modal-box" onSubmit={handleSubmit(onSubmit)}>
-          <h3 className="font-bold text-lg">Create New User</h3>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">名前</legend>
-            <input
-              id={userNameId}
-              className={`input ${errors.name ? "input-error" : ""}`}
-              type="text"
-              placeholder="名前を入力"
-              {...register(createUserSchemaKeys.name)}
-              disabled={isSubmitting}
-            />
-            {errors.name && (
-              <p className="text-error text-xs">{errors.name.message}</p>
-            )}
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">メールアドレス</legend>
-            <input
-              id={emailId}
-              className={`input ${errors.email ? "input-error" : ""}`}
-              type="email"
-              placeholder="メールアドレスを入力"
-              {...register(createUserSchemaKeys.email)}
-              disabled={isSubmitting}
-            />
-            {errors.email && (
-              <p className="text-error text-xs">{errors.email.message}</p>
-            )}
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">管理者フラグ</legend>
-            <input
-              id={isAdminId}
-              className="checkbox"
-              type="checkbox"
-              {...register(createUserSchemaKeys.isAdmin)}
-              disabled={isSubmitting}
-            />
-            {errors.isAdmin && (
-              <p className="text-error text-xs">{errors.isAdmin.message}</p>
-            )}
-          </fieldset>
-          <div className="modal-action flex flex-row gap-1">
-            <button className="btn btn-primary" type="submit">
-              {isSubmitting ? (
-                <span className="loading loading-spinner loading-md">
-                  Loading...
-                </span>
-              ) : (
-                "確定"
-              )}
-            </button>
-            <button
-              className="btn"
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-            >
-              閉じる
-            </button>
-          </div>
-        </form>
+        <NewUserForm
+          ref={formRef}
+          done={() => {
+            router.refresh();
+            dialogRef.current?.close();
+          }}
+          onClose={() => {
+            dialogRef.current?.close();
+          }}
+        />
       </dialog>
     </>
   );

@@ -8,6 +8,13 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { postUser } from "@/actions/user";
 import { type UserSchema, userSchema, userSchemaKeys } from "@/schemas/user";
 
+const useFormIds = (): Record<keyof UserSchema, string> => {
+  const userNameId = useId();
+  return {
+    name: userNameId,
+  };
+};
+
 export const UserInfo = ({
   user,
 }: {
@@ -40,7 +47,8 @@ export const UserInfo = ({
       }
     }
   };
-  const userNameId = useId();
+
+  const formIds = useFormIds();
   return (
     <form
       className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box"
@@ -53,7 +61,7 @@ export const UserInfo = ({
       <fieldset className="fieldset">
         <legend className="fieldset-legend">名前</legend>
         <input
-          id={userNameId}
+          id={formIds.name}
           className={`input ${errors.name ? "input-error" : ""}`}
           type="text"
           placeholder="名前を入力"
