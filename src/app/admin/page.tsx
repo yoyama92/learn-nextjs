@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Loading } from "@/components/loading";
-import { UserList } from "@/components/users";
+import { Loading } from "@/components/_common/loading";
+import { UserList } from "@/components/admin/users";
 import { auth } from "@/lib/auth";
 import { getUser, getUsers } from "@/server/services/userService";
 import { forbidden } from "@/utils/navigation";

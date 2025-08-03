@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Loading } from "@/components/loading";
-import { PasswordChangeForm } from "@/components/password-change";
+import { Loading } from "@/components/_common/loading";
+import { PasswordChangeForm } from "@/components/auth/password-change";
 import { auth } from "@/lib/auth";
 import { getUser } from "@/server/services/userService";
 

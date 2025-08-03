@@ -1,12 +1,10 @@
 "use server";
 
-import type * as z from "zod";
-
 import { authHandler } from "@/lib/auth";
-import type { createUserSchema } from "@/lib/zod";
+import type { CreateUserSchema } from "@/schemas/admin";
 import { createUser } from "@/server/services/userService";
 
-export const postNewUser = async (user: z.infer<typeof createUserSchema>) => {
+export const postNewUser = async (user: CreateUserSchema) => {
   return authHandler(
     async () => {
       try {

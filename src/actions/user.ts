@@ -1,12 +1,10 @@
 "use server";
 
-import type * as z from "zod";
-
 import { authHandler } from "@/lib/auth";
-import type { passwordChangeSchema, userSchema } from "@/lib/zod";
+import type { PasswordChangeSchema, UserSchema } from "@/schemas/user";
 import { updateUser, updateUserPassword } from "@/server/services/userService";
 
-export const postUser = async (user: z.infer<typeof userSchema>) => {
+export const postUser = async (user: UserSchema) => {
   return authHandler(async (id) => {
     try {
       return await updateUser(id, {
@@ -22,9 +20,7 @@ export const postUser = async (user: z.infer<typeof userSchema>) => {
   });
 };
 
-export const changePassword = async (
-  input: z.infer<typeof passwordChangeSchema>,
-) => {
+export const changePassword = async (input: PasswordChangeSchema) => {
   return authHandler(async (id) => {
     try {
       return await updateUserPassword(id, {

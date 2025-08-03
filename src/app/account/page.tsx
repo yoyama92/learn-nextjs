@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Loading } from "@/components/loading";
-import { UserInfo } from "@/components/user";
+import { Loading } from "@/components/_common/loading";
+import { UserInfo } from "@/components/account/user";
 import { auth } from "@/lib/auth";
 import { getUser } from "@/server/services/userService";
 

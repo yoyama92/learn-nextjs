@@ -4,10 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type * as z from "zod";
 
 import { postUser } from "@/actions/user";
-import { userSchema, userSchemaKeys } from "@/lib/zod";
+import { type UserSchema, userSchema, userSchemaKeys } from "@/schemas/user";
 
 export const UserInfo = ({
   user,
@@ -19,14 +18,14 @@ export const UserInfo = ({
     reset,
     handleSubmit,
     formState: { errors, isDirty, isSubmitting },
-  } = useForm<z.infer<typeof userSchema>>({
+  } = useForm<UserSchema>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       name: user.name,
     },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof userSchema>> = async (data) => {
+  const onSubmit: SubmitHandler<UserSchema> = async (data) => {
     try {
       const result = await postUser(data);
       if (result) {

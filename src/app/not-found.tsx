@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SignOut } from "@/components/sign-out";
+import { SignOut } from "@/components/auth/sign-out";
 
 export default function NotFound() {
   return (
@@ -9,7 +9,9 @@ export default function NotFound() {
       <p>Could not find requested resource</p>
       <div className="flex flex-row gap-2">
         <div>
-          <Link href="/" className="btn btn-outline">Return Home</Link>
+          <Link href="/" className="btn btn-outline">
+            Return Home
+          </Link>
         </div>
         <SignOut />
       </div>

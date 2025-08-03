@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "./zod";
 
 const envSchemaBase = z.object({
   NEXT_RUNTIME: z.union([z.literal("nodejs"), z.literal("edge")]).optional(),

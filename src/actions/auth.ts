@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
 import { signIn as auth, signOut as signOutFn } from "@/lib/auth";
-import { signInSchema } from "@/lib/zod";
+import { signInSchema } from "@/schemas/auth";
 import { passwordReminder } from "@/server/services/authService";
 
 export const signIn = async (

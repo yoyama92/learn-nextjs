@@ -3,7 +3,7 @@
 import { useActionState, useId } from "react";
 
 import { resetPassword } from "@/actions/auth";
-import { signInSchemaKeys } from "@/lib/zod";
+import { signInSchemaKeys } from "@/schemas/auth";
 
 export const PasswordResetForm = () => {
   const initialState = {

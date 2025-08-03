@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Loading } from "@/components/loading";
+import { Loading } from "@/components/_common/loading";
 import { auth } from "@/lib/auth";
 
 export default function Home() {
