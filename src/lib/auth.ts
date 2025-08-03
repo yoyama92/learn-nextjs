@@ -1,7 +1,7 @@
 import NextAuth, { CredentialsSignin, type User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { signInSchema } from "@/lib/zod";
+import { signInSchema } from "@/schemas/auth";
 import { authorizeUser } from "@/server/services/authService";
 import { getUser } from "@/server/services/userService";
 import { forbidden, unauthorized } from "@/utils/error";

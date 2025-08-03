@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type * as z from "zod";
 
 import { changePassword } from "@/actions/user";
-import { passwordChangeSchema, passwordChangeSchemaKeys } from "@/lib/zod";
+import {
+  type PasswordChangeSchema,
+  passwordChangeSchema,
+  passwordChangeSchemaKeys,
+} from "@/schemas/user";
 
 export const PasswordChangeForm = ({
   user,
@@ -22,13 +25,11 @@ export const PasswordChangeForm = ({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof passwordChangeSchema>>({
+  } = useForm<PasswordChangeSchema>({
     resolver: zodResolver(passwordChangeSchema),
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof passwordChangeSchema>> = async (
-    data,
-  ) => {
+  const onSubmit: SubmitHandler<PasswordChangeSchema> = async (data) => {
     try {
       const result = await changePassword(data);
       if (result?.success) {

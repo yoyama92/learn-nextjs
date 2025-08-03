@@ -4,10 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useId, useRef } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type * as z from "zod";
 
 import { postNewUser } from "@/actions/admin";
-import { createUserSchema, createUserSchemaKeys } from "@/lib/zod";
+import {
+  type CreateUserSchema,
+  createUserSchema,
+  createUserSchemaKeys,
+} from "@/schemas/admin";
 
 export const NewUserModal = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -17,7 +20,7 @@ export const NewUserModal = () => {
     reset,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof createUserSchema>>({
+  } = useForm<CreateUserSchema>({
     resolver: zodResolver(createUserSchema),
   });
 
@@ -25,9 +28,7 @@ export const NewUserModal = () => {
     reset();
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof createUserSchema>> = async (
-    data,
-  ) => {
+  const onSubmit: SubmitHandler<CreateUserSchema> = async (data) => {
     try {
       // Here you would typically call an API to create the user
       // For example: await createUser(data);
