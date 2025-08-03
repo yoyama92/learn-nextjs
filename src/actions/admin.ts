@@ -21,6 +21,7 @@ export const postNewUser = async (user: CreateUserSchema) => {
       }
     },
     {
+      // 管理者のみがこのアクションを実行できるようにする
       adminOnly: true,
     },
   );

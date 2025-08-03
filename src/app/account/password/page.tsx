@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
 
-import { Loading } from "@/components/_common/loading";
+import { PageWrapper } from "@/components/_common/page";
 import { PasswordChangeForm } from "@/components/auth/password-change";
 import { auth } from "@/lib/auth";
 import { getUser } from "@/server/services/userService";
@@ -13,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <Suspense fallback={<Loading />}>
+    <PageWrapper>
       <AsyncPage />
-    </Suspense>
+    </PageWrapper>
   );
 }
 
@@ -31,12 +30,10 @@ const AsyncPage = async () => {
   }
 
   return (
-    <div className="flex justify-center items-center flex-1">
-      <PasswordChangeForm
-        user={{
-          email: userInfo.email,
-        }}
-      />
-    </div>
+    <PasswordChangeForm
+      user={{
+        email: userInfo.email,
+      }}
+    />
   );
 };

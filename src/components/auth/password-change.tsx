@@ -13,6 +13,17 @@ import {
   passwordChangeSchemaKeys,
 } from "@/schemas/user";
 
+const useFormIds = (): Record<keyof PasswordChangeSchema, string> => {
+  const currentPasswordHintId = useId();
+  const passwordHintId = useId();
+  const confirmNewPasswordHintId = useId();
+  return {
+    currentPassword: currentPasswordHintId,
+    newPassword: passwordHintId,
+    confirmNewPassword: confirmNewPasswordHintId,
+  };
+};
+
 export const PasswordChangeForm = ({
   user,
 }: {
@@ -20,7 +31,6 @@ export const PasswordChangeForm = ({
     email: string;
   };
 }) => {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -29,6 +39,7 @@ export const PasswordChangeForm = ({
     resolver: zodResolver(passwordChangeSchema),
   });
 
+  const router = useRouter();
   const onSubmit: SubmitHandler<PasswordChangeSchema> = async (data) => {
     try {
       const result = await changePassword(data);
@@ -45,88 +56,88 @@ export const PasswordChangeForm = ({
     }
   };
 
-  const currentPasswordHintId = useId();
-  const passwordHintId = useId();
-  const confirmNewPasswordHintId = useId();
+  const formIds = useFormIds();
   return (
-    <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
-      <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
-        <h2 className="card-title justify-center mb-2">
-          Change your account password
-        </h2>
-        <input
-          type="hidden"
-          name="email"
-          autoComplete="email"
-          value={user.email}
-          readOnly
-        />
-        <fieldset className="fieldset">
-          <label className="label" htmlFor={currentPasswordHintId}>
-            Current Password
-          </label>
+    <div className="flex justify-center items-center flex-1">
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
+        <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
+          <h2 className="card-title justify-center mb-2">
+            Change your account password
+          </h2>
           <input
-            id={currentPasswordHintId}
-            className={`input ${errors.currentPassword ? "input-error" : ""} w-full`}
-            type="password"
-            {...register(passwordChangeSchemaKeys.currentPassword)}
-            placeholder="current password"
-            required
-            autoComplete="current-password"
+            type="hidden"
+            name="email"
+            autoComplete="email"
+            value={user.email}
+            readOnly
           />
-          {errors.currentPassword && (
-            <p className="text-error text-xs">
-              {errors.currentPassword.message}
-            </p>
-          )}
+          <fieldset className="fieldset">
+            <label className="label" htmlFor={formIds.currentPassword}>
+              Current Password
+            </label>
+            <input
+              id={formIds.currentPassword}
+              className={`input ${errors.currentPassword ? "input-error" : ""} w-full`}
+              type="password"
+              {...register(passwordChangeSchemaKeys.currentPassword)}
+              placeholder="current password"
+              required
+              autoComplete="current-password"
+            />
+            {errors.currentPassword && (
+              <p className="text-error text-xs">
+                {errors.currentPassword.message}
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="fieldset">
+            <label className="label" htmlFor={formIds.newPassword}>
+              New Password
+            </label>
+            <input
+              id={formIds.newPassword}
+              className={`input ${errors.newPassword ? "input-error" : ""} w-full`}
+              type="password"
+              {...register(passwordChangeSchemaKeys.newPassword)}
+              placeholder="new password"
+              required
+              autoComplete="new-password"
+            />
+            {errors.newPassword && (
+              <p className="text-error text-xs">{errors.newPassword.message}</p>
+            )}
+          </fieldset>
+          <fieldset className="fieldset">
+            <label className="label" htmlFor={formIds.confirmNewPassword}>
+              Confirm New Password
+            </label>
+            <input
+              id={formIds.confirmNewPassword}
+              className={`input ${errors.confirmNewPassword ? "input-error" : ""} w-full`}
+              type="password"
+              {...register(passwordChangeSchemaKeys.confirmNewPassword)}
+              placeholder="confirm new password"
+              required
+              autoComplete="new-password"
+            />
+            {errors.confirmNewPassword && (
+              <p className="text-error text-xs">
+                {errors.confirmNewPassword.message}
+              </p>
+            )}
+          </fieldset>
+          <button
+            type="submit"
+            className="btn btn-primary mt-2"
+            disabled={isSubmitting}
+          >
+            Send Password Change Request
+          </button>
+          <Link href="/account" className="link link-primary mt-2">
+            Back to Account
+          </Link>
         </fieldset>
-        <fieldset className="fieldset">
-          <label className="label" htmlFor={passwordHintId}>
-            New Password
-          </label>
-          <input
-            id={passwordHintId}
-            className={`input ${errors.newPassword ? "input-error" : ""} w-full`}
-            type="password"
-            {...register(passwordChangeSchemaKeys.newPassword)}
-            placeholder="new password"
-            required
-            autoComplete="new-password"
-          />
-          {errors.newPassword && (
-            <p className="text-error text-xs">{errors.newPassword.message}</p>
-          )}
-        </fieldset>
-        <fieldset className="fieldset">
-          <label className="label" htmlFor={confirmNewPasswordHintId}>
-            Confirm New Password
-          </label>
-          <input
-            id={confirmNewPasswordHintId}
-            className={`input ${errors.confirmNewPassword ? "input-error" : ""} w-full`}
-            type="password"
-            {...register(passwordChangeSchemaKeys.confirmNewPassword)}
-            placeholder="confirm new password"
-            required
-            autoComplete="new-password"
-          />
-          {errors.confirmNewPassword && (
-            <p className="text-error text-xs">
-              {errors.confirmNewPassword.message}
-            </p>
-          )}
-        </fieldset>
-        <button
-          type="submit"
-          className="btn btn-primary mt-2"
-          disabled={isSubmitting}
-        >
-          Send Password Change Request
-        </button>
-        <Link href="/account" className="link link-primary mt-2">
-          Back to Account
-        </Link>
-      </fieldset>
-    </form>
+      </form>
+    </div>
   );
 };

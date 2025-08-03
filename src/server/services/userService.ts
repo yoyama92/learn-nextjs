@@ -109,6 +109,10 @@ export const updateUserPassword = async (
 
   const user = await prisma.user.findUnique({
     where: { id: id, deletedAt: null },
+    select: {
+      id: true,
+      password: true,
+    },
   });
 
   // パスワードが一致しない場合は失敗
@@ -157,6 +161,9 @@ export const createUser = async (data: {
           isAdmin: data.isAdmin ?? false, // デフォルトは非管理者
         },
       },
+    },
+    select: {
+      email: true,
     },
   });
 
