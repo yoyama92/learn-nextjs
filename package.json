@@ -19,10 +19,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "3.857.0",
+    "@hono/zod-validator": "0.7.2",
     "@hookform/resolvers": "5.2.1",
     "@prisma/client": "6.13.0",
     "bcryptjs": "3.0.2",
     "generate-password": "1.7.1",
+    "hono": "4.8.12",
     "next": "15.3.4",
     "next-auth": "5.0.0-beta.28",
     "react": "19.1.1",

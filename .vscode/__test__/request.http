@@ -1,0 +1,8 @@
+### ユーザー出力バッチの呼び出
+
+POST http://localhost:3000/api/batch/export/users
+content-type: application/json
+
+{
+  "now": 1654406000
+}

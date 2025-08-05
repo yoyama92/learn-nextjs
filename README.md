@@ -37,7 +37,7 @@
 ## アクセス情報
 
 - アプリケーション：[localhost:3000](http://localhost:3000/)
-- pgAdmin：[localhost:8001](http://localhost:5050/)
+- pgAdmin：[localhost:5050](http://localhost:5050/)
 - Amazon SES：[localhost:8001](http://localhost:8005/)
 
 ## 機能

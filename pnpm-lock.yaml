@@ -11,6 +11,9 @@ importers:
       '@aws-sdk/client-sesv2':
         specifier: 3.857.0
         version: 3.857.0
+      '@hono/zod-validator':
+        specifier: 0.7.2
+        version: 0.7.2(hono@4.8.12)(zod@4.0.14)
       '@hookform/resolvers':
         specifier: 5.2.1
         version: 5.2.1(react-hook-form@7.61.1(react@19.1.1))
@@ -23,6 +26,9 @@ importers:
       generate-password:
         specifier: 1.7.1
         version: 1.7.1
+      hono:
+        specifier: 4.8.12
+        version: 4.8.12
       next:
         specifier: 15.3.4
         version: 15.3.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -440,6 +446,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@hono/zod-validator@0.7.2':
+    resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.25.0 || ^4.0.0
 
   '@hookform/resolvers@5.2.1':
     resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
@@ -1261,6 +1273,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  hono@4.8.12:
+    resolution: {integrity: sha512-MQSKk1Mg7b74k8l+A025LfysnLtXDKkE4pLaSsYRQC5iy85lgZnuyeQ1Wynair9mmECzoLu+FtJtqNZSoogBDQ==}
+    engines: {node: '>=16.9.0'}
 
   hosted-git-info@7.0.2:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
@@ -2266,6 +2282,11 @@ snapshots:
   '@esbuild/win32-x64@0.25.8':
     optional: true
 
+  '@hono/zod-validator@0.7.2(hono@4.8.12)(zod@4.0.14)':
+    dependencies:
+      hono: 4.8.12
+      zod: 4.0.14
+
   '@hookform/resolvers@5.2.1(react-hook-form@7.61.1(react@19.1.1))':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -3090,6 +3111,8 @@ snapshots:
       pathe: 2.0.3
 
   graceful-fs@4.2.11: {}
+
+  hono@4.8.12: {}
 
   hosted-git-info@7.0.2:
     dependencies:
