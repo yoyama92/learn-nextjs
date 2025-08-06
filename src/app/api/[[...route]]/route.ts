@@ -1,11 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
 import { handle } from "hono/vercel";
 import { after } from "next/server";
 export const dynamic = "force-dynamic";
 
 import { batchHandler } from "@/lib/batch";
+import { envStore } from "@/lib/env";
 import { exportUsersSchema } from "@/schemas/batch";
 import { exportUsers } from "@/server/services/batchService";
 
@@ -14,6 +16,7 @@ const app = new Hono().basePath("/api");
 app.use(logger());
 app
   .basePath("/batch")
+  .use(bearerAuth({ token: envStore.BATCH_API_TOKEN }))
   .post("/export/users", zValidator("json", exportUsersSchema), (c) => {
     const body = c.req.valid("json");
     after(

@@ -2,6 +2,7 @@
 
 POST http://localhost:3000/api/batch/export/users
 content-type: application/json
+Authorization: Bearer PDN7Io5T8f6o4KoWyS2VCF1YY2WFow
 
 {
   "now": 1654406000
