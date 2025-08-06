@@ -13,6 +13,7 @@ const envSchema = envSchemaBase.extend({
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
   AWS_SES_FROM_EMAIL: z.email().optional(),
+  BATCH_API_TOKEN: z.string(),
 });
 
 export const envStore = envSchema.parse(process.env);

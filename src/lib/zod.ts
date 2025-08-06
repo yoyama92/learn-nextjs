@@ -18,4 +18,6 @@ z.config({
 
 export const passwordSchema = z.string().min(8).max(32);
 
+export const unixTimestampSchema = z.int().positive();
+
 export { z };
