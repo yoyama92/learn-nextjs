@@ -71,6 +71,12 @@ export const { signIn, signOut, auth } = NextAuth({
 
 export type AuthHandlerCallback<T> = (id: string, user: User) => Promise<T>;
 
+/**
+ * 認証・認可を検証してから実行する
+ * @param callback 実行したい処理
+ * @param options 認可設定
+ * @returns callbackの実行結果
+ */
 export const authHandler = async <T>(
   callback: AuthHandlerCallback<T>,
   options?: {

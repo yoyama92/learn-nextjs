@@ -4,7 +4,16 @@ import { authHandler } from "@/lib/auth";
 import type { CreateUserSchema } from "@/schemas/admin";
 import { createUser } from "@/server/services/userService";
 
-export const postNewUser = async (user: CreateUserSchema) => {
+/**
+ * ユーザーを追加する。
+ * @param user 追加するユーザー情報
+ * @returns メール送信成否。メール送信以外でエラーが発生した場合はnullを返す。
+ */
+export const postNewUser = async (
+  user: CreateUserSchema,
+): Promise<{
+  mailSent: boolean;
+} | null> => {
   return authHandler(
     async () => {
       try {
