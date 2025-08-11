@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 import { batchHandler } from "@/lib/batch";
 import { envStore } from "@/lib/env";
-import { exportUsersSchema } from "@/schemas/batch";
+import { exportUsersRequestSchema } from "@/schemas/batch";
 import { exportUsers } from "@/server/services/batchService";
 
 const app = new Hono().basePath("/api");
@@ -17,7 +17,7 @@ app.use(logger());
 app
   .basePath("/batch")
   .use(bearerAuth({ token: envStore.BATCH_API_TOKEN }))
-  .post("/export/users", zValidator("json", exportUsersSchema), (c) => {
+  .post("/export/users", zValidator("json", exportUsersRequestSchema), (c) => {
     const body = c.req.valid("json");
     after(
       batchHandler(body, async (body) => {

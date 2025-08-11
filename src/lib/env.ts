@@ -9,6 +9,9 @@ const envSchemaBase = z.object({
 
 const envSchema = envSchemaBase.extend({
   AWS_SES_ENDPOINT: z.url().optional(),
+  AWS_S3_ENDPOINT: z.url().optional(),
+  AWS_S3_FORCE_PATH_STYLE: z.coerce.boolean().optional(),
+  AWS_S3_BUCKET: z.string().optional(),
   AWS_REGION: z.string().optional(),
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),

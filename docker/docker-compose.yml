@@ -35,6 +35,19 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "8005:8005"
+  s3:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_DOMAIN=${MINIO_DOMAIN}
+    command: server /data --console-address ":9001"
+
 volumes:
   postgres-data:
-
+  minio_data:

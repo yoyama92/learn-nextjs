@@ -6,8 +6,8 @@ import { unixTimestampSchema, z } from "@/lib/zod";
  */
 const now = Math.floor(Date.now() / 1000 / 60 / 60) * 60 * 60;
 
-export const exportUsersSchema = z.object({
+export const exportUsersRequestSchema = z.object({
   now: unixTimestampSchema.optional().default(now),
 });
 
-export type ExportUsersSchema = z.infer<typeof exportUsersSchema>;
+export type ExportUsersRequestSchema = z.infer<typeof exportUsersRequestSchema>;
