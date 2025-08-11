@@ -7,14 +7,18 @@ RUN apt-get update && apt-get upgrade openssl -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
 # Install dependencies only when needed
 FROM base AS deps
 
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* prisma ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --ignore-scripts --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -27,7 +31,8 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
