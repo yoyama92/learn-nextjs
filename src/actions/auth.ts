@@ -4,9 +4,15 @@ import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
 import { signIn as auth, signOut as signOutFn } from "@/lib/auth";
-import { signInSchema } from "@/schemas/auth";
+import { resetPasswordSchema, signInSchema } from "@/schemas/auth";
 import { passwordReminder } from "@/server/services/authService";
 
+/**
+ * サインイン
+ * @param _ 前回 state
+ * @param formData 送信値
+ * @returns サインインに成功した場合はホーム画面にリダイレクトする。失敗した場合はエラー内容を返す。
+ */
 export const signIn = async (
   _: unknown,
   formData: FormData,
@@ -26,11 +32,13 @@ export const signIn = async (
       };
     }
 
+    // Auth.jsの機能でサインインを行う。
     await auth("credentials", {
       ...parseResult.data,
       redirect: false,
     });
   } catch (error) {
+    // サインインに失敗した場合は`CredentialsSignin`が投げられる。
     if (error instanceof CredentialsSignin) {
       return {
         error: "メールアドレスもしくはパスワードが異なります。",
@@ -41,9 +49,13 @@ export const signIn = async (
     }
   }
 
+  // サインインに成功した場合
   redirect("/");
 };
 
+/**
+ * サインアウト
+ */
 export const signOut = async () => {
   return await signOutFn({
     redirect: true,
@@ -51,6 +63,9 @@ export const signOut = async () => {
   });
 };
 
+/**
+ * パスワードを初期化する。
+ */
 export const resetPassword = async (
   _: unknown,
   formData: FormData,
@@ -59,7 +74,11 @@ export const resetPassword = async (
   error?: string;
   formData: FormData;
 }> => {
-  const email = formData.get("email")?.toString();
+  const parseResult = resetPasswordSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+
+  const email = parseResult.data?.email;
 
   if (!email) {
     return { error: "メールアドレスを入力してください。", formData: formData };

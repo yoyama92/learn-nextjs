@@ -19,6 +19,8 @@ app
   .use(bearerAuth({ token: envStore.BATCH_API_TOKEN }))
   .post("/export/users", zValidator("json", exportUsersRequestSchema), (c) => {
     const body = c.req.valid("json");
+
+    // 実処理はレスポンス後に実行する。
     after(
       batchHandler(body, async (body) => {
         await exportUsers(body);

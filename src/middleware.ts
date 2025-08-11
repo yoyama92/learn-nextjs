@@ -1,5 +1,8 @@
 import { auth } from "@/lib/auth";
 
+/**
+ * ログイン不要でアクセス可能なパス
+ */
 const publicPaths = ["/sign-in", "/password-reset"];
 
 export default auth((req) => {

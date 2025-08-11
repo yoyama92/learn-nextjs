@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   type ForwardedRef,
   type HTMLInputTypeAttribute,
+  type RefObject,
   useEffect,
   useId,
   useImperativeHandle,
@@ -67,7 +68,15 @@ const TextInput = ({
   );
 };
 
-const useDialog = ({ onClose }: { onClose: () => void }) => {
+/**
+ * ダイアログを操作するためのカスタムフック
+ * @param param.onClose ダイアログが閉じたときに呼び出す関数
+ */
+const useDialog = ({
+  onClose,
+}: {
+  onClose: () => void;
+}): RefObject<HTMLDialogElement | null> => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -109,6 +118,7 @@ const NewUserForm = ({
   });
 
   // 外部に公開するメソッド
+  // ダイアログを閉じたときに値を初期化したいので、リセット関数を呼び出し元から実行できるようにする。
   useImperativeHandle(ref, () => ({
     reset: () => {
       reset();
@@ -117,8 +127,6 @@ const NewUserForm = ({
 
   const onSubmit: SubmitHandler<CreateUserSchema> = async (data) => {
     try {
-      // Here you would typically call an API to create the user
-      // For example: await createUser(data);
       const result = await postNewUser(data);
       if (result === null) {
         window.alert("User creation failed");
