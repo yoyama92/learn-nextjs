@@ -1,10 +1,10 @@
-import type { User } from "@/generated/prisma";
-import { envStore } from "@/lib/env";
+import type { User } from "../../generated/prisma";
+import { envStore } from "../../lib/env";
 import {
   generateRandomPassword,
   hashPassword,
   verifyPassword,
-} from "@/utils/password";
+} from "../../utils/password";
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 

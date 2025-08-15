@@ -1,6 +1,6 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
-import { envStore } from "@/lib/env";
+import { envStore } from "../../lib/env";
 
 export const sesClient = new SESv2Client({
   region: envStore.AWS_REGION,

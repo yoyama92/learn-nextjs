@@ -1,4 +1,4 @@
-import { unixTimestampSchema, z } from "@/lib/zod";
+import { unixTimestampSchema, z } from "../lib/zod";
 
 /**
  * 現在のUNIXタイムスタンプを1時間単位に切り捨て

@@ -1,4 +1,4 @@
-import { passwordSchema, z } from "@/lib/zod";
+import { passwordSchema, z } from "../lib/zod";
 
 export const signInSchema = z.object({
   email: z.email().min(1),

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { signInAsAdmin } from "@/actions/auth";
-import { PageWrapper } from "@/components/_common/page";
-import { SignIn } from "@/components/auth/sign-in";
-import { auth } from "@/lib/auth";
+import { signInAsAdmin } from "../../../../actions/auth";
+import { PageWrapper } from "../../../../components/_common/page";
+import { SignIn } from "../../../../components/auth/sign-in";
+import { auth } from "../../../../lib/auth";
 
 export const metadata: Metadata = {
   title: "Admin Sign In - Next.js Sample App",

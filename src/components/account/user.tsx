@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { postUser } from "@/actions/user";
-import { type UserSchema, userSchema, userSchemaKeys } from "@/schemas/user";
+import { postUser } from "../../actions/user";
+import { type UserSchema, userSchema, userSchemaKeys } from "../../schemas/user";
 
 const useFormIds = (): Record<keyof UserSchema, string> => {
   const userNameId = useId();

@@ -1,8 +1,8 @@
 "use server";
 
-import { authHandler } from "@/lib/auth";
-import type { CreateUserSchema } from "@/schemas/admin";
-import { createUser } from "@/server/services/userService";
+import { authHandler } from "../lib/auth";
+import type { CreateUserSchema } from "../schemas/admin";
+import { createUser } from "../server/services/userService";
 
 /**
  * ユーザーを追加する。

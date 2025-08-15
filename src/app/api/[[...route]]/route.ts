@@ -4,12 +4,12 @@ import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
 import { handle } from "hono/vercel";
 import { after } from "next/server";
-export const dynamic = "force-dynamic";
 
-import { batchHandler } from "@/lib/batch";
-import { envStore } from "@/lib/env";
-import { exportUsersRequestSchema } from "@/schemas/batch";
-import { exportUsers } from "@/server/services/batchService";
+import { batchHandler } from "../../../lib/batch";
+import { envStore } from "../../../lib/env";
+import { exportUsersRequestSchema } from "../../../schemas/batch";
+import { exportUsers } from "../../../server/services/batchService";
+export const dynamic = "force-dynamic";
 
 const app = new Hono().basePath("/api");
 

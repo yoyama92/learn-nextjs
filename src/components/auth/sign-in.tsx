@@ -1,7 +1,8 @@
 "use client";
 
 import { type ReactNode, useActionState, useId } from "react";
-import { type SignInSchema, signInSchemaKeys } from "@/schemas/auth";
+
+import { type SignInSchema, signInSchemaKeys } from "../../schemas/auth";
 
 const useFormIds = (): Record<keyof SignInSchema, string> => {
   const emailHintId = useId();

@@ -2,11 +2,11 @@
 
 import { useActionState, useId } from "react";
 
-import { resetPassword } from "@/actions/auth";
+import { resetPassword } from "../../actions/auth";
 import {
   type ResetPasswordSchema,
   resetPasswordSchemaKeys,
-} from "@/schemas/auth";
+} from "../../schemas/auth";
 
 const useFormIds = (): Record<keyof ResetPasswordSchema, string> => {
   const emailHintId = useId();

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PageWrapper } from "@/components/_common/page";
-import { PasswordResetForm } from "@/components/auth/password-reset";
-import { auth } from "@/lib/auth";
+import { PageWrapper } from "../../components/_common/page";
+import { PasswordResetForm } from "../../components/auth/password-reset";
+import { auth } from "../../lib/auth";
 
 export const metadata: Metadata = {
   title: "Password Reset - Next.js Sample App",

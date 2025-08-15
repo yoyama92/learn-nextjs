@@ -3,14 +3,14 @@
 import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
-import { signIn as auth, signOut as signOutFn } from "@/lib/auth";
+import { signIn as auth, signOut as signOutFn } from "../lib/auth";
 import {
   type Role,
   resetPasswordSchema,
   roleEnum,
   signInSchema,
-} from "@/schemas/auth";
-import { passwordReminder } from "@/server/services/authService";
+} from "../schemas/auth";
+import { passwordReminder } from "../server/services/authService";
 
 /**
  * サインイン関数を返す
