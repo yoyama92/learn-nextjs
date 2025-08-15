@@ -1,8 +1,8 @@
 "use server";
 
-import { authHandler } from "@/lib/auth";
-import type { PasswordChangeSchema, UserSchema } from "@/schemas/user";
-import { updateUser, updateUserPassword } from "@/server/services/userService";
+import { authHandler } from "../lib/auth";
+import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
+import { updateUser, updateUserPassword } from "../server/services/userService";
 
 /**
  * ユーザー情報を更新する

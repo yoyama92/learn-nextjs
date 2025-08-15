@@ -17,12 +17,12 @@ import {
   useForm,
 } from "react-hook-form";
 
-import { postNewUser } from "@/actions/admin";
+import { postNewUser } from "../../actions/admin";
 import {
   type CreateUserSchema,
   createUserSchema,
   createUserSchemaKeys,
-} from "@/schemas/admin";
+} from "../../schemas/admin";
 
 const useFormIds = (): Record<keyof CreateUserSchema, string> => {
   const userNameId = useId();

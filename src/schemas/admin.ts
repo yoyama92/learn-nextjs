@@ -1,4 +1,4 @@
-import { z } from "@/lib/zod";
+import { z } from "../lib/zod";
 
 export const createUserSchema = z.object({
   name: z.string().min(1),

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { PageWrapper } from "@/components/_common/page";
-import { PasswordChangeForm } from "@/components/auth/password-change";
-import { auth } from "@/lib/auth";
-import { getUser } from "@/server/services/userService";
+import { PageWrapper } from "../../../components/_common/page";
+import { PasswordChangeForm } from "../../../components/auth/password-change";
+import { auth } from "../../../lib/auth";
+import { getUser } from "../../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "Change Password - Next.js Sample App",

@@ -1,4 +1,4 @@
-import { passwordSchema, z } from "@/lib/zod";
+import { passwordSchema, z } from "../lib/zod";
 
 export const userSchema = z.object({
   name: z.string().min(1),

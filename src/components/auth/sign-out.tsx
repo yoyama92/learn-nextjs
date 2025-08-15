@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "@/actions/auth";
+import { signOut } from "../../actions/auth";
 
 export const SignOut = () => {
   return (
@@ -9,7 +9,9 @@ export const SignOut = () => {
         await signOut();
       }}
     >
-      <button type="submit" className="btn btn-outline">Sign Out</button>
+      <button type="submit" className="btn btn-outline">
+        Sign Out
+      </button>
     </form>
   );
 };

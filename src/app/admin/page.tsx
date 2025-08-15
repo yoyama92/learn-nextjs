@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
-import { PageWrapper } from "@/components/_common/page";
-import { UserList } from "@/components/admin/users";
-import { auth } from "@/lib/auth";
-import { getUser, getUsers } from "@/server/services/userService";
-import { forbidden } from "@/utils/navigation";
+import { PageWrapper } from "../../components/_common/page";
+import { UserList } from "../../components/admin/users";
+import { auth } from "../../lib/auth";
+import { getUser, getUsers } from "../../server/services/userService";
+import { forbidden } from "../../utils/navigation";
 
 export default function AdminPage() {
   return (

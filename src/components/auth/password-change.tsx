@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { changePassword } from "@/actions/user";
+import { changePassword } from "../../actions/user";
 import {
   type PasswordChangeSchema,
   passwordChangeSchema,
   passwordChangeSchemaKeys,
-} from "@/schemas/user";
+} from "../../schemas/user";
 
 const useFormIds = (): Record<keyof PasswordChangeSchema, string> => {
   const currentPasswordHintId = useId();

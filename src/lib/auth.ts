@@ -5,11 +5,11 @@ import NextAuth, {
 } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { type Role, roleEnum, roleSchema, signInSchema } from "@/schemas/auth";
-import type { UserSchema } from "@/schemas/user";
-import { authorizeUser } from "@/server/services/authService";
-import { getUser, type UserGetResult } from "@/server/services/userService";
-import { forbidden, unauthorized } from "@/utils/error";
+import { type Role, roleEnum, roleSchema, signInSchema } from "../schemas/auth";
+import type { UserSchema } from "../schemas/user";
+import { authorizeUser } from "../server/services/authService";
+import { getUser, type UserGetResult } from "../server/services/userService";
+import { forbidden, unauthorized } from "../utils/error";
 
 export const { signIn, signOut, auth } = NextAuth({
   providers: [
@@ -121,9 +121,9 @@ export type AuthHandlerCallback<T> = (
 
 /**
  * 認証・認可を検証してから実行する
- * @param callback 実行したい処理
- * @param options 認可設定
- * @returns callbackの実行結果
+ * ..param callback 実行したい処理
+ * ..param options 認可設定
+ * ..returns callbackの実行結果
  */
 export const authHandler = async <T>(
   callback: AuthHandlerCallback<T>,
@@ -151,9 +151,9 @@ export const authHandler = async <T>(
 
 /**
  * 管理者としてログインしている管理者か判定する。
- * @param session セッション
- * @param dbUser DBから取得したユーザー情報
- * @returns 管理者としてログインしている場合にtrueを返す。
+ * ..param session セッション
+ * ..param dbUser DBから取得したユーザー情報
+ * ..returns 管理者としてログインしている場合にtrueを返す。
  */
 const isAdminUser = (session: Session, dbUser: UserGetResult) => {
   return session?.user.role === "admin" && dbUser?.role?.isAdmin;

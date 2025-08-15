@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { PageWrapper } from "@/components/_common/page";
-import { UserInfo } from "@/components/account/user";
-import { auth } from "@/lib/auth";
-import { getUser } from "@/server/services/userService";
+import { PageWrapper } from "../../components/_common/page";
+import { UserInfo } from "../../components/account/user";
+import { auth } from "../../lib/auth";
+import { getUser } from "../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "User Profile - Next.js Sample App",
