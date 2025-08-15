@@ -1,4 +1,4 @@
-import type { Prisma, User } from "@/generated/prisma";
+import { Prisma, type User } from "@/generated/prisma";
 import { envStore } from "@/lib/env";
 import {
   generateRandomPassword,
@@ -8,7 +8,7 @@ import {
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
-const userSelectArg = {
+const userSelectArg = Prisma.validator<Prisma.UserSelect>()({
   id: true,
   name: true,
   email: true,
@@ -19,13 +19,13 @@ const userSelectArg = {
       isAdmin: true,
     },
   },
-} satisfies Prisma.UserSelect;
+});
 
-export const getUser = async (
-  id: string,
-): Promise<Prisma.UserGetPayload<{
+export type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
-}> | null> => {
+}>;
+
+export const getUser = async (id: string): Promise<UserGetResult | null> => {
   const user = await prisma.user.findUnique({
     where: {
       id: id,
@@ -36,7 +36,7 @@ export const getUser = async (
   return user;
 };
 
-const usersSelectArg = {
+const usersSelectArg = Prisma.validator<Prisma.UserSelect>()({
   id: true,
   name: true,
   email: true,
@@ -47,7 +47,7 @@ const usersSelectArg = {
       isAdmin: true,
     },
   },
-} satisfies Prisma.UserSelect;
+});
 
 export const getUsers = async (): Promise<
   Prisma.UserGetPayload<{

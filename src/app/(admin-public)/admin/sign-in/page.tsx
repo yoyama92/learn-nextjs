@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { signIn } from "@/actions/auth";
+import { signInAsAdmin } from "@/actions/auth";
 import { PageWrapper } from "@/components/_common/page";
 import { SignIn } from "@/components/auth/sign-in";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Sign In - Next.js Sample App",
+  title: "Admin Sign In - Next.js Sample App",
 };
 
 export default function Page() {
@@ -21,18 +21,13 @@ export default function Page() {
 const AsyncPage = async () => {
   const session = await auth();
   if (session?.user) {
-    redirect("/");
+    redirect(session.user.role === "admin" ? "/admin" : "/");
   }
   return (
     <SignIn
-      title="Signin to your account"
+      title="管理者ログイン"
       buttonLabel="Sign In"
-      signIn={signIn}
-      footer={
-        <a href="/password-reset" className="link link-primary mt-2">
-          パスワードを忘れた場合
-        </a>
-      }
+      signIn={signInAsAdmin}
     />
   );
 };
