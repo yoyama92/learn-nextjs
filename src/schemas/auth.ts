@@ -16,3 +16,15 @@ export const resetPasswordSchema = z.object({
 export const resetPasswordSchemaKeys = resetPasswordSchema.keyof().enum;
 
 export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
+
+export const roleEnum = Object.freeze({
+  user: "user",
+  admin: "admin",
+});
+
+export const roleSchema = z.union([
+  z.literal(roleEnum.user),
+  z.literal(roleEnum.admin),
+]);
+
+export type Role = z.infer<typeof roleSchema>;

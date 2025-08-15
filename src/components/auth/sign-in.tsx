@@ -1,8 +1,6 @@
 "use client";
 
-import { useActionState, useId } from "react";
-
-import { signIn } from "@/actions/auth";
+import { type ReactNode, useActionState, useId } from "react";
 import { type SignInSchema, signInSchemaKeys } from "@/schemas/auth";
 
 const useFormIds = (): Record<keyof SignInSchema, string> => {
@@ -14,7 +12,23 @@ const useFormIds = (): Record<keyof SignInSchema, string> => {
   };
 };
 
-export const SignIn = () => {
+export const SignIn = ({
+  title,
+  buttonLabel,
+  signIn,
+  footer,
+}: {
+  title: string;
+  buttonLabel: string;
+  signIn: (
+    _: unknown,
+    formData: FormData,
+  ) => Promise<{
+    error?: string | undefined;
+    formData: FormData;
+  }>;
+  footer?: ReactNode;
+}) => {
   const initialState = {
     error: "",
     formData: new FormData(),
@@ -26,9 +40,7 @@ export const SignIn = () => {
     <div className="flex justify-center items-center min-h-screen">
       <form action={formAction} autoComplete="on">
         <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
-          <h2 className="card-title justify-center mb-2">
-            Signin to your account
-          </h2>
+          <h2 className="card-title justify-center mb-2">{title}</h2>
           <label className="label" htmlFor={formIds.email}>
             Email
           </label>
@@ -70,11 +82,9 @@ export const SignIn = () => {
             className="btn btn-primary mt-2"
             disabled={isPending}
           >
-            Sign In
+            {buttonLabel}
           </button>
-          <a href="/password-reset" className="link link-primary mt-2">
-            Forgot your password?
-          </a>
+          {footer}
         </fieldset>
       </form>
     </div>

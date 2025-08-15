@@ -11,10 +11,16 @@ import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 export const authorizeUser = async (
   email: string,
   password: string,
+  isAdmin: boolean = false,
 ): Promise<Pick<User, "id"> | null> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
+      role: isAdmin
+        ? {
+            isAdmin: isAdmin,
+          }
+        : undefined,
       // password: pwHash,
     },
     select: {
