@@ -4,6 +4,19 @@ import { signOut } from "../../actions/auth";
 
 export const SignOut = () => {
   return (
+    <button
+      type="button"
+      onClick={() => {
+        signOut();
+      }}
+    >
+      サインアウト
+    </button>
+  );
+};
+
+export const SignOutButton = () => {
+  return (
     <form
       action={async () => {
         await signOut();

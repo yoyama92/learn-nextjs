@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SignOut } from "../../../components/auth/sign-out";
+import { SignOutButton } from "../../../components/auth/sign-out";
 
 export default function Forbidden() {
   return (
@@ -13,7 +13,7 @@ export default function Forbidden() {
             ホームに戻る
           </Link>
         </div>
-        <SignOut />
+        <SignOutButton />
       </div>
     </div>
   );

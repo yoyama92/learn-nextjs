@@ -1,14 +1,9 @@
-import { SignOut } from "../../components/auth/sign-out";
+import { AuthenticatedLayout } from "../../components/_layout/authenticatedLayout";
 
 export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div className="p-4 flex flex-col gap-4 h-screen">
-      <SignOut />
-      {children}
-    </div>
-  );
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
 }

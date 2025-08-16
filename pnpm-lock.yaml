@@ -14,6 +14,9 @@ importers:
       '@aws-sdk/client-sesv2':
         specifier: 3.857.0
         version: 3.857.0
+      '@heroicons/react':
+        specifier: 2.2.0
+        version: 2.2.0(react@19.1.1)
       '@hono/zod-validator':
         specifier: 0.7.2
         version: 0.7.2(hono@4.8.12)(zod@4.0.14)
@@ -579,6 +582,11 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@heroicons/react@2.2.0':
+    resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
+    peerDependencies:
+      react: '>= 16 || ^19.0.0-rc'
 
   '@hono/zod-validator@0.7.2':
     resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
@@ -3013,6 +3021,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.8':
     optional: true
+
+  '@heroicons/react@2.2.0(react@19.1.1)':
+    dependencies:
+      react: 19.1.1
 
   '@hono/zod-validator@0.7.2(hono@4.8.12)(zod@4.0.14)':
     dependencies:
