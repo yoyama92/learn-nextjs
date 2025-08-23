@@ -114,7 +114,7 @@ export const UserForm = ({
         <div className="flex flex-row justify-between">
           <div></div>
           <div className="flex flex-row gap-2">
-            <Link type="button" className="btn btn-outline" href="/admin">
+            <Link type="button" className="btn btn-outline" href="/admin/users">
               一覧に戻る
             </Link>
             <button className="btn btn-primary" type="submit">

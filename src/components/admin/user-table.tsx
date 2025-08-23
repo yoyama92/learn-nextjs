@@ -31,33 +31,39 @@ const ActionCell = ({
 }) => {
   return (
     <div>
-      <button
-        type="button"
-        className="btn btn-ghost btn-square btn-sm"
-        onClick={() => {
-          onEditClick();
-        }}
-      >
-        <PencilIcon className="w-4" />
-      </button>
-      <button
-        type="button"
-        className="btn btn-ghost btn-square btn-sm"
-        onClick={() => {
-          onViewClick();
-        }}
-      >
-        <EyeIcon className="w-4" />
-      </button>
-      <button
-        type="button"
-        className="btn btn-ghost btn-square btn-sm btn-error"
-        onClick={() => {
-          onDeleteClick();
-        }}
-      >
-        <TrashIcon className="w-4 text-error" />
-      </button>
+      <div className="tooltip tooltip-top" data-tip="編集">
+        <button
+          type="button"
+          className="btn btn-ghost btn-square btn-sm"
+          onClick={() => {
+            onEditClick();
+          }}
+        >
+          <PencilIcon className="w-5" />
+        </button>
+      </div>
+      <div className="tooltip tooltip-top" data-tip="詳細">
+        <button
+          type="button"
+          className="btn btn-ghost btn-square btn-sm"
+          onClick={() => {
+            onViewClick();
+          }}
+        >
+          <EyeIcon className="w-5" />
+        </button>
+      </div>
+      <div className="tooltip tooltip-top" data-tip="削除">
+        <button
+          type="button"
+          className="btn btn-ghost btn-square btn-sm btn-error text-error hover:text-base-100"
+          onClick={() => {
+            onDeleteClick();
+          }}
+        >
+          <TrashIcon className="w-5" />
+        </button>
+      </div>
     </div>
   );
 };
