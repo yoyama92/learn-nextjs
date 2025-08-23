@@ -1,11 +1,15 @@
 "use client";
 
+import { EyeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
+
+import { postDeleteUser } from "../../actions/admin";
 
 type Row = {
   id: string;
@@ -16,20 +20,62 @@ type Row = {
   updatedAt: Date;
 };
 
+const ActionCell = ({
+  onEditClick,
+  onViewClick,
+  onDeleteClick,
+}: {
+  onEditClick: () => void;
+  onViewClick: () => void;
+  onDeleteClick: () => void;
+}) => {
+  return (
+    <div>
+      <button
+        type="button"
+        className="btn btn-ghost btn-square btn-sm"
+        onClick={() => {
+          onEditClick();
+        }}
+      >
+        <PencilIcon className="w-4" />
+      </button>
+      <button
+        type="button"
+        className="btn btn-ghost btn-square btn-sm"
+        onClick={() => {
+          onViewClick();
+        }}
+      >
+        <EyeIcon className="w-4" />
+      </button>
+      <button
+        type="button"
+        className="btn btn-ghost btn-square btn-sm btn-error"
+        onClick={() => {
+          onDeleteClick();
+        }}
+      >
+        <TrashIcon className="w-4 text-error" />
+      </button>
+    </div>
+  );
+};
+
 const columnHelper = createColumnHelper<Row>();
 
 const columns = [
   columnHelper.accessor((row) => row.name, {
     id: "name",
-    header: "Name",
+    header: "名前",
   }),
   columnHelper.accessor((row) => row.email, {
     id: "email",
-    header: "Email",
+    header: "メールアドレス",
   }),
   columnHelper.accessor((row) => row.isAdmin, {
     id: "role",
-    header: "Role",
+    header: "ユーザー区分",
     cell: (info) => {
       const isAdmin = info.getValue();
       return isAdmin ? "Admin" : "User";
@@ -37,19 +83,47 @@ const columns = [
   }),
   columnHelper.accessor((row) => row.createdAt, {
     id: "createdAt",
-    header: "Created At",
+    header: "登録日時",
     cell: (info) => {
       return info.getValue().toLocaleString("ja-JP");
     },
   }),
-  columnHelper.accessor((row) => row.createdAt, {
+  columnHelper.accessor((row) => row.updatedAt, {
     id: "updatedAt",
-    header: "Updated At",
+    header: "更新日時",
     cell: (info) => {
       return info.getValue().toLocaleString("ja-JP");
     },
   }),
 ];
+
+const useDeleteDialog = ({
+  done,
+}: {
+  done: () => void;
+}): {
+  showModal: (row: Row) => void;
+} => {
+  return {
+    showModal: (row) => {
+      const result = window.confirm(
+        "この操作は取り消せません。よろしいですか？",
+      );
+      if (result) {
+        postDeleteUser({
+          id: row.id,
+        }).then((result) => {
+          if (result.success) {
+            window.alert("削除しました。");
+            done();
+          } else {
+            window.alert(result.message);
+          }
+        });
+      }
+    },
+  };
+};
 
 export const UserTable = ({ rows }: { rows: Row[] }) => {
   const table = useReactTable({
@@ -58,8 +132,15 @@ export const UserTable = ({ rows }: { rows: Row[] }) => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const router = useRouter();
+  const { showModal } = useDeleteDialog({
+    done: () => {
+      router.refresh();
+    },
+  });
+
   return (
-    <table className="table table-sm table-pin-rows table-pin-cols">
+    <table className="table table-pin-rows table-pin-cols">
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -74,6 +155,7 @@ export const UserTable = ({ rows }: { rows: Row[] }) => {
                     )}
               </th>
             ))}
+            <th></th>
           </tr>
         ))}
       </thead>
@@ -86,6 +168,19 @@ export const UserTable = ({ rows }: { rows: Row[] }) => {
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}
+            <td>
+              <ActionCell
+                onEditClick={() => {
+                  router.push(`/admin/users/${row.original.id}/edit`);
+                }}
+                onViewClick={() => {
+                  router.push(`/admin/users/${row.original.id}`);
+                }}
+                onDeleteClick={() => {
+                  showModal(row.original);
+                }}
+              />
+            </td>
           </tr>
         ))}
       </tbody>

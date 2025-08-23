@@ -1,11 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 
-import { PageWrapper } from "../../components/_common/page";
-import { auth } from "../../lib/auth";
-import { getUser } from "../../server/services/userService";
-import { forbidden } from "../../utils/navigation";
+import { PageWrapper } from "../../../../components/_common/page";
+import { NewUserForm } from "../../../../components/admin/new-user-form";
+import { auth } from "../../../../lib/auth";
+import { getUser } from "../../../../server/services/userService";
+import { forbidden } from "../../../../utils/navigation";
 
-export default function AdminRoot() {
+export default function AdminPage() {
   return (
     <PageWrapper>
       <AsyncPage />
@@ -28,5 +29,5 @@ const AsyncPage = async () => {
     forbidden();
   }
 
-  redirect("/admin/users");
+  return <NewUserForm />;
 };

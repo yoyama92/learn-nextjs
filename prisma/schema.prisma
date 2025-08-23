@@ -15,9 +15,8 @@ model User {
   name     String /// 名前
   password String /// パスワード
 
-  createdAt DateTime  @default(now()) @map("created_at") /// 登録日時
-  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") /// 更新日時
-  deletedAt DateTime? @map("deleted_at") /// 削除日
+  createdAt DateTime @default(now()) @map("created_at") /// 登録日時
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") /// 更新日時
 
   role UserRole? /// ユーザーの権限
 
@@ -27,7 +26,7 @@ model User {
 /// ユーザーの権限
 model UserRole {
   userId  String  @unique @db.Uuid /// ID
-  user    User    @relation(fields: [userId], references: [id]) /// ユーザー  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー  
   isAdmin Boolean @default(false) @map("is_admin") /// 管理者フラグ
 
   @@map("user_roles")

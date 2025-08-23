@@ -17,5 +17,5 @@ const AsyncPage = async () => {
     redirect("/sign-in");
   }
 
-  redirect("/account");
+  redirect(session.user.role === "admin" ? "/admin" : "/account");
 };

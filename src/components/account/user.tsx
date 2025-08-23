@@ -6,7 +6,11 @@ import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
 import { postUser } from "../../actions/user";
-import { type UserSchema, userSchema, userSchemaKeys } from "../../schemas/user";
+import {
+  type UserSchema,
+  userSchema,
+  userSchemaKeys,
+} from "../../schemas/user";
 
 const useFormIds = (): Record<keyof UserSchema, string> => {
   const userNameId = useId();
@@ -43,7 +47,7 @@ export const UserInfo = ({
       }
     } catch (error) {
       if (error instanceof Error) {
-        window.alert(`Error updating user: ${error.message}`);
+        window.alert(`更新に失敗しました: ${error.message}`);
       }
     }
   };
@@ -56,7 +60,7 @@ export const UserInfo = ({
     >
       <h2 className="text-lg font-bold">ユーザー情報</h2>
       <div className="flex flex-col ">
-        <span>Email:{user.email}</span>
+        <span>メールアドレス:{user.email}</span>
       </div>
       <fieldset className="fieldset">
         <legend className="fieldset-legend">名前</legend>
@@ -79,9 +83,7 @@ export const UserInfo = ({
           disabled={!isDirty || isSubmitting}
         >
           {isSubmitting ? (
-            <span className="loading loading-spinner loading-md">
-              Loading...
-            </span>
+            <span className="loading loading-spinner loading-md">更新中</span>
           ) : (
             "更新"
           )}

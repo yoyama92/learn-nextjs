@@ -8,7 +8,7 @@ export const AuthenticatedLayout = ({
   return (
     <>
       <Header />
-      <div className="p-4 flex flex-col gap-4">{children}</div>
+      <div className="max-sm:p-4 p-6 flex flex-col gap-4">{children}</div>
     </>
   );
 };

@@ -10,7 +10,6 @@ describe("buildExportUserFile", () => {
         email: "test@example.com",
         createdAt: new Date("2025-01-01T00:00:00Z"),
         updatedAt: new Date(0),
-        deletedAt: null,
         role: {
           isAdmin: true,
         },
@@ -21,7 +20,6 @@ describe("buildExportUserFile", () => {
         email: "test2@example.com",
         createdAt: new Date(0),
         updatedAt: new Date("2025-01-01T00:00:00Z"),
-        deletedAt: new Date(0),
         role: null,
       },
     ];
@@ -35,7 +33,6 @@ describe("buildExportUserFile", () => {
         "test@example.com",
         "2025-01-01T00:00:00.000Z",
         "1970-01-01T00:00:00.000Z",
-        "",
         "true",
       ],
       [
@@ -44,7 +41,6 @@ describe("buildExportUserFile", () => {
         "test2@example.com",
         "1970-01-01T00:00:00.000Z",
         "2025-01-01T00:00:00.000Z",
-        "1970-01-01T00:00:00.000Z",
         "false",
       ],
     ]);

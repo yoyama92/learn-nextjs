@@ -51,7 +51,7 @@ export const PasswordChangeForm = ({
       }
     } catch (error) {
       if (error instanceof Error) {
-        window.alert(`Error updating user: ${error.message}`);
+        window.alert(`更新に失敗しました。: ${error.message}`);
       }
     }
   };
@@ -61,9 +61,7 @@ export const PasswordChangeForm = ({
     <div className="flex justify-center items-center flex-1">
       <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
         <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
-          <h2 className="card-title justify-center mb-2">
-            Change your account password
-          </h2>
+          <h2 className="card-title justify-center mb-2">パスワード変更</h2>
           <input
             type="hidden"
             name="email"
@@ -73,14 +71,14 @@ export const PasswordChangeForm = ({
           />
           <fieldset className="fieldset">
             <label className="label" htmlFor={formIds.currentPassword}>
-              Current Password
+              現在のパスワード
             </label>
             <input
               id={formIds.currentPassword}
               className={`input ${errors.currentPassword ? "input-error" : ""} w-full`}
               type="password"
               {...register(passwordChangeSchemaKeys.currentPassword)}
-              placeholder="current password"
+              placeholder="現在のパスワード"
               required
               autoComplete="current-password"
             />
@@ -92,14 +90,14 @@ export const PasswordChangeForm = ({
           </fieldset>
           <fieldset className="fieldset">
             <label className="label" htmlFor={formIds.newPassword}>
-              New Password
+              新しいパスワード
             </label>
             <input
               id={formIds.newPassword}
               className={`input ${errors.newPassword ? "input-error" : ""} w-full`}
               type="password"
               {...register(passwordChangeSchemaKeys.newPassword)}
-              placeholder="new password"
+              placeholder="新しいパスワード"
               required
               autoComplete="new-password"
             />
@@ -109,14 +107,14 @@ export const PasswordChangeForm = ({
           </fieldset>
           <fieldset className="fieldset">
             <label className="label" htmlFor={formIds.confirmNewPassword}>
-              Confirm New Password
+              新しいパスワード（確認用）
             </label>
             <input
               id={formIds.confirmNewPassword}
               className={`input ${errors.confirmNewPassword ? "input-error" : ""} w-full`}
               type="password"
               {...register(passwordChangeSchemaKeys.confirmNewPassword)}
-              placeholder="confirm new password"
+              placeholder=" 新しいパスワード（確認用）"
               required
               autoComplete="new-password"
             />
@@ -131,10 +129,10 @@ export const PasswordChangeForm = ({
             className="btn btn-primary mt-2"
             disabled={isSubmitting}
           >
-            Send Password Change Request
+            パスワードを更新する
           </button>
           <Link href="/account" className="link link-primary mt-2">
-            Back to Account
+            アカウントページに戻る
           </Link>
         </fieldset>
       </form>

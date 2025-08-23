@@ -43,7 +43,7 @@ export const SignIn = ({
         <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
           <h2 className="card-title justify-center mb-2">{title}</h2>
           <label className="label" htmlFor={formIds.email}>
-            Email
+            メールアドレス
           </label>
           <input
             id={formIds.email}
@@ -54,12 +54,12 @@ export const SignIn = ({
               (state.formData.get(signInSchemaKeys.email) as string | null) ??
               ""
             }
-            placeholder="email"
+            placeholder="メールアドレス"
             required
             autoComplete="email"
           />
           <label className="label mt-1" htmlFor={formIds.password}>
-            Password
+            パスワード
           </label>
           <input
             id={formIds.password}
@@ -72,7 +72,7 @@ export const SignIn = ({
                 | null) ?? ""
             }
             required
-            placeholder="password"
+            placeholder="パスワード"
             autoComplete="password"
           />
           {state.error && (

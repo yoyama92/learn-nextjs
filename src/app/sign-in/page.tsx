@@ -7,7 +7,7 @@ import { SignIn } from "../../components/auth/sign-in";
 import { auth } from "../../lib/auth";
 
 export const metadata: Metadata = {
-  title: "Sign In - Next.js Sample App",
+  title: "ユーザーログイン - Next.js Sample App",
 };
 
 export default function Page() {
@@ -25,8 +25,8 @@ const AsyncPage = async () => {
   }
   return (
     <SignIn
-      title="Signin to your account"
-      buttonLabel="Sign In"
+      title="ログイン"
+      buttonLabel="ログインする"
       signIn={signIn}
       footer={
         <a href="/password-reset" className="link link-primary mt-2">
