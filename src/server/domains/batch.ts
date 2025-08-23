@@ -6,7 +6,6 @@ const exportUserSelectArg = Prisma.validator<Prisma.UserSelect>()({
   email: true,
   createdAt: true,
   updatedAt: true,
-  deletedAt: true,
   role: {
     select: {
       isAdmin: true,
@@ -50,15 +49,7 @@ export const buildExportUserFile = (
 } => {
   // ユーザー情報をS3にエクスポート
   const fileName = `users-${now}.csv`;
-  const headers = [
-    "id",
-    "name",
-    "email",
-    "createdAt",
-    "updatedAt",
-    "deletedAt",
-    "isAdmin",
-  ];
+  const headers = ["id", "name", "email", "createdAt", "updatedAt", "isAdmin"];
   const fileContent = users.map((user) => {
     return [
       user.id,
@@ -66,7 +57,6 @@ export const buildExportUserFile = (
       user.email,
       user.createdAt.toISOString(),
       user.updatedAt.toISOString(),
-      user.deletedAt ? user.deletedAt.toISOString() : "",
       (user.role?.isAdmin ?? false).toString(),
     ];
   });

@@ -10,7 +10,7 @@ export const SignOut = () => {
         signOut();
       }}
     >
-      サインアウト
+      ログアウト
     </button>
   );
 };
@@ -23,7 +23,7 @@ export const SignOutButton = () => {
       }}
     >
       <button type="submit" className="btn btn-outline">
-        Sign Out
+        ログアウト
       </button>
     </form>
   );

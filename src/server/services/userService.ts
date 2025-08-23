@@ -29,7 +29,6 @@ export const getUser = async (id: string): Promise<UserGetResult | null> => {
   const user = await prisma.user.findUnique({
     where: {
       id: id,
-      deletedAt: null,
     },
     select: userSelectArg,
   });
@@ -55,25 +54,36 @@ export const getUsers = async (): Promise<
   }>[]
 > => {
   const users = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-    },
     select: usersSelectArg,
+    orderBy: {
+      createdAt: "asc",
+    },
   });
   return users;
 };
 
 export const updateUser = async (
   id: string,
-  data: Partial<Pick<User, "name">>,
+  data: Omit<Prisma.UserUpdateInput, "role"> & {
+    role?: Partial<Prisma.UserRoleCreateInput>;
+  },
 ): Promise<Pick<User, "name" | "email">> => {
+  // 安全のために更新する値はカラムごとに指定する。
   const user = await prisma.user.update({
     where: {
       id: id,
-      deletedAt: null,
     },
     data: {
+      email: data.email,
       name: data.name,
+      role: {
+        delete: {},
+        create: data.role
+          ? {
+              isAdmin: data.role?.isAdmin,
+            }
+          : undefined,
+      },
     },
     select: {
       name: true,
@@ -108,7 +118,7 @@ export const updateUserPassword = async (
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: id, deletedAt: null },
+    where: { id: id },
     select: {
       id: true,
       password: true,
@@ -196,4 +206,22 @@ export const createUser = async (data: {
       mailSent: false,
     };
   }
+};
+
+/**
+ * ユーザーを削除する。
+ * @param id 削除するユーザーのID
+ * @returns 削除したユーザーのID
+ */
+export const deleteUser = async (
+  id: string,
+): Promise<Promise<Pick<User, "id">>> => {
+  return await prisma.user.delete({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+    },
+  });
 };
