@@ -1,6 +1,6 @@
 "use server";
 
-import { authHandler } from "../lib/auth";
+import { authHandler } from "../lib/session";
 import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
 import { updateUser, updateUserPassword } from "../server/services/userService";
 

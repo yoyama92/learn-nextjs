@@ -2,14 +2,19 @@ import { auth } from "./lib/auth";
 import { adminPathReg, publicPaths } from "./lib/path";
 
 export default auth((req) => {
+  // エラーページは条件なく表示可能
+  if (req.nextUrl.pathname === "/error/forbidden") {
+    return;
+  }
+
   // 未ログインの場合は公開されたパス以外にはアクセス不可
-  if (!req.auth && !publicPaths.includes(req.nextUrl.pathname)) {
+  if (!req.auth && !publicPaths.test(req.nextUrl.pathname)) {
     const newUrl = new URL("/sign-in", req.nextUrl.origin);
     return Response.redirect(newUrl);
   }
 
   // ログイン済みの場合は公開されたパスにはアクセス不可
-  if (req.auth && publicPaths.includes(req.nextUrl.pathname)) {
+  if (req.auth && publicPaths.test(req.nextUrl.pathname)) {
     const newUrl = new URL(
       req.auth?.user.role === "admin" ? "/admin" : "/",
       req.nextUrl.origin,

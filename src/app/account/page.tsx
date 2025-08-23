@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 
 import { PageWrapper } from "../../components/_common/page";
 import { UserInfo } from "../../components/account/user";
-import { auth } from "../../lib/auth";
-import { getUser } from "../../server/services/userService";
+import { verifySession } from "../../lib/session";
 
 export const metadata: Metadata = {
   title: "User Profile - Next.js Sample App",
@@ -19,21 +17,12 @@ export default function Page() {
 }
 
 const AsyncPage = async () => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/sign-in");
-  }
-
-  const userInfo = await getUser(session.user.id);
-  if (!userInfo) {
-    notFound();
-  }
-
+  const sessionUser = await verifySession();
   return (
     <UserInfo
       user={{
-        name: userInfo.name,
-        email: userInfo.email,
+        name: sessionUser.name,
+        email: sessionUser.email,
       }}
     />
   );
