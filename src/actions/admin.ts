@@ -1,6 +1,6 @@
 "use server";
 
-import { authHandler } from "../lib/auth";
+import { authHandler } from "../lib/session";
 import type {
   CreateUserSchema,
   DeleteUserSchema,

@@ -22,7 +22,7 @@ export const UserInfo = ({ user }: Props) => {
       <div className="flex flex-row justify-between">
         <div></div>
         <div>
-          <Link type="button" className="btn btn-outline" href="/admin">
+          <Link type="button" className="btn btn-outline" href="/admin/users">
             一覧に戻る
           </Link>
         </div>

@@ -28,7 +28,7 @@ export const NewUserForm = () => {
           `新規追加に成功しましたがメール送信に失敗しました。:${data.email}`,
         );
       }
-      router.push("/admin");
+      router.push("/admin/users");
     } catch (error) {
       if (error instanceof Error) {
         window.alert(`作成に失敗しました。: ${error.message}`);

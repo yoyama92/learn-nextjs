@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/solid";
+
 import { signOut } from "../../actions/auth";
 
 export const SignOut = () => {
@@ -10,7 +12,8 @@ export const SignOut = () => {
         signOut();
       }}
     >
-      ログアウト
+      <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
+      <span>ログアウト</span>
     </button>
   );
 };

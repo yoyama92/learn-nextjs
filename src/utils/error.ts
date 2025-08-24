@@ -1,7 +1,21 @@
 export function unauthorized(): never {
-  throw Error("認証エラー");
+  throw new UnauthorizedError();
 }
 
 export function forbidden(): never {
-  throw Error("認可エラー");
+  throw new ForbiddenError();
+}
+
+export class ForbiddenError extends Error {
+  static readonly MESSAGE = "認可エラー";
+  constructor() {
+    super(ForbiddenError.MESSAGE);
+  }
+}
+
+export class UnauthorizedError extends Error {
+  static readonly MESSAGE = "認証エラー";
+  constructor() {
+    super(ForbiddenError.MESSAGE);
+  }
 }

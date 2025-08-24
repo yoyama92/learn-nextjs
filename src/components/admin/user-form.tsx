@@ -78,43 +78,46 @@ export const UserForm = ({
     <>
       <h2 className="text-lg font-bold">{title}</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2 p-4 bg-base-100 border-base-300 rounded-box">
-          <TextInput
-            label="名前"
-            id={formIds.name}
-            errors={errors.name?.message}
-            register={register(userSchemaKeys.name)}
-            type="text"
-            placeholder="名前を入力"
-            disabled={isSubmitting}
-          />
-          <TextInput
-            label="メールアドレス"
-            id={formIds.email}
-            errors={errors.email?.message}
-            register={register(createUserSchemaKeys.email)}
-            type="email"
-            placeholder="メールアドレスを入力"
-            disabled={isSubmitting}
-          />
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">管理者フラグ</legend>
-            <input
-              id={formIds.isAdmin}
-              className="toggle"
-              type="checkbox"
-              {...register(createUserSchemaKeys.isAdmin)}
+        <div className="card bg-base-100">
+          <div className="card-body">
+            <div className="card-title">基本情報</div>
+            <TextInput
+              label="名前"
+              id={formIds.name}
+              errors={errors.name?.message}
+              register={register(userSchemaKeys.name)}
+              type="text"
+              placeholder="名前を入力"
               disabled={isSubmitting}
             />
-            {errors.isAdmin && (
-              <p className="text-error text-xs">{errors.isAdmin.message}</p>
-            )}
-          </fieldset>
+            <TextInput
+              label="メールアドレス"
+              id={formIds.email}
+              errors={errors.email?.message}
+              register={register(createUserSchemaKeys.email)}
+              type="email"
+              placeholder="メールアドレスを入力"
+              disabled={isSubmitting}
+            />
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">管理者フラグ</legend>
+              <input
+                id={formIds.isAdmin}
+                className="toggle"
+                type="checkbox"
+                {...register(createUserSchemaKeys.isAdmin)}
+                disabled={isSubmitting}
+              />
+              {errors.isAdmin && (
+                <p className="text-error text-xs">{errors.isAdmin.message}</p>
+              )}
+            </fieldset>
+          </div>
         </div>
         <div className="flex flex-row justify-between">
           <div></div>
           <div className="flex flex-row gap-2">
-            <Link type="button" className="btn btn-outline" href="/admin">
+            <Link type="button" className="btn btn-outline" href="/admin/users">
               一覧に戻る
             </Link>
             <button className="btn btn-primary" type="submit">
