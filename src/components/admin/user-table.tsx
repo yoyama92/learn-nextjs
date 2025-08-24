@@ -30,7 +30,7 @@ const ActionCell = ({
   onDeleteClick: () => void;
 }) => {
   return (
-    <div>
+    <div className="flex flex-row">
       <div className="tooltip tooltip-top" data-tip="編集">
         <button
           type="button"
@@ -84,7 +84,7 @@ const columns = [
     header: "ユーザー区分",
     cell: (info) => {
       const isAdmin = info.getValue();
-      return isAdmin ? "Admin" : "User";
+      return isAdmin ? "管理者" : "一般ユーザー";
     },
   }),
   columnHelper.accessor((row) => row.createdAt, {
