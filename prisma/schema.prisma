@@ -25,7 +25,7 @@ model User {
 
 /// ユーザーの権限
 model UserRole {
-  userId  String  @unique @db.Uuid /// ID
+  userId  String  @unique @map("user_id") @db.Uuid /// ID
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー  
   isAdmin Boolean @default(false) @map("is_admin") /// 管理者フラグ
 
