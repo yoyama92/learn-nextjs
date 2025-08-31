@@ -2,6 +2,7 @@ import NextAuth, { CredentialsSignin, type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { type Role, roleEnum, roleSchema, signInSchema } from "../schemas/auth";
+import { addSignInActivity } from "../server/services/activityService";
 import { authorizeUser } from "../server/services/authService";
 
 export const { signIn, signOut, auth } = NextAuth({
@@ -87,6 +88,18 @@ export const { signIn, signOut, auth } = NextAuth({
     authorized: async ({ auth }) => {
       // Logged in users are authenticated, otherwise redirect to login page
       return !!auth;
+    },
+  },
+  events: {
+    signIn: async ({ user }) => {
+      if (user.id) {
+        await addSignInActivity({
+          userId: user.id,
+          asAdmin: user.role === "admin",
+        });
+      } else {
+        console.error(`ユーザーID未設定:${user}`);
+      }
     },
   },
   logger: {
