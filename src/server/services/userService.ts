@@ -225,3 +225,89 @@ export const deleteUser = async (
     },
   });
 };
+
+const activityHistorySelectArg =
+  Prisma.validator<Prisma.ActivityHistorySelect>()({
+    id: true,
+    createdAt: true,
+    loginHistory: {
+      select: {
+        asAdmin: true,
+      },
+    },
+  });
+
+const userWithActivitiesSelectArg = Prisma.validator<Prisma.UserSelect>()({
+  id: true,
+  name: true,
+  email: true,
+  createdAt: true,
+  updatedAt: true,
+  role: {
+    select: {
+      isAdmin: true,
+    },
+  },
+  activityHistories: {
+    select: activityHistorySelectArg,
+    orderBy: {
+      createdAt: "desc",
+    },
+  },
+});
+
+export type UserWithActivitiesGetResult = Prisma.UserGetPayload<{
+  select: typeof userWithActivitiesSelectArg;
+}>;
+
+type ActivityHistory = {
+  id: string;
+  createdAt: Date;
+  activity: string;
+};
+
+export const getUserWithActivities = async (
+  id: string,
+): Promise<
+  | (Omit<UserWithActivitiesGetResult, "activityHistories"> & {
+      activityHistories: ActivityHistory[];
+    })
+  | null
+> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+    select: userWithActivitiesSelectArg,
+  });
+
+  if (user) {
+    const { activityHistories, ...otherProps } = user;
+    return {
+      ...otherProps,
+      activityHistories: activityHistories
+        .map((activityHistory) => {
+          return formatActivity(activityHistory);
+        })
+        .filter((value) => value !== undefined),
+    };
+  }
+  return user;
+};
+
+const formatActivity = (
+  activityHistory: Prisma.ActivityHistoryGetPayload<{
+    select: typeof activityHistorySelectArg;
+  }>,
+): ActivityHistory | undefined => {
+  const activity = activityHistory.loginHistory
+    ? `${activityHistory.loginHistory.asAdmin ? "管理者" : "一般ユーザー"}としてログイン`
+    : "";
+  if (activity) {
+    return {
+      id: activityHistory.id,
+      createdAt: activityHistory.createdAt,
+      activity: activity,
+    };
+  }
+};

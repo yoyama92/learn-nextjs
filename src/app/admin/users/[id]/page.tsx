@@ -5,7 +5,7 @@ import { PageWrapper } from "../../../../components/_common/page";
 import { UserInfo } from "../../../../components/admin/user";
 import { verifySession } from "../../../../lib/session";
 import { z } from "../../../../lib/zod";
-import { getUser } from "../../../../server/services/userService";
+import { getUserWithActivities } from "../../../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "User Page - Next.js Sample App",
@@ -33,16 +33,18 @@ const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   });
   const { id } = parseResult.data;
 
-  const userInfo = await getUser(id);
+  const userInfo = await getUserWithActivities(id);
   if (!userInfo) {
     notFound();
   }
+
   return (
     <UserInfo
       user={{
         name: userInfo.name,
         email: userInfo.email,
         isAdmin: userInfo.role?.isAdmin ?? false,
+        activities: userInfo.activityHistories,
       }}
     />
   );
