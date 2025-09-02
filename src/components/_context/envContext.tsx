@@ -9,7 +9,7 @@ export interface TabContextType {
   setActiveTab: (index: number) => void;
 }
 
-export const EnvContext = createContext<PublicEnvStore | undefined>(undefined);
+const EnvContext = createContext<PublicEnvStore | undefined>(undefined);
 
 type EnvProviderProps = {
   children: ReactNode;
@@ -20,7 +20,7 @@ export const EnvProvider: React.FC<EnvProviderProps> = ({
   children,
   envStore,
 }) => {
-  return <EnvContext.Provider value={envStore}>{children}</EnvContext.Provider>;
+  return <EnvContext value={envStore}>{children}</EnvContext>;
 };
 
 export const useEnv = (): PublicEnvStore => {
