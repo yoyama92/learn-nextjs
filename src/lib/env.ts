@@ -1,3 +1,5 @@
+import "server-only";
+
 import { z } from "./zod";
 
 /**
@@ -38,7 +40,15 @@ const envSchema = envSchemaBase.extend({
     ),
 });
 
+const publicEnvSchema = envSchema.pick({
+  AWS_SES_FROM_EMAIL: true,
+});
+
 /**
  * 型安全に環境変数を取得するためのオブジェクト
  */
 export const envStore = envSchema.parse(process.env);
+
+export const publicEnvStore = publicEnvSchema.parse(process.env);
+
+export type PublicEnvStore = z.infer<typeof publicEnvSchema>;

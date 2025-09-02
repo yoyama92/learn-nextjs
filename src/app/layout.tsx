@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { EnvProvider } from "../components/_context/envContext";
+import { publicEnvStore } from "../lib/env";
 
 export const metadata: Metadata = {
   title: "Next.js Sample App",
@@ -15,7 +17,7 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <div className="bg-neutral-100 min-h-screen">
-          {children}
+          <EnvProvider envStore={publicEnvStore}>{children}</EnvProvider>
         </div>
       </body>
     </html>
