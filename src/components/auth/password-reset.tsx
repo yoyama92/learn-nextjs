@@ -7,6 +7,7 @@ import {
   type ResetPasswordSchema,
   resetPasswordSchemaKeys,
 } from "../../schemas/auth";
+import { useEnv } from "../_context/envContext";
 
 const useFormIds = (): Record<keyof ResetPasswordSchema, string> => {
   const emailHintId = useId();
@@ -33,6 +34,7 @@ export const PasswordResetForm = () => {
   );
 
   const formIds = useFormIds();
+  const envStore = useEnv();
   return (
     <div className="flex justify-center items-center min-h-screen">
       <form action={formAction} autoComplete="on">
@@ -67,6 +69,9 @@ export const PasswordResetForm = () => {
               {state.error && (
                 <div className="text-error text-sm">{state.error}</div>
               )}
+              <p className="label text-wrap">
+                {`確定ボタンを押すと ${envStore.AWS_SES_FROM_EMAIL} から初期パスワードの記載されたメールが送信されます。`}
+              </p>
               <button
                 type="submit"
                 className="btn btn-primary mt-2"
