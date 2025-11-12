@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "test": "vitest",
@@ -24,7 +24,7 @@
     "bcryptjs": "3.0.3",
     "generate-password": "1.7.1",
     "hono": "4.10.5",
-    "next": "15.3.4",
+    "next": "16.0.2",
     "next-auth": "5.0.0-beta.28",
     "react": "19.2.0",
     "react-dom": "19.2.0",
