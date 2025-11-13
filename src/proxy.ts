@@ -30,15 +30,6 @@ export default auth((req) => {
     const newUrl = new URL("/error/forbidden", req.nextUrl.origin);
     return Response.redirect(newUrl);
   }
-
-  // 管理者としてログインしている場合は管理者画面へのアクセスは不可
-  if (
-    req.auth?.user.role === "admin" &&
-    !adminPathReg.test(req.nextUrl.pathname)
-  ) {
-    const newUrl = new URL("/admin", req.nextUrl.origin);
-    return Response.redirect(newUrl);
-  }
 });
 
 export const config = {

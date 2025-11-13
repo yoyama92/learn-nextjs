@@ -1,7 +1,7 @@
 /**
  * ログイン不要でアクセス可能なパス
  */
-export const publicPaths = /^\/(sign-in|password-reset|admin\/sign-in)/;
+export const publicPaths = /^\/(sign-in|password-reset)/;
 
 /**
  * 管理者画面のパス

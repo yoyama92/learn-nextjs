@@ -22,7 +22,7 @@ describe("adminPathReg", () => {
 
 describe("publicPaths", () => {
   test("マッチする", () => {
-    const paths = ["/sign-in", "/password-reset", "/admin/sign-in"];
+    const paths = ["/sign-in", "/password-reset"];
 
     for (const path of paths) {
       expect(publicPaths.test(path)).toBe(true);

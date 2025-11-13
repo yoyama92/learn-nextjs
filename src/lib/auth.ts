@@ -26,37 +26,7 @@ export const { signIn, signOut, auth } = NextAuth({
           // return JSON object with the user data
           return {
             id: user.id,
-            role: roleEnum.user,
-          };
-        } catch (error) {
-          if (error instanceof CredentialsSignin) {
-            throw error;
-          }
-          console.error("[auth][error]authorize:", error);
-          throw Error("原因不明のエラー");
-        }
-      },
-    }),
-    Credentials({
-      id: roleEnum.admin,
-      credentials: {
-        email: {},
-        password: {},
-      },
-      authorize: async (credentials) => {
-        try {
-          const { email, password } = signInSchema.parse(credentials);
-
-          // logic to verify if the user exists
-          const user = await authorizeUser(email, password, true);
-          if (!user) {
-            throw new CredentialsSignin(`Invalid credentials. email: ${email}`);
-          }
-
-          // return JSON object with the user data
-          return {
-            id: user.id,
-            role: roleEnum.admin,
+            role: user.role,
           };
         } catch (error) {
           if (error instanceof CredentialsSignin) {

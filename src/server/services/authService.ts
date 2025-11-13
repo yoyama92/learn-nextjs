@@ -1,5 +1,5 @@
-import type { User } from "../../generated/prisma";
 import { envStore } from "../../lib/env";
+import { type Role, roleEnum } from "../../schemas/auth";
 import {
   generateRandomPassword,
   hashPassword,
@@ -11,21 +11,26 @@ import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 export const authorizeUser = async (
   email: string,
   password: string,
-  isAdmin: boolean = false,
-): Promise<Pick<User, "id"> | null> => {
+): Promise<{
+  id: string;
+  role: Role;
+} | null> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
-      role: isAdmin
-        ? {
-            isAdmin: isAdmin,
-          }
-        : undefined,
+      role: {
+        isAdmin: true,
+      },
       // password: pwHash,
     },
     select: {
       id: true,
       password: true,
+      role: {
+        select: {
+          isAdmin: true,
+        },
+      },
     },
   });
   if (!user || !user.password) {
@@ -38,8 +43,10 @@ export const authorizeUser = async (
   }
 
   // 漏洩防止のためにパスワードを返さない
+  // 明示的に戻り値を指定する
   return {
     id: user.id,
+    role: user.role?.isAdmin ? roleEnum.admin : roleEnum.user,
   };
 };
 

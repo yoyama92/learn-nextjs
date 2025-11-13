@@ -4,59 +4,48 @@ import { redirect } from "next/navigation";
 import { CredentialsSignin } from "next-auth";
 
 import { signIn as auth, signOut as signOutFn } from "../lib/auth";
-import {
-  type Role,
-  resetPasswordSchema,
-  roleEnum,
-  signInSchema,
-} from "../schemas/auth";
+import { resetPasswordSchema, roleEnum, signInSchema } from "../schemas/auth";
 import { passwordReminder } from "../server/services/authService";
 
 /**
- * サインイン関数を返す
- * @param id サインイン種別（auth.jsの設定に合わせる）
- * @param callbackUrl 成功したときのリダイレクトURL
- * @returns サインイン関数
+ * サインイン
+ * @param _
+ * @param formData
+ * @returns
  */
-const signInHandler = (id: Role, callbackUrl: string) => {
-  return async (_: unknown, formData: FormData) => {
-    try {
-      const parseResult = signInSchema.safeParse(
-        Object.fromEntries(formData.entries()),
-      );
+export const signIn = async (_: unknown, formData: FormData) => {
+  try {
+    const parseResult = signInSchema.safeParse(
+      Object.fromEntries(formData.entries()),
+    );
 
-      if (!parseResult.success) {
-        return {
-          error: "メールアドレスもしくはパスワードが異なります。",
-          formData: formData,
-        };
-      }
-
-      // Auth.jsの機能でサインインを行う。
-      await auth(id, {
-        ...parseResult.data,
-        redirect: false,
-      });
-    } catch (error) {
-      // サインインに失敗した場合は`CredentialsSignin`が投げられる。
-      if (error instanceof CredentialsSignin) {
-        return {
-          error: "メールアドレスもしくはパスワードが異なります。",
-          formData: formData,
-        };
-      } else {
-        return { error: "システムエラーが発生しました。", formData: formData };
-      }
+    if (!parseResult.success) {
+      return {
+        error: "メールアドレスもしくはパスワードが異なります。",
+        formData: formData,
+      };
     }
 
-    // サインインに成功した場合
-    redirect(callbackUrl);
-  };
+    // Auth.jsの機能でサインインを行う。
+    await auth(roleEnum.user, {
+      ...parseResult.data,
+      redirect: false,
+    });
+  } catch (error) {
+    // サインインに失敗した場合は`CredentialsSignin`が投げられる。
+    if (error instanceof CredentialsSignin) {
+      return {
+        error: "メールアドレスもしくはパスワードが異なります。",
+        formData: formData,
+      };
+    } else {
+      return { error: "システムエラーが発生しました。", formData: formData };
+    }
+  }
+
+  // サインインに成功した場合
+  redirect("/");
 };
-
-export const signIn = signInHandler(roleEnum.user, "/");
-
-export const signInAsAdmin = signInHandler(roleEnum.admin, "/admin");
 
 /**
  * サインアウト
