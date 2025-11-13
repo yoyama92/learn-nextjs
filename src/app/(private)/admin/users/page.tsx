@@ -1,7 +1,7 @@
-import { PageWrapper } from "../../../components/_common/page";
-import { UserList } from "../../../components/admin/user-list";
-import { verifySession } from "../../../lib/session";
-import { getUsers } from "../../../server/services/userService";
+import { PageWrapper } from "../../../../components/_common/page";
+import { UserList } from "../../../../components/admin/user-list";
+import { verifySession } from "../../../../lib/session";
+import { getUsers } from "../../../../server/services/userService";
 
 export default function AdminPage() {
   return (

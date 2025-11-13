@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { signInAsAdmin } from "../../../actions/auth";
 import { PageWrapper } from "../../../components/_common/page";
-import { SignIn } from "../../../components/auth/sign-in";
+import { PasswordResetForm } from "../../../components/auth/password-reset";
 import { auth } from "../../../lib/auth";
 
 export const metadata: Metadata = {
-  title: "Admin Sign In - Next.js Sample App",
+  title: "Password Reset - Next.js Sample App",
 };
 
 export default function Page() {
@@ -21,13 +20,7 @@ export default function Page() {
 const AsyncPage = async () => {
   const session = await auth();
   if (session?.user) {
-    redirect(session.user.role === "admin" ? "/admin" : "/");
+    redirect("/");
   }
-  return (
-    <SignIn
-      title="管理者ログイン"
-      buttonLabel="ログインする"
-      signIn={signInAsAdmin}
-    />
-  );
+  return <PasswordResetForm />;
 };

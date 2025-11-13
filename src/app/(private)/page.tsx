@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { PageWrapper } from "../components/_common/page";
-import { auth } from "../lib/auth";
+import { PageWrapper } from "../../components/_common/page";
+import { auth } from "../../lib/auth";
 
 export default function Home() {
   return (
@@ -17,5 +17,5 @@ const AsyncPage = async () => {
     redirect("/sign-in");
   }
 
-  redirect(session.user.role === "admin" ? "/admin" : "/account");
+  return <h2 className="text-lg font-bold">トップページ</h2>;
 };

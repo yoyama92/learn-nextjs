@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 import { PageWrapper } from "../../../components/_common/page";
-import { PasswordChangeForm } from "../../../components/auth/password-change";
+import { UserInfo } from "../../../components/account/user";
 import { verifySession } from "../../../lib/session";
 
 export const metadata: Metadata = {
-  title: "Change Password - Next.js Sample App",
+  title: "User Profile - Next.js Sample App",
 };
 
 export default function Page() {
@@ -15,12 +15,13 @@ export default function Page() {
     </PageWrapper>
   );
 }
+
 const AsyncPage = async () => {
   const sessionUser = await verifySession();
-
   return (
-    <PasswordChangeForm
+    <UserInfo
       user={{
+        name: sessionUser.name,
         email: sessionUser.email,
       }}
     />

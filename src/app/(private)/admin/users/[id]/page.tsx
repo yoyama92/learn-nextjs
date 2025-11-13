@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { PageWrapper } from "../../../../components/_common/page";
-import { UserInfo } from "../../../../components/admin/user";
-import { verifySession } from "../../../../lib/session";
-import { z } from "../../../../lib/zod";
-import { getUserWithActivities } from "../../../../server/services/userService";
+import { PageWrapper } from "../../../../../components/_common/page";
+import { UserInfo } from "../../../../../components/admin/user";
+import { verifySession } from "../../../../../lib/session";
+import { z } from "../../../../../lib/zod";
+import { getUserWithActivities } from "../../../../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "User Page - Next.js Sample App",
