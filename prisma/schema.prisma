@@ -10,10 +10,9 @@ datasource db {
 
 /// ユーザー
 model User {
-  id       String @id @default(uuid()) @db.Uuid /// ID
-  email    String @unique /// メールアドレス
-  name     String /// 名前
-  password String /// パスワード
+  id    String @id /// ID
+  email String @unique /// メールアドレス
+  name  String /// 名前
 
   createdAt DateTime @default(now()) @map("created_at") /// 登録日時
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") /// 更新日時
@@ -21,12 +20,17 @@ model User {
   role              UserRole? /// ユーザーの権限
   activityHistories ActivityHistory[] /// 操作履歴
 
+  emailVerified Boolean @default(false) @map("email_verified") /// メールアドレス確認済みフラグ
+
+  sessions Session[]
+  accounts Account[]
+
   @@map("users")
 }
 
 /// ユーザーの権限
 model UserRole {
-  userId  String  @unique @map("user_id") @db.Uuid /// ID
+  userId  String  @unique @map("user_id")
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー  
   isAdmin Boolean @default(false) @map("is_admin") /// 管理者フラグ
 
@@ -36,7 +40,7 @@ model UserRole {
 /// 操作履歴
 model ActivityHistory {
   id     String @id @default(uuid()) @db.Uuid /// ID
-  userId String @map("user_id") @db.Uuid /// ログインユーザー
+  userId String @map("user_id") /// ログインユーザー
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー
 
   createdAt DateTime @default(now()) @map("created_at") /// レコード作成日時
@@ -56,4 +60,52 @@ model LoginHistory {
   createdAt DateTime @default(now()) @map("created_at") /// レコード作成日時
 
   @@map("login_histories")
+}
+
+model Session {
+  id        String   @id @map("id")
+  expiresAt DateTime @map("expires_at")
+  token     String   @map("token")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @map("id")
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?   @map("scope")
+  password              String?   @map("password")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @map("id")
+  identifier String   @map("identifier")
+  value      String   @map("value")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verification")
 }

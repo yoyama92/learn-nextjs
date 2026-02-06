@@ -1,8 +1,10 @@
 "use server";
 
+import { headers } from "next/headers";
+import { auth } from "../lib/auth";
 import { authHandler } from "../lib/session";
 import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
-import { updateUser, updateUserPassword } from "../server/services/userService";
+import { updateUser } from "../server/services/userService";
 
 /**
  * ユーザー情報を更新する
@@ -30,18 +32,22 @@ export const postUser = async (user: UserSchema) => {
  * @returns 更新結果
  */
 export const changePassword = async (input: PasswordChangeSchema) => {
-  return authHandler(async (id) => {
+  return authHandler(async () => {
+    if (input.newPassword !== input.confirmNewPassword) {
+      return { success: false };
+    }
     try {
-      return await updateUserPassword(id, {
-        currentPassword: input.currentPassword,
-        newPassword: input.newPassword,
-        confirmNewPassword: input.confirmNewPassword,
+      await auth.api.changePassword({
+        body: {
+          newPassword: input.newPassword,
+          currentPassword: input.currentPassword,
+          revokeOtherSessions: true,
+        },
+        headers: await headers(),
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error updating user:", error.message);
-      }
-      return null;
+      return { success: false };
+    } catch {
+      return { success: false };
     }
   });
 };

@@ -28,3 +28,22 @@ export const roleSchema = z.union([
 ]);
 
 export type Role = z.infer<typeof roleSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    newPassword: passwordSchema,
+    confirmNewPassword: passwordSchema,
+  })
+  .refine(
+    (data) => {
+      return data.newPassword === data.confirmNewPassword;
+    },
+    {
+      message: "新しいパスワードと確認用パスワードが一致しません。",
+      path: ["confirmNewPassword"],
+    },
+  );
+
+export const changePasswordSchemaKeys = changePasswordSchema.keyof().enum;
+
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;

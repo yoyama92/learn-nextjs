@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-
 import { PageWrapper } from "../../components/_common/page";
-import { auth } from "../../lib/auth";
+import { verifySession } from "../../lib/session";
 
 export default function Home() {
   return (
@@ -12,10 +10,9 @@ export default function Home() {
 }
 
 const AsyncPage = async () => {
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/sign-in");
-  }
+  await verifySession({
+    adminOnly: true,
+  });
 
   return <h2 className="text-lg font-bold">トップページ</h2>;
 };

@@ -1,10 +1,7 @@
 import { Prisma, type User } from "../../generated/prisma";
+import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
-import {
-  generateRandomPassword,
-  hashPassword,
-  verifyPassword,
-} from "../../utils/password";
+import { generateRandomPassword } from "../../utils/password";
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
@@ -94,62 +91,6 @@ export const updateUser = async (
   return user;
 };
 
-/**
- * ユーザーのパスワードを更新する
- * @param id ユーザーID
- * @param data パスワード変更に必要なデータ
- * @param data.currentPassword 現在のパスワード
- * @param data.newPassword 新しいパスワード
- * @param data.confirmNewPassword 新しいパスワードの確認用
- * @returns 成功/失敗を示すオブジェクト
- */
-export const updateUserPassword = async (
-  id: string,
-  data: {
-    currentPassword: string;
-    newPassword: string;
-    confirmNewPassword: string;
-  },
-): Promise<{
-  success: boolean;
-}> => {
-  if (data.newPassword !== data.confirmNewPassword) {
-    return { success: false };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: id },
-    select: {
-      id: true,
-      password: true,
-    },
-  });
-
-  // パスワードが一致しない場合は失敗
-  if (!user || !user.password) {
-    return { success: false };
-  }
-
-  // パスワード検証関数を使って比較
-  const isPasswordValid = verifyPassword(data.currentPassword, user.password);
-  if (!isPasswordValid) {
-    return { success: false };
-  }
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      password: hashPassword(data.newPassword),
-    },
-    select: {
-      id: true,
-    },
-  });
-  return { success: true };
-};
-
 export const createUser = async (data: {
   name: string;
   email: string;
@@ -160,27 +101,18 @@ export const createUser = async (data: {
   const newPassword = generateRandomPassword(
     12 + Math.floor(Math.random() * 4),
   );
-
-  const user = await prisma.user.create({
-    data: {
+  const createdUser = await auth.api.signUpEmail({
+    body: {
       name: data.name,
       email: data.email,
-      password: hashPassword(newPassword),
-      role: {
-        create: {
-          isAdmin: data.isAdmin ?? false, // デフォルトは非管理者
-        },
-      },
-    },
-    select: {
-      email: true,
+      password: newPassword,
     },
   });
 
   try {
     const emailParams = {
       Destination: {
-        ToAddresses: [user.email],
+        ToAddresses: [createdUser.user.email],
       },
       Content: {
         Simple: {

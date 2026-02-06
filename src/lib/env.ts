@@ -1,5 +1,3 @@
-import "server-only";
-
 import { z } from "./zod";
 
 /**
@@ -38,6 +36,7 @@ const envSchema = envSchemaBase.extend({
     .describe(
       "バッチ処理を外部から呼び出せないようにする簡易認証機能のためのトークン",
     ),
+  BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
 });
 
 const publicEnvSchema = envSchema.pick({
