@@ -47,7 +47,7 @@ export const changePassword = async (input: PasswordChangeSchema) => {
         },
         headers: await headers(),
       });
-      return { success: false };
+      return { success: true };
     } catch {
       return { success: false };
     }
