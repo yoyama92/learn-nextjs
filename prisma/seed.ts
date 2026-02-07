@@ -1,7 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma";
 import { auth } from "../src/lib/auth";
-
-const prisma = new PrismaClient();
 
 const main = async () => {
   const users = [
@@ -18,6 +15,7 @@ const main = async () => {
       role: "user" as const,
     },
   ];
+
   await Promise.all(
     users.map(async (user) => {
       return await auth.api.createUser({
@@ -27,12 +25,7 @@ const main = async () => {
   );
 };
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+main().catch(async (e) => {
+  console.error(e);
+  process.exit(1);
+});

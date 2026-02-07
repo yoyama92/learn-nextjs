@@ -1,13 +1,13 @@
-import { Prisma } from "../../generated/prisma";
+import type { Prisma } from "../../generated/prisma/client";
 
-const exportUserSelectArg = Prisma.validator<Prisma.UserSelect>()({
+const exportUserSelectArg = {
   id: true,
   name: true,
   email: true,
   createdAt: true,
   updatedAt: true,
   role: true,
-});
+} satisfies Prisma.UserSelect;
 
 /**
  * ユーザー出力のためのPrismaのクエリを構築する。
