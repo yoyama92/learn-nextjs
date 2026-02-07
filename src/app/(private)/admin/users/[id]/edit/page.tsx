@@ -21,7 +21,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
 const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const schema = z.object({
-    id: z.uuid(),
+    id: z.string(),
   });
   const parseResult = schema.safeParse(await params);
   if (!parseResult.success) {
@@ -44,7 +44,7 @@ const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
         id: userInfo.id,
         email: userInfo.email,
         name: userInfo.name,
-        isAdmin: userInfo.role?.isAdmin,
+        isAdmin: userInfo.role === "admin",
       }}
     />
   );

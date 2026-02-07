@@ -39,8 +39,8 @@ export const UserInfo = ({
   const onSubmit: SubmitHandler<UserSchema> = async (data) => {
     try {
       const result = await postUser(data);
-      if (result) {
-        reset({ name: result.name });
+      if (result?.status) {
+        reset({ name: data.name });
         window.alert(`更新しました\n${JSON.stringify(result, null, 2)}`);
       } else {
         window.alert("更新に失敗しました");

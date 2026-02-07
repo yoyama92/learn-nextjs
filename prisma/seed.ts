@@ -9,37 +9,21 @@ const main = async () => {
       name: "Alice",
       email: "alice@example.com",
       password: "aaaaaaaa",
-      role: {
-        isAdmin: true,
-      },
+      role: "admin" as const,
     },
     {
       name: "Bob",
       email: "Bob@example.com",
       password: "aaaaaaaa",
-      role: {
-        isAdmin: false,
-      },
+      role: "user" as const,
     },
   ];
-  await prisma.$transaction(
-    async (tx) =>
-      await Promise.all(
-        users.map(async (user) => {
-          const result = await auth.api.signUpEmail({
-            body: user,
-          });
-          return await tx.userRole.create({
-            data: {
-              userId: result.user.id,
-              isAdmin: user.role.isAdmin,
-            },
-            select: {
-              userId: true,
-            },
-          });
-        }),
-      ),
+  await Promise.all(
+    users.map(async (user) => {
+      return await auth.api.createUser({
+        body: user,
+      });
+    }),
   );
 };
 

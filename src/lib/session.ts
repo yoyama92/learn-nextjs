@@ -19,7 +19,7 @@ export const verifySession = async (options?: {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session?.user?.id) {
+  if (!session) {
     unauthorized();
   }
 
@@ -54,5 +54,5 @@ export const authHandler = async <T>(
  * @returns 管理者としてログインしている場合にtrueを返す。
  */
 const isAdminUser = (session: Session) => {
-  return session?.role?.isAdmin;
+  return session?.user?.role === "admin";
 };

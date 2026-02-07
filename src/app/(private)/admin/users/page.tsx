@@ -24,7 +24,7 @@ const AsyncPage = async () => {
         email: user.email,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        isAdmin: user.role?.isAdmin,
+        isAdmin: user.role === "admin",
       }))}
     />
   );

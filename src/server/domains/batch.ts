@@ -6,11 +6,7 @@ const exportUserSelectArg = Prisma.validator<Prisma.UserSelect>()({
   email: true,
   createdAt: true,
   updatedAt: true,
-  role: {
-    select: {
-      isAdmin: true,
-    },
-  },
+  role: true,
 });
 
 /**
@@ -57,7 +53,7 @@ export const buildExportUserFile = (
       user.email,
       user.createdAt.toISOString(),
       user.updatedAt.toISOString(),
-      (user.role?.isAdmin ?? false).toString(),
+      (user.role === "admin").toString(),
     ];
   });
   return { fileName, headers, fileContent };

@@ -1,16 +1,14 @@
 "use server";
 
+import { headers } from "next/headers";
+import { auth } from "../lib/auth";
 import { authHandler } from "../lib/session";
 import type {
   CreateUserSchema,
   DeleteUserSchema,
   EditUserSchema,
 } from "../schemas/admin";
-import {
-  createUser,
-  deleteUser,
-  updateUser,
-} from "../server/services/userService";
+import { createUser } from "../server/services/userService";
 
 /**
  * ユーザーを追加する。
@@ -64,10 +62,22 @@ export const postDeleteUser = async (
         };
       }
       try {
-        await deleteUser(user.id);
-        return {
-          success: true,
-        };
+        const result = await auth.api.removeUser({
+          body: {
+            userId: user.id,
+          },
+          headers: await headers(),
+        });
+        if (result.success) {
+          return {
+            success: true,
+          };
+        } else {
+          return {
+            success: false,
+            message: "削除に失敗しました。",
+          };
+        }
       } catch (error) {
         if (error instanceof Error) {
           console.error("削除に失敗しました:", error.message);
@@ -97,11 +107,16 @@ export const postEditUser = async (
 } | null> => {
   return authHandler(
     async () => {
-      await updateUser(user.id, {
-        ...user,
-        role: {
-          isAdmin: user.isAdmin,
+      auth.api.adminUpdateUser({
+        body: {
+          userId: user.id,
+          data: {
+            name: user.name,
+            email: user.email,
+            role: user.isAdmin ? "admin" : "user",
+          },
         },
+        headers: await headers(),
       });
       return {
         success: true,

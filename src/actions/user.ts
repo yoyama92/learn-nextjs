@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { auth } from "../lib/auth";
 import { authHandler } from "../lib/session";
 import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
-import { updateUser } from "../server/services/userService";
 
 /**
  * ユーザー情報を更新する
@@ -12,10 +11,13 @@ import { updateUser } from "../server/services/userService";
  * @returns 更新結果
  */
 export const postUser = async (user: UserSchema) => {
-  return authHandler(async (id) => {
+  return authHandler(async () => {
     try {
-      return await updateUser(id, {
-        name: user.name,
+      return await auth.api.updateUser({
+        body: {
+          name: user.name,
+        },
+        headers: await headers(),
       });
     } catch (error) {
       if (error instanceof Error) {

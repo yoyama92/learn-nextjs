@@ -5,7 +5,7 @@ import { PageWrapper } from "../../../../../components/_common/page";
 import { UserInfo } from "../../../../../components/admin/user";
 import { verifySession } from "../../../../../lib/session";
 import { z } from "../../../../../lib/zod";
-import { getUserWithActivities } from "../../../../../server/services/userService";
+import { getUser } from "../../../../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "User Page - Next.js Sample App",
@@ -21,7 +21,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
 const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const schema = z.object({
-    id: z.uuid(),
+    id: z.string(),
   });
   const parseResult = schema.safeParse(await params);
   if (!parseResult.success) {
@@ -33,7 +33,7 @@ const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   });
   const { id } = parseResult.data;
 
-  const userInfo = await getUserWithActivities(id);
+  const userInfo = await getUser(id);
   if (!userInfo) {
     notFound();
   }
@@ -43,8 +43,7 @@ const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
       user={{
         name: userInfo.name,
         email: userInfo.email,
-        isAdmin: userInfo.role?.isAdmin ?? false,
-        activities: userInfo.activityHistories,
+        isAdmin: userInfo.role === "admin",
       }}
     />
   );
