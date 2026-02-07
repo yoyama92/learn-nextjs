@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { auth } from "../lib/auth";
 import { envStore } from "../lib/env";
 import {
-  ChangePasswordSchema,
+  type ChangePasswordSchema,
   changePasswordSchema,
   resetPasswordSchema,
   signInSchema,
@@ -77,7 +77,6 @@ export const resetPassword = async (
   );
 
   const email = parseResult.data?.email;
-
   if (!email) {
     return { error: "メールアドレスを入力してください。", formData: formData };
   }
@@ -85,7 +84,7 @@ export const resetPassword = async (
   try {
     const data = await auth.api.requestPasswordReset({
       body: {
-        email: email, // required
+        email: email,
         redirectTo: new URL(
           "/reset-password",
           envStore.BETTER_AUTH_URL,
@@ -106,7 +105,7 @@ export const resetPassword = async (
 };
 
 /**
- * パスワードを初期化する。
+ * パスワードを更新する。
  */
 export const changePassword = async (
   token: string,
@@ -117,22 +116,21 @@ export const changePassword = async (
   "use server";
 
   const parseResult = changePasswordSchema.safeParse(formData);
-  if (
-    !parseResult.data ||
-    parseResult.data.newPassword !== parseResult.data.confirmNewPassword
-  ) {
+  if (parseResult.success === false) {
     return { success: false };
   }
 
+  const data = parseResult.data;
+
   try {
-    const data = await auth.api.resetPassword({
+    const result = await auth.api.resetPassword({
       body: {
-        newPassword: parseResult.data.newPassword,
+        newPassword: data.newPassword,
         token: token,
       },
     });
     return {
-      success: data.status,
+      success: result.status,
     };
   } catch {
     return {

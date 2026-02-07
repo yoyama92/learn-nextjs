@@ -16,12 +16,12 @@ export default function Page() {
   );
 }
 const AsyncPage = async () => {
-  const sessionUser = await verifySession();
+  const { user } = await verifySession();
 
   return (
     <PasswordChangeForm
       user={{
-        email: sessionUser.email,
+        email: user.email,
       }}
     />
   );

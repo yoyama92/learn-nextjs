@@ -1,5 +1,8 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
 import { PageWrapper } from "../../components/_common/page";
-import { verifySession } from "../../lib/session";
+import { auth } from "../../lib/auth";
 
 export default function Home() {
   return (
@@ -10,9 +13,18 @@ export default function Home() {
 }
 
 const AsyncPage = async () => {
-  await verifySession({
-    adminOnly: true,
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
 
-  return <h2 className="text-lg font-bold">トップページ</h2>;
+  if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  return (
+    <>
+      <h2 className="text-lg font-bold">トップページ</h2>
+      {JSON.stringify(session?.user)}
+    </>
+  );
 };

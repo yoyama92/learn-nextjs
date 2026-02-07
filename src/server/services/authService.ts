@@ -1,4 +1,5 @@
 import { envStore } from "../../lib/env";
+import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
 /**
@@ -42,4 +43,20 @@ export const passwordReminder = async (
     console.error("Error in password reminder:", error);
     return { success: false };
   }
+};
+
+/**
+ * ユーザーの権限情報を取得する。
+ * @param userId ユーザーID
+ * @returns ユーザーの権限情報
+ */
+export const findUserRoles = async (
+  userId: string,
+): Promise<{
+  isAdmin: boolean;
+} | null> => {
+  return await prisma.userRole.findUnique({
+    where: { userId: userId },
+    select: { isAdmin: true },
+  });
 };

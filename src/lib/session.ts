@@ -1,18 +1,12 @@
 import { headers } from "next/headers";
 
 import type { UserSchema } from "../schemas/user";
-import { unauthorized } from "../utils/error";
+import { forbidden, unauthorized } from "../utils/error";
 import { auth } from "./auth";
 
 type AuthHandlerCallback<T> = (id: string, user: UserSchema) => Promise<T>;
 
-type SessionUser = {
-  id: string;
-  email: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
 /**
  * セッションの認証・認可処理
@@ -21,7 +15,7 @@ type SessionUser = {
  */
 export const verifySession = async (options?: {
   adminOnly?: boolean;
-}): Promise<SessionUser> => {
+}): Promise<NonNullable<Session>> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -29,11 +23,11 @@ export const verifySession = async (options?: {
     unauthorized();
   }
 
-  // if (options?.adminOnly && !isAdminUser(session, userInfo)) {
-  //   forbidden();
-  // }
+  if (options?.adminOnly && !isAdminUser(session)) {
+    forbidden();
+  }
 
-  return session.user;
+  return session;
 };
 
 /**
@@ -48,17 +42,17 @@ export const authHandler = async <T>(
     adminOnly?: boolean;
   },
 ): Promise<T> => {
-  const user = await verifySession(options);
+  const { user } = await verifySession(options);
 
   return callback(user.id, user);
 };
 
-// /**
-//  * 管理者としてログインしている管理者か判定する。
-//  * @param session セッション
-//  * @param dbUser DBから取得したユーザー情報
-//  * @returns 管理者としてログインしている場合にtrueを返す。
-//  */
-// const isAdminUser = (session: Session, dbUser: UserGetResult) => {
-//   return session?.user.role === "admin" && dbUser?.role?.isAdmin;
-// };
+/**
+ * 管理者としてログインしている管理者か判定する。
+ * @param session セッション
+ * @param dbUser DBから取得したユーザー情報
+ * @returns 管理者としてログインしている場合にtrueを返す。
+ */
+const isAdminUser = (session: Session) => {
+  return session?.role?.isAdmin;
+};
