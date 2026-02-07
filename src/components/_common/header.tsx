@@ -1,6 +1,9 @@
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { SignOut } from "../auth/sign-out";
 
+/**
+ * ログイン後ページの共通ヘッダー
+ */
 export const Header = () => {
   return (
     <div className="navbar bg-base-100 shadow-sm">

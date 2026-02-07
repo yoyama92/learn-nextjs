@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <div className="bg-neutral-100 min-h-screen">
+          {/* クライアントで環境ごと切り替える値をコンテキストに持たせる。 */}
           <EnvProvider envStore={publicEnvStore}>{children}</EnvProvider>
         </div>
       </body>

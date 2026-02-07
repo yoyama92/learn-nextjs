@@ -9,7 +9,7 @@
 - Tailwind CSS
 - daisyUI
 - React Hook Form
-- Auth.js
+- Better Auth
 - Prisma
 - Zod
 
@@ -48,7 +48,7 @@
 | 画面名           | URL               |
 | ---------------- | ----------------- |
 | ログイン         | /sign-in          |
-| パスワード初期化 | /password-reset   |
+| パスワード初期化 | /reset-password   |
 | アカウント情報   | /account          |
 | パスワード変更   | /account/password |
 | 管理者画面       | /admin            |

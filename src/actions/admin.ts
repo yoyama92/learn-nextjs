@@ -42,6 +42,11 @@ export const postNewUser = async (
   );
 };
 
+/**
+ * ユーザーを削除する。
+ * @param user 削除するユーザー情報
+ * @returns 削除結果
+ */
 export const postDeleteUser = async (
   user: DeleteUserSchema,
 ): Promise<
@@ -107,7 +112,7 @@ export const postEditUser = async (
 } | null> => {
   return authHandler(
     async () => {
-      auth.api.adminUpdateUser({
+      await auth.api.adminUpdateUser({
         body: {
           userId: user.id,
           data: {

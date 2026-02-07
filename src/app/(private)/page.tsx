@@ -1,15 +1,13 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { PageWrapper } from "../../components/_common/page";
 import { auth } from "../../lib/auth";
 
+/**
+ * ルートページ
+ */
 export default function Home() {
-  return (
-    <PageWrapper>
-      <AsyncPage />
-    </PageWrapper>
-  );
+  return <AsyncPage />;
 }
 
 const AsyncPage = async () => {
@@ -17,14 +15,15 @@ const AsyncPage = async () => {
     headers: await headers(),
   });
 
+  // ルートページなの未ログインの直アクセスを想定してエラーではなくリダイレクトにする
   if (!session?.user) {
     redirect("/sign-in");
   }
 
-  return (
-    <>
-      <h2 className="text-lg font-bold">トップページ</h2>
-      {JSON.stringify(session?.user)}
-    </>
-  );
+  // ログイン済みの場合は権限に応じてリダイレクトする
+  if (session.user.role === "admin") {
+    redirect("/admin");
+  } else {
+    redirect("/account");
+  }
 };

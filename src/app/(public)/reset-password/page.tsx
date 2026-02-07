@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import z from "zod";
 
 import { PageWrapper } from "../../../components/_common/page";
 import { ResetPasswordForm } from "../../../components/auth/reset-password";
 import { auth } from "../../../lib/auth";
-import z from "zod";
 
 export const metadata: Metadata = {
   title: "Password Reset - Next.js Sample App",
 };
 
+/**
+ * パスワードリセットページ
+ */
 export default function Page({
   searchParams,
 }: {
@@ -35,7 +38,9 @@ const AsyncPage = async ({
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (session?.user) {
+
+  // ログイン済みの場合はトップページへリダイレクト
+  if (session) {
     redirect("/");
   }
 

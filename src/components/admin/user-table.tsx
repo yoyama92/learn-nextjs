@@ -108,24 +108,26 @@ const useDeleteDialog = ({
 }: {
   done: () => void;
 }): {
-  showModal: (row: Row) => void;
+  showModal: (row: Row) => Promise<void>;
 } => {
   return {
-    showModal: (row) => {
-      const result = window.confirm(
+    showModal: async (row) => {
+      const confirmed = window.confirm(
         "この操作は取り消せません。よろしいですか？",
       );
-      if (result) {
-        postDeleteUser({
-          id: row.id,
-        }).then((result) => {
-          if (result.success) {
-            window.alert("削除しました。");
-            done();
-          } else {
-            window.alert(result.message);
-          }
-        });
+      if (!confirmed) {
+        return;
+      }
+
+      const result = await postDeleteUser({
+        id: row.id,
+      });
+
+      if (result.success) {
+        window.alert("削除しました。");
+        done();
+      } else {
+        window.alert(result.message);
       }
     },
   };
