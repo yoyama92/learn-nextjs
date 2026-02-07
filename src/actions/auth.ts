@@ -1,6 +1,6 @@
 "use server";
 
-import { APIError, Session, User } from "better-auth";
+import { APIError } from "better-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
