@@ -17,12 +17,12 @@ export default function Page() {
 }
 
 const AsyncPage = async () => {
-  const sessionUser = await verifySession();
+  const { user } = await verifySession();
   return (
     <UserInfo
       user={{
-        name: sessionUser.name,
-        email: sessionUser.email,
+        name: user.name,
+        email: user.email,
       }}
     />
   );

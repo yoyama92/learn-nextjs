@@ -1,47 +1,33 @@
-import { notFound } from "next/navigation";
-import type { Session } from "next-auth";
+import { headers } from "next/headers";
 
 import type { UserSchema } from "../schemas/user";
-import { getUser, type UserGetResult } from "../server/services/userService";
 import { forbidden, unauthorized } from "../utils/error";
 import { auth } from "./auth";
 
 type AuthHandlerCallback<T> = (id: string, user: UserSchema) => Promise<T>;
 
-type SessionUser = {
-  id: string;
-  email: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  role: {
-    isAdmin: boolean;
-  } | null;
-};
+type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
 /**
  * セッションの認証・認可処理
- * @param options.adminOnly 管理者のみ許可する場合にtrueを設定する。 
- * @returns 
+ * @param options.adminOnly 管理者のみ許可する場合にtrueを設定する。
+ * @returns
  */
 export const verifySession = async (options?: {
   adminOnly?: boolean;
-}): Promise<SessionUser> => {
-  const session = await auth();
-  if (!session?.user?.id) {
+}): Promise<NonNullable<Session>> => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
     unauthorized();
   }
 
-  const userInfo = await getUser(session.user.id);
-  if (!userInfo) {
-    notFound();
-  }
-
-  if (options?.adminOnly && !isAdminUser(session, userInfo)) {
+  if (options?.adminOnly && !isAdminUser(session)) {
     forbidden();
   }
 
-  return userInfo;
+  return session;
 };
 
 /**
@@ -56,7 +42,7 @@ export const authHandler = async <T>(
     adminOnly?: boolean;
   },
 ): Promise<T> => {
-  const user = await verifySession(options);
+  const { user } = await verifySession(options);
 
   return callback(user.id, user);
 };
@@ -67,6 +53,6 @@ export const authHandler = async <T>(
  * @param dbUser DBから取得したユーザー情報
  * @returns 管理者としてログインしている場合にtrueを返す。
  */
-const isAdminUser = (session: Session, dbUser: UserGetResult) => {
-  return session?.user.role === "admin" && dbUser?.role?.isAdmin;
+const isAdminUser = (session: Session) => {
+  return session?.user?.role === "admin";
 };

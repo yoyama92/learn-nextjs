@@ -1,11 +1,17 @@
 "use server";
 
+import { APIError } from "better-auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { CredentialsSignin } from "next-auth";
 
-import { signIn as auth, signOut as signOutFn } from "../lib/auth";
-import { resetPasswordSchema, roleEnum, signInSchema } from "../schemas/auth";
-import { passwordReminder } from "../server/services/authService";
+import { auth } from "../lib/auth";
+import { envStore } from "../lib/env";
+import {
+  type ChangePasswordSchema,
+  changePasswordSchema,
+  resetPasswordSchema,
+  signInSchema,
+} from "../schemas/auth";
 
 /**
  * サインイン
@@ -26,14 +32,13 @@ export const signIn = async (_: unknown, formData: FormData) => {
       };
     }
 
-    // Auth.jsの機能でサインインを行う。
-    await auth(roleEnum.user, {
-      ...parseResult.data,
-      redirect: false,
+    await auth.api.signInEmail({
+      body: parseResult.data,
+      headers: await headers(),
     });
   } catch (error) {
-    // サインインに失敗した場合は`CredentialsSignin`が投げられる。
-    if (error instanceof CredentialsSignin) {
+    // サインインに失敗した場合
+    if (error instanceof APIError && error.status === "UNAUTHORIZED") {
       return {
         error: "メールアドレスもしくはパスワードが異なります。",
         formData: formData,
@@ -51,10 +56,12 @@ export const signIn = async (_: unknown, formData: FormData) => {
  * サインアウト
  */
 export const signOut = async () => {
-  return await signOutFn({
-    redirect: true,
-    redirectTo: "/sign-in",
+  const result = await auth.api.signOut({
+    headers: await headers(),
   });
+  if (result.success) {
+    redirect("/sign-in");
+  }
 };
 
 /**
@@ -73,22 +80,64 @@ export const resetPassword = async (
   );
 
   const email = parseResult.data?.email;
-
   if (!email) {
     return { error: "メールアドレスを入力してください。", formData: formData };
   }
 
   try {
-    const result = await passwordReminder(email);
+    const data = await auth.api.requestPasswordReset({
+      body: {
+        email: email,
+        redirectTo: new URL(
+          "/reset-password",
+          envStore.BETTER_AUTH_URL,
+        ).toString(),
+      },
+    });
     return {
-      success: result.success,
-      error: result.success ? "" : "パスワードの初期化に失敗しました。",
+      success: data.status,
+      error: data.status ? "" : "パスワードの初期化に失敗しました。",
       formData: formData,
     };
   } catch {
     return {
       error: "システムエラーが発生しました。",
       formData: formData,
+    };
+  }
+};
+
+/**
+ * パスワードを更新する。
+ */
+export const changePassword = async (
+  token: string,
+  formData: ChangePasswordSchema,
+): Promise<{
+  success?: boolean;
+}> => {
+  "use server";
+
+  const parseResult = changePasswordSchema.safeParse(formData);
+  if (parseResult.success === false) {
+    return { success: false };
+  }
+
+  const data = parseResult.data;
+
+  try {
+    const result = await auth.api.resetPassword({
+      body: {
+        newPassword: data.newPassword,
+        token: token,
+      },
+    });
+    return {
+      success: result.status,
+    };
+  } catch {
+    return {
+      success: false,
     };
   }
 };

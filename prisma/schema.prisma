@@ -10,50 +10,77 @@ datasource db {
 
 /// ユーザー
 model User {
-  id       String @id @default(uuid()) @db.Uuid /// ID
-  email    String @unique /// メールアドレス
-  name     String /// 名前
-  password String /// パスワード
+  id    String @id /// ID
+  email String @unique /// メールアドレス
+  name  String /// 名前
 
   createdAt DateTime @default(now()) @map("created_at") /// 登録日時
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") /// 更新日時
 
-  role              UserRole? /// ユーザーの権限
-  activityHistories ActivityHistory[] /// 操作履歴
+  role String? @map("role") /// 役割
+
+  emailVerified Boolean @default(false) @map("email_verified") /// メールアドレス確認済みフラグ
+
+  sessions Session[]
+  accounts Account[]
+
+  image      String?   @map("image") /// プロフィール画像URL
+  banned     Boolean?  @default(false) @map("banned") /// バンフラグ
+  banReason  String?   @map("ban_reason") /// バン理由
+  banExpires DateTime? @map("ban_expires") /// バン解除日時
 
   @@map("users")
 }
 
-/// ユーザーの権限
-model UserRole {
-  userId  String  @unique @map("user_id") @db.Uuid /// ID
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー  
-  isAdmin Boolean @default(false) @map("is_admin") /// 管理者フラグ
+/// セッション
+model Session {
+  id        String   @id @map("id") /// ID
+  expiresAt DateTime @map("expires_at") /// 有効期限
+  token     String   @map("token") /// トークン
+  createdAt DateTime @default(now()) @map("created_at") /// 作成日時
+  updatedAt DateTime @updatedAt @map("updated_at") /// 更新日時
+  ipAddress String?  @map("ip_address") /// IPアドレス
+  userAgent String?  @map("user_agent") /// ユーザーエージェント
+  userId    String   @map("user_id") /// ユーザーID
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("user_roles")
+  impersonatedBy String? @map("impersonated_by") /// 代理ログインした管理者のユーザーID
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
 }
 
-/// 操作履歴
-model ActivityHistory {
-  id     String @id @default(uuid()) @db.Uuid /// ID
-  userId String @map("user_id") @db.Uuid /// ログインユーザー
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) /// ユーザー
+/// アカウント
+model Account {
+  id                    String    @id @map("id") /// ID
+  accountId             String    @map("account_id") /// アカウントID
+  providerId            String    @map("provider_id") /// プロバイダーID
+  userId                String    @map("user_id") /// ユーザーID
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token") /// アクセストークン
+  refreshToken          String?   @map("refresh_token") /// リフレッシュトークン
+  idToken               String?   @map("id_token") /// IDトークン
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at") /// アクセストークン有効期限
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") /// リフレッシュトークン有効期限
+  scope                 String?   @map("scope") /// スコープ
+  password              String?   @map("password") /// パスワード
+  createdAt             DateTime  @default(now()) @map("created_at") /// 作成日時
+  updatedAt             DateTime  @updatedAt @map("updated_at") /// 更新日時
 
-  createdAt DateTime @default(now()) @map("created_at") /// レコード作成日時
-
-  loginHistory LoginHistory?
-
-  @@map("activity_histories")
+  @@index([userId])
+  @@map("account")
 }
 
-/// ログイン履歴
-model LoginHistory {
-  id              String          @unique @default(uuid()) @db.Uuid /// ID
-  activityHistory ActivityHistory @relation(fields: [id], references: [id], onDelete: Cascade) /// 操作履歴テーブル
+/// 認証情報
+model Verification {
+  id         String   @id @map("id") /// ID
+  identifier String   @map("identifier") /// 識別子
+  value      String   @map("value") /// 値
+  expiresAt  DateTime @map("expires_at") /// 有効期限
+  createdAt  DateTime @default(now()) @map("created_at") /// 作成日時
+  updatedAt  DateTime @updatedAt @map("updated_at") /// 更新日時
 
-  asAdmin Boolean @map("as_admin") /// 管理者としてログイン
-
-  createdAt DateTime @default(now()) @map("created_at") /// レコード作成日時
-
-  @@map("login_histories")
+  @@index([identifier])
+  @@map("verification")
 }

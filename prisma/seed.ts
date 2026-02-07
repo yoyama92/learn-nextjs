@@ -1,41 +1,29 @@
-import { type Prisma, PrismaClient } from "../src/generated/prisma";
-import { hashPassword } from "../src/utils/password";
+import { PrismaClient } from "../src/generated/prisma";
+import { auth } from "../src/lib/auth";
 
 const prisma = new PrismaClient();
 
 const main = async () => {
-  const users: Prisma.UserCreateInput[] = [
+  const users = [
     {
       name: "Alice",
       email: "alice@example.com",
-      password: hashPassword("aaaaaaaa"),
-      role: {
-        create: {
-          isAdmin: true,
-        },
-      },
+      password: "aaaaaaaa",
+      role: "admin" as const,
     },
     {
       name: "Bob",
       email: "Bob@example.com",
-      password: hashPassword("aaaaaaaa"),
-      role: {
-        create: {
-          isAdmin: false,
-        },
-      },
+      password: "aaaaaaaa",
+      role: "user" as const,
     },
   ];
-  await prisma.$transaction(
-    async (tx) =>
-      await Promise.all(
-        users.map(
-          async (user) =>
-            await tx.user.create({
-              data: user,
-            }),
-        ),
-      ),
+  await Promise.all(
+    users.map(async (user) => {
+      return await auth.api.createUser({
+        body: user,
+      });
+    }),
   );
 };
 

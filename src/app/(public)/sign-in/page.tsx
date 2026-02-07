@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { signIn } from "../../../actions/auth";
@@ -19,7 +20,9 @@ export default function Page() {
 }
 
 const AsyncPage = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (session?.user) {
     redirect("/");
   }
@@ -29,7 +32,7 @@ const AsyncPage = async () => {
       buttonLabel="ログインする"
       signIn={signIn}
       footer={
-        <a href="/password-reset" className="link link-primary mt-2">
+        <a href="/reset-password" className="link link-primary mt-2">
           パスワードを忘れた場合
         </a>
       }

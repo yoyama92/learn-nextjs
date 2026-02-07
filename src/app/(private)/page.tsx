@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { PageWrapper } from "../../components/_common/page";
@@ -12,10 +13,18 @@ export default function Home() {
 }
 
 const AsyncPage = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   if (!session?.user) {
     redirect("/sign-in");
   }
 
-  return <h2 className="text-lg font-bold">トップページ</h2>;
+  return (
+    <>
+      <h2 className="text-lg font-bold">トップページ</h2>
+      {JSON.stringify(session?.user)}
+    </>
+  );
 };

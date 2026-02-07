@@ -17,13 +17,13 @@ export const createUserSchemaKeys = createUserSchema.keyof().enum;
 export type CreateUserSchema = z.infer<typeof createUserSchema>;
 
 export const deleteUserSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
 });
 
 export type DeleteUserSchema = z.infer<typeof deleteUserSchema>;
 
 export const editUserSchema = userSchema.extend({
-  id: z.uuid(),
+  id: z.string(),
 });
 
 export const editUserSchemaKeys = editUserSchema.keyof().enum;

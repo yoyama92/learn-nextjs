@@ -10,9 +10,7 @@ describe("buildExportUserFile", () => {
         email: "test@example.com",
         createdAt: new Date("2025-01-01T00:00:00Z"),
         updatedAt: new Date(0),
-        role: {
-          isAdmin: true,
-        },
+        role: "admin",
       },
       {
         id: "2",
