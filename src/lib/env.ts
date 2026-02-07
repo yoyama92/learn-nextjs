@@ -37,6 +37,7 @@ const envSchema = envSchemaBase.extend({
       "バッチ処理を外部から呼び出せないようにする簡易認証機能のためのトークン",
     ),
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
+  DATABASE_URL: z.url().describe("データベースの接続URL"),
 });
 
 const publicEnvSchema = envSchema.pick({

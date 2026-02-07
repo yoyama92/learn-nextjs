@@ -1,18 +1,18 @@
-import { Prisma } from "../../generated/prisma";
+import type { Prisma } from "../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
 import { generateRandomPassword } from "../../utils/password";
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
-const userSelectArg = Prisma.validator<Prisma.UserSelect>()({
+const userSelectArg = {
   id: true,
   name: true,
   email: true,
   createdAt: true,
   updatedAt: true,
   role: true,
-});
+} satisfies Prisma.UserSelect;
 
 export type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
@@ -28,14 +28,14 @@ export const getUser = async (id: string): Promise<UserGetResult | null> => {
   return user;
 };
 
-const usersSelectArg = Prisma.validator<Prisma.UserSelect>()({
+const usersSelectArg = {
   id: true,
   name: true,
   email: true,
   createdAt: true,
   updatedAt: true,
   role: true,
-});
+} satisfies Prisma.UserSelect;
 
 export const getUsers = async (): Promise<
   Prisma.UserGetPayload<{
