@@ -1,6 +1,6 @@
 "use server";
 
-import { APIError } from "better-auth";
+import { APIError, Session, User } from "better-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -15,24 +15,25 @@ import {
 
 /**
  * サインイン
- * @param _
+ * @param _ 使わない
  * @param formData
  * @returns
  */
 export const signIn = async (_: unknown, formData: FormData) => {
+  const parseResult = signInSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+
+  if (!parseResult.success) {
+    return {
+      error: "メールアドレスもしくはパスワードが異なります。",
+      formData: formData,
+    };
+  }
+
+  let result: Awaited<ReturnType<typeof auth.api.signInEmail>> | null = null;
   try {
-    const parseResult = signInSchema.safeParse(
-      Object.fromEntries(formData.entries()),
-    );
-
-    if (!parseResult.success) {
-      return {
-        error: "メールアドレスもしくはパスワードが異なります。",
-        formData: formData,
-      };
-    }
-
-    await auth.api.signInEmail({
+    result = await auth.api.signInEmail({
       body: parseResult.data,
       headers: await headers(),
     });
@@ -48,8 +49,11 @@ export const signIn = async (_: unknown, formData: FormData) => {
     }
   }
 
-  // サインインに成功した場合
-  redirect("/");
+  if (result.user.role === "admin") {
+    redirect("/admin");
+  } else {
+    redirect("/account");
+  }
 };
 
 /**
@@ -116,8 +120,6 @@ export const changePassword = async (
 ): Promise<{
   success?: boolean;
 }> => {
-  "use server";
-
   const parseResult = changePasswordSchema.safeParse(formData);
   if (parseResult.success === false) {
     return { success: false };

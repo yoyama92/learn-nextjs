@@ -3,7 +3,10 @@ import { UserList } from "../../../../components/admin/user-list";
 import { verifySession } from "../../../../lib/session";
 import { getUsers } from "../../../../server/services/userService";
 
-export default function AdminPage() {
+/**
+ * 管理者用ユーザー一覧ページ
+ */
+export default function Page() {
   return (
     <PageWrapper>
       <AsyncPage />

@@ -11,7 +11,16 @@ export const metadata: Metadata = {
   title: "User Page - Next.js Sample App",
 };
 
-export default function Page({ params }: { params: Promise<{ id: string }> }) {
+const paramSchema = z.object({
+  id: z.string().describe("表示するユーザーID"),
+});
+
+type Params = z.infer<typeof paramSchema>;
+
+/**
+ * ユーザー詳細ページ
+ */
+export default function Page({ params }: { params: Promise<Params> }) {
   return (
     <PageWrapper>
       <AsyncPage params={params} />
@@ -19,20 +28,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   );
 }
 
-const AsyncPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const schema = z.object({
-    id: z.string(),
-  });
-  const parseResult = schema.safeParse(await params);
-  if (!parseResult.success) {
-    notFound();
-  }
-
+const AsyncPage = async ({ params }: { params: Promise<Params> }) => {
   await verifySession({
     adminOnly: true,
   });
-  const { id } = parseResult.data;
 
+  const { id } = await params;
   const userInfo = await getUser(id);
   if (!userInfo) {
     notFound();

@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "User Profile - Next.js Sample App",
 };
 
+/**
+ * ユーザー情報ページ
+ */
 export default function Page() {
   return (
     <PageWrapper>
@@ -23,6 +26,7 @@ const AsyncPage = async () => {
       user={{
         name: user.name,
         email: user.email,
+        isAdmin: user.role === "admin",
       }}
     />
   );

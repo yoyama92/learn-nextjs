@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useId } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
 import { postUser } from "../../actions/user";
@@ -12,17 +11,13 @@ import {
   userSchemaKeys,
 } from "../../schemas/user";
 
-const useFormIds = (): Record<keyof UserSchema, string> => {
-  const userNameId = useId();
-  return {
-    name: userNameId,
-  };
-};
-
+/**
+ * 自身のユーザー情報表示・編集コンポーネント
+ */
 export const UserInfo = ({
   user,
 }: {
-  user: { name: string; email: string };
+  user: { name: string; email: string; isAdmin: boolean };
 }) => {
   const {
     register,
@@ -52,46 +47,52 @@ export const UserInfo = ({
     }
   };
 
-  const formIds = useFormIds();
   return (
-    <form
-      className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <h2 className="text-lg font-bold">ユーザー情報</h2>
-      <div className="flex flex-col ">
-        <span>メールアドレス:{user.email}</span>
+    <>
+      <div className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box">
+        <h2 className="text-lg font-bold">ユーザー情報</h2>
+        <div className="flex flex-col ">
+          <span>メールアドレス:{user.email}</span>
+        </div>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">名前</legend>
+            <input
+              className={`input ${errors.name ? "input-error" : ""}`}
+              type="text"
+              placeholder="名前を入力"
+              {...register(userSchemaKeys.name)}
+              disabled={isSubmitting}
+            />
+            {errors.name && (
+              <p className="text-error text-xs">{errors.name.message}</p>
+            )}
+          </fieldset>
+          <div>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={!isDirty || isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="loading loading-spinner loading-md">
+                  更新中
+                </span>
+              ) : (
+                "更新"
+              )}
+            </button>
+          </div>
+          <Link href="/account/password" className="link link-primary w-fit">
+            パスワードを変更する
+          </Link>
+        </form>
       </div>
-      <fieldset className="fieldset">
-        <legend className="fieldset-legend">名前</legend>
-        <input
-          id={formIds.name}
-          className={`input ${errors.name ? "input-error" : ""}`}
-          type="text"
-          placeholder="名前を入力"
-          {...register(userSchemaKeys.name)}
-          disabled={isSubmitting}
-        />
-        {errors.name && (
-          <p className="text-error text-xs">{errors.name.message}</p>
-        )}
-      </fieldset>
-      <div>
-        <button
-          className="btn btn-primary"
-          type="submit"
-          disabled={!isDirty || isSubmitting}
-        >
-          {isSubmitting ? (
-            <span className="loading loading-spinner loading-md">更新中</span>
-          ) : (
-            "更新"
-          )}
-        </button>
-      </div>
-      <Link href="/account/password" className="link link-primary w-fit">
-        パスワードを変更する
-      </Link>
-    </form>
+      {user.isAdmin && (
+        <Link href="/admin" className="link link-hover mt-4 text-sm">
+          管理者ページへ移動
+        </Link>
+      )}
+    </>
   );
 };

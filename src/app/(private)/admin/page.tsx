@@ -1,7 +1,11 @@
 import { PageWrapper } from "../../../components/_common/page";
+import { AdminNavigation } from "../../../components/admin/navigation";
 import { verifySession } from "../../../lib/session";
 
-export default function AdminPage() {
+/**
+ * 管理者用ページ
+ */
+export default function Page() {
   return (
     <PageWrapper>
       <AsyncPage />
@@ -14,5 +18,10 @@ const AsyncPage = async () => {
     adminOnly: true,
   });
 
-  return <h2 className="text-lg font-bold">管理者ページ</h2>;
+  return (
+    <>
+      <h2 className="text-lg font-bold">管理者ページ </h2>
+      <AdminNavigation />
+    </>
+  );
 };

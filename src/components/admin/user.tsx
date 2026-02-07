@@ -1,14 +1,14 @@
 import Link from "next/link";
 
-type Props = {
+export const UserInfo = ({
+  user,
+}: {
   user: {
     name: string;
     email: string;
     isAdmin: boolean;
   };
-};
-
-export const UserInfo = ({ user }: Props) => {
+}) => {
   return (
     <>
       <h2 className="text-lg font-bold">ユーザー情報</h2>

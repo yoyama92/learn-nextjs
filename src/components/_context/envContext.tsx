@@ -4,10 +4,10 @@ import { createContext, type ReactNode, useContext } from "react";
 
 import type { PublicEnvStore } from "../../lib/env";
 
-export interface TabContextType {
+export type TabContextType = {
   activeTab: number;
   setActiveTab: (index: number) => void;
-}
+};
 
 const EnvContext = createContext<PublicEnvStore | undefined>(undefined);
 
@@ -23,6 +23,9 @@ export const EnvProvider: React.FC<EnvProviderProps> = ({
   return <EnvContext value={envStore}>{children}</EnvContext>;
 };
 
+/**
+ * 環境変数コンテキストを利用するためのカスタムフック
+ */
 export const useEnv = (): PublicEnvStore => {
   const context = useContext(EnvContext);
   if (!context) {

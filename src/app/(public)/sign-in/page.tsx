@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "ユーザーログイン - Next.js Sample App",
 };
 
+/**
+ * ログインページ
+ */
 export default function Page() {
   return (
     <PageWrapper>
@@ -23,7 +26,9 @@ const AsyncPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (session?.user) {
+
+  // ログイン済みの場合はトップページへリダイレクト
+  if (session) {
     redirect("/");
   }
   return (

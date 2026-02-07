@@ -34,6 +34,9 @@ export const UserList = ({
           <UserTable rows={users} />
         </div>
       </div>
+      <Link href="/admin" className="link link-hover text-sm">
+        トップページへ戻る
+      </Link>
     </>
   );
 };

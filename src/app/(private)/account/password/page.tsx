@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Change Password - Next.js Sample App",
 };
 
+/**
+ * ログイン後のパスワード変更ページ
+ */
 export default function Page() {
   return (
     <PageWrapper>
