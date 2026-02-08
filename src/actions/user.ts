@@ -1,9 +1,15 @@
 "use server";
 
 import { headers } from "next/headers";
+
 import { auth } from "../lib/auth";
 import { authHandler } from "../lib/session";
-import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
+import {
+  type PasswordChangeSchema,
+  passwordChangeSchema,
+  type UserSchema,
+  userSchema,
+} from "../schemas/user";
 
 /**
  * ユーザー情報を更新する
@@ -13,9 +19,10 @@ import type { PasswordChangeSchema, UserSchema } from "../schemas/user";
 export const postUser = async (user: UserSchema) => {
   return authHandler(async () => {
     try {
+      const data = userSchema.parse(user);
       return await auth.api.updateUser({
         body: {
-          name: user.name,
+          name: data.name,
         },
         headers: await headers(),
       });
@@ -39,10 +46,11 @@ export const changePassword = async (input: PasswordChangeSchema) => {
       return { success: false };
     }
     try {
+      const data = passwordChangeSchema.parse(input);
       await auth.api.changePassword({
         body: {
-          newPassword: input.newPassword,
-          currentPassword: input.currentPassword,
+          newPassword: data.newPassword,
+          currentPassword: data.currentPassword,
           revokeOtherSessions: true,
         },
         headers: await headers(),

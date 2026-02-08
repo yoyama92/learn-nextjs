@@ -100,7 +100,7 @@ export const resetPassword = async (
     });
     return {
       success: data.status,
-      error: data.status ? "" : "パスワードの初期化に失敗しました。",
+      error: !data.status ? "パスワードの初期化に失敗しました。" : undefined,
       formData: formData,
     };
   } catch {

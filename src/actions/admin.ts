@@ -1,12 +1,16 @@
 "use server";
 
 import { headers } from "next/headers";
+
 import { auth } from "../lib/auth";
 import { authHandler } from "../lib/session";
-import type {
-  CreateUserSchema,
-  DeleteUserSchema,
-  EditUserSchema,
+import {
+  type CreateUserSchema,
+  createUserSchema,
+  type DeleteUserSchema,
+  deleteUserSchema,
+  type EditUserSchema,
+  editUserSchema,
 } from "../schemas/admin";
 import { createUser } from "../server/services/userService";
 
@@ -23,10 +27,11 @@ export const postNewUser = async (
   return authHandler(
     async () => {
       try {
+        const data = createUserSchema.parse(user);
         return await createUser({
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin,
+          name: data.name,
+          email: data.email,
+          isAdmin: data.isAdmin,
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -67,9 +72,10 @@ export const postDeleteUser = async (
         };
       }
       try {
+        const data = deleteUserSchema.parse(user);
         const result = await auth.api.removeUser({
           body: {
-            userId: user.id,
+            userId: data.id,
           },
           headers: await headers(),
         });
@@ -112,20 +118,29 @@ export const postEditUser = async (
 } | null> => {
   return authHandler(
     async () => {
-      await auth.api.adminUpdateUser({
-        body: {
-          userId: user.id,
-          data: {
-            name: user.name,
-            email: user.email,
-            role: user.isAdmin ? "admin" : "user",
+      try {
+        const data = editUserSchema.parse(user);
+        await auth.api.adminUpdateUser({
+          body: {
+            userId: user.id,
+            data: {
+              name: data.name,
+              email: data.email,
+              role: data.isAdmin ? "admin" : "user",
+            },
           },
-        },
-        headers: await headers(),
-      });
-      return {
-        success: true,
-      };
+          headers: await headers(),
+        });
+
+        return {
+          success: true,
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("更新に失敗しました:", error.message);
+        }
+        return null;
+      }
     },
     {
       // 管理者のみがこのアクションを実行できるようにする
