@@ -8,12 +8,14 @@ const main = async () => {
       password: "aaaaaaaa",
       role: "admin" as const,
     },
-    {
-      name: "Bob",
-      email: "Bob@example.com",
-      password: "aaaaaaaa",
-      role: "user" as const,
-    },
+    ...Array.from({ length: 50 }, (_, i) => {
+      return {
+        name: `Bob_${i}`,
+        email: `bob+${i}@example.com`,
+        password: "aaaaaaaa",
+        role: "user" as const,
+      };
+    }),
   ];
 
   await Promise.all(

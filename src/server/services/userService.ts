@@ -18,6 +18,48 @@ type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
 }>;
 
+/**
+ * ページ指定でユーザー情報を取得する。
+ * @param page 取得ページ
+ * @param pageSize 取得するユーザー情報の上限数。
+ * @returns ユーザー情報一覧
+ */
+export const getUsersPaginated = async (
+  page: number,
+  pageSize: number = 10,
+): Promise<{
+  users: Prisma.UserGetPayload<{
+    select: typeof usersSelectArg;
+  }>[];
+  total: number;
+  pageSize: number;
+  totalPages: number;
+  currentPage: number;
+}> => {
+  const skip = (page - 1) * pageSize;
+
+  // 総件数を取得
+  const total = await prisma.user.count();
+
+  // ページ分のデータを取得
+  const users = await prisma.user.findMany({
+    select: usersSelectArg,
+    orderBy: {
+      createdAt: "asc",
+    },
+    skip: skip,
+    take: pageSize,
+  });
+
+  return {
+    users,
+    total,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+    currentPage: page,
+  };
+};
+
 export const getUser = async (id: string): Promise<UserGetResult | null> => {
   const user = await prisma.user.findUnique({
     where: {
@@ -36,20 +78,6 @@ const usersSelectArg = {
   updatedAt: true,
   role: true,
 } satisfies Prisma.UserSelect;
-
-export const getUsers = async (): Promise<
-  Prisma.UserGetPayload<{
-    select: typeof usersSelectArg;
-  }>[]
-> => {
-  const users = await prisma.user.findMany({
-    select: usersSelectArg,
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
-  return users;
-};
 
 export const createUser = async (data: {
   name: string;

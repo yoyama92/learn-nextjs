@@ -133,11 +133,13 @@ const useDeleteDialog = ({
   };
 };
 
-export const UserTable = ({ rows }: { rows: Row[] }) => {
+export const UserTable = ({ rows, total }: { rows: Row[]; total: number }) => {
   const table = useReactTable({
     data: rows,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    rowCount: total,
   });
 
   const router = useRouter();
