@@ -27,6 +27,8 @@ export const roleSchema = z.union([
   z.literal(roleEnum.admin),
 ]);
 
+export type Role = z.infer<typeof roleSchema>;
+
 export const changePasswordSchema = z
   .object({
     newPassword: passwordSchema,
