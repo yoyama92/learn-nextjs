@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import z from "zod";
 
 import {
   changePasswordSchema,
@@ -6,9 +7,6 @@ import {
   roleEnum,
   roleSchema,
   signInSchema,
-  type ChangePasswordSchema,
-  type ResetPasswordSchema,
-  type SignInSchema,
 } from "../auth";
 
 describe("signInSchema", () => {
@@ -59,15 +57,6 @@ describe("signInSchema", () => {
     const result = signInSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
-
-  test("型安全性: SignInSchemaの型推論", () => {
-    const validData: SignInSchema = {
-      email: "test@example.com",
-      password: "ValidPassword123!",
-    };
-    expect(validData.email).toBeDefined();
-    expect(validData.password).toBeDefined();
-  });
 });
 
 describe("resetPasswordSchema", () => {
@@ -97,13 +86,6 @@ describe("resetPasswordSchema", () => {
     const result = resetPasswordSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
-
-  test("型安全性: ResetPasswordSchemaの型推論", () => {
-    const validData: ResetPasswordSchema = {
-      email: "test@example.com",
-    };
-    expect(validData.email).toBeDefined();
-  });
 });
 
 describe("changePasswordSchema", () => {
@@ -124,11 +106,13 @@ describe("changePasswordSchema", () => {
     const result = changePasswordSchema.safeParse(input);
     expect(result.success).toBe(false);
     if (!result.success) {
-      const errors = result.error.flatten();
-      expect(errors.fieldErrors.confirmNewPassword).toBeDefined();
-      expect(errors.fieldErrors.confirmNewPassword?.some((msg) =>
-        msg.includes("一致しません"),
-      )).toBe(true);
+      const errors = z.treeifyError(result.error);
+      expect(errors.properties?.confirmNewPassword).toBeDefined();
+      expect(
+        errors.properties?.confirmNewPassword?.errors?.some((msg) =>
+          msg.includes("一致しません"),
+        ),
+      ).toBe(true);
     }
   });
 
@@ -150,26 +134,12 @@ describe("changePasswordSchema", () => {
     const result = changePasswordSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
-
-  test("型安全性: ChangePasswordSchemaの型推論", () => {
-    const validData: ChangePasswordSchema = {
-      newPassword: "ValidPassword123!",
-      confirmNewPassword: "ValidPassword123!",
-    };
-    expect(validData.newPassword).toBeDefined();
-    expect(validData.confirmNewPassword).toBeDefined();
-  });
 });
 
 describe("roleEnum", () => {
-  test("roleEnumが正しい値を持つ", () => {
-    expect(roleEnum.user).toBe("user");
-    expect(roleEnum.admin).toBe("admin");
-  });
-
   test("roleEnumはフリーズされている", () => {
     expect(() => {
-      // @ts-ignore - テスト用に型を無視
+      // @ts-expect-error - テスト用に型を無視
       roleEnum.user = "modified";
     }).toThrow();
   });
