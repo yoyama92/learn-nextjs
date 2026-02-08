@@ -4,11 +4,6 @@ import { createContext, type ReactNode, useContext } from "react";
 
 import type { PublicEnvStore } from "../../lib/env";
 
-export type TabContextType = {
-  activeTab: number;
-  setActiveTab: (index: number) => void;
-};
-
 const EnvContext = createContext<PublicEnvStore | undefined>(undefined);
 
 type EnvProviderProps = {

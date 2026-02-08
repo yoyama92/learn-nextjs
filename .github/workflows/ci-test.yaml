@@ -46,4 +46,32 @@ jobs:
         run: pnpm i --frozen-lockfile
       - name: Test App
         run: pnpm test
-    
+  report-dead-code:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+      - id: knip
+        continue-on-error: true
+        run: pnpm knip --reporter=markdown --no-progress > knip-report.md
+      - if: ${{ steps.knip.outcome == 'failure' }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body-file knip-report.md --edit-last --create-if-none
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
