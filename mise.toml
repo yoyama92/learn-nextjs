@@ -1,0 +1,6 @@
+[tools]
+node = "22.17.1"
+pnpm = "10.14.0"
+
+[env]
+NODE_ENV = "development"

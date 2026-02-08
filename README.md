@@ -4,6 +4,7 @@
 
 ## 技術要素
 
+- mise
 - Next.js
 - React
 - Tailwind CSS
@@ -25,8 +26,8 @@
 2. アプリケーションの起動
    ```
    ## プロジェクトルートで実行する
-   pnpm i --frozen-lockfile
-   pnpm dev
+   mise exec pnpm -- pnpm i --frozen-lockfile
+   mise exec pnpm -- pnpm dev
    ```
 
 ## アクセス情報
