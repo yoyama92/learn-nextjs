@@ -16,6 +16,6 @@ export class ForbiddenError extends Error {
 export class UnauthorizedError extends Error {
   static readonly MESSAGE = "認証エラー";
   constructor() {
-    super(ForbiddenError.MESSAGE);
+    super(UnauthorizedError.MESSAGE);
   }
 }
