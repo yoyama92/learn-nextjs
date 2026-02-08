@@ -3,8 +3,11 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
 import { authHandler } from "../../lib/session";
-import { createUser } from "../../server/services/userService";
-import { postDeleteUser, postEditUser, postNewUser } from "../admin";
+import {
+  createUser,
+  getUsersPaginated,
+} from "../../server/services/userService";
+import { getUsers, postDeleteUser, postEditUser, postNewUser } from "../admin";
 
 // モック化
 vi.mock("next/headers", () => ({
@@ -34,6 +37,7 @@ vi.mock("../../lib/session", () => ({
 
 vi.mock("../../server/services/userService", () => ({
   createUser: vi.fn(),
+  getUsersPaginated: vi.fn(),
 }));
 
 describe("Admin Actions", () => {
@@ -278,6 +282,55 @@ describe("Admin Actions", () => {
       });
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("getUsers", () => {
+    test("ユーザー情報を取得", async () => {
+      const resolvedValue = {
+        total: 100,
+        pageSize: 10,
+        totalPages: 10,
+        currentPage: 1,
+        users: [],
+      };
+
+      (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
+      (
+        getUsersPaginated as ReturnType<typeof vi.fn<typeof getUsersPaginated>>
+      ).mockResolvedValue(resolvedValue);
+
+      const result = await getUsers({
+        page: 1,
+        pageSize: 10,
+      });
+
+      expect(result).toEqual(resolvedValue);
+      expect(getUsersPaginated).toHaveBeenCalledWith(1, 10);
+    });
+
+    test("authHandler で管理者権限をチェック", async () => {
+      const resolvedValue = {
+        total: 100,
+        pageSize: 10,
+        totalPages: 10,
+        currentPage: 1,
+        users: [],
+      };
+
+      (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
+      (
+        getUsersPaginated as ReturnType<typeof vi.fn<typeof getUsersPaginated>>
+      ).mockResolvedValue(resolvedValue);
+
+      await getUsers({
+        page: 1,
+        pageSize: 10,
+      });
+
+      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), {
+        adminOnly: true,
+      });
     });
   });
 });

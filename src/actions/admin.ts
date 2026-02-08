@@ -11,8 +11,10 @@ import {
   deleteUserSchema,
   type EditUserSchema,
   editUserSchema,
+  type GetPaginationSchema,
+  getPaginationSchema,
 } from "../schemas/admin";
-import { createUser } from "../server/services/userService";
+import { createUser, getUsersPaginated } from "../server/services/userService";
 
 /**
  * ユーザーを追加する。
@@ -144,6 +146,25 @@ export const postEditUser = async (
     },
     {
       // 管理者のみがこのアクションを実行できるようにする
+      adminOnly: true,
+    },
+  );
+};
+
+export const getUsers = async (pagination: GetPaginationSchema) => {
+  return authHandler(
+    async () => {
+      try {
+        const data = getPaginationSchema.parse(pagination);
+        return await getUsersPaginated(data.page, data.pageSize);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error fetching users:", error.message);
+        }
+        throw new Error("ユーザー一覧の取得に失敗しました。");
+      }
+    },
+    {
       adminOnly: true,
     },
   );
