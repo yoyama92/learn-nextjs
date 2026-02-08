@@ -10,7 +10,9 @@ export const userSchemaKeys = userSchema.keyof().enum;
 
 export type UserSchema = z.infer<typeof userSchema>;
 
-export const createUserSchema = userSchema;
+export const createUserSchema = userSchema.extend({
+  // userSchemaと同一と見なされないようにするために空のextendを設定
+});
 
 export const createUserSchemaKeys = createUserSchema.keyof().enum;
 
@@ -25,7 +27,5 @@ export type DeleteUserSchema = z.infer<typeof deleteUserSchema>;
 export const editUserSchema = userSchema.extend({
   id: z.string(),
 });
-
-export const editUserSchemaKeys = editUserSchema.keyof().enum;
 
 export type EditUserSchema = z.infer<typeof editUserSchema>;

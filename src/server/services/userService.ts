@@ -14,7 +14,7 @@ const userSelectArg = {
   role: true,
 } satisfies Prisma.UserSelect;
 
-export type UserGetResult = Prisma.UserGetPayload<{
+type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
 }>;
 

@@ -14,7 +14,7 @@ import {
   userSchemaKeys,
 } from "../../schemas/admin";
 
-export const TextInput = ({
+const TextInput = ({
   label,
   errors,
   register,
