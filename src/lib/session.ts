@@ -6,7 +6,7 @@ import { auth } from "./auth";
 
 type AuthHandlerCallback<T> = (id: string, user: UserSchema) => Promise<T>;
 
-type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
+export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
 /**
  * セッションの認証・認可処理
