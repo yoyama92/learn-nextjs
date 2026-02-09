@@ -26,8 +26,8 @@
 2. アプリケーションの起動
    ```
    ## プロジェクトルートで実行する
-   mise exec pnpm -- pnpm i --frozen-lockfile
-   mise exec pnpm -- pnpm dev
+   pnpm -- pnpm i --frozen-lockfile
+   pnpm -- pnpm dev
    ```
 
 ## アクセス情報
