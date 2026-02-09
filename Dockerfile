@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:bookworm-slim AS base
+FROM node:24.13.0-bookworm-slim AS base
 
 # Update openssl 3.x
 RUN apt-get update && apt-get upgrade openssl -y \
@@ -31,6 +31,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
+ENV CI=true
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build
 
