@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "vscode-icons-team.vscode-icons",
+    "biomejs.biome",
+    "streetsidesoftware.code-spell-checker",
+    "ms-ceintl.vscode-language-pack-ja",
+    "yzhang.markdown-all-in-one",
+    "prisma.prisma",
+    "humao.rest-client",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
