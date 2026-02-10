@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { ForbiddenError, UnauthorizedError } from "../../utils/error";
 import { SignOutButton } from "../auth/sign-out";
@@ -33,18 +34,26 @@ export const ErrorPage = ({
   error: Error & { digest?: string };
   reset: () => void;
 }) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (error.message === UnauthorizedError.MESSAGE) {
+      router.replace("/sign-in");
+    }
+  }, [error, router]);
+
   if (error.message === ForbiddenError.MESSAGE) {
     return <Forbidden />;
-  } else if (error.message === UnauthorizedError.MESSAGE) {
-    redirect("/sign-in");
   }
 
   return (
-    <div className="max-sm:p-4 p-6 flex flex-col gap-4">
-      <h2>原因不明のエラーが発生しました。</h2>
-      <button type="button" onClick={() => reset()}>
-        再読み込み
-      </button>
-    </div>
+    error.message !== UnauthorizedError.MESSAGE && (
+      <div className="max-sm:p-4 p-6 flex flex-col gap-4">
+        <h2>原因不明のエラーが発生しました。</h2>
+        <button type="button" onClick={() => reset()}>
+          再読み込み
+        </button>
+      </div>
+    )
   );
 };
