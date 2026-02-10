@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "../lib/auth";
-import { envStore } from "../lib/env";
 import {
   type ChangePasswordSchema,
   changePasswordSchema,
@@ -83,21 +82,18 @@ export const resetPassword = async (
     Object.fromEntries(formData.entries()),
   );
 
-  const email = parseResult.data?.email;
-  if (!email) {
+  if (!parseResult.success || !parseResult.data.email) {
     return { error: "メールアドレスを入力してください。", formData: formData };
   }
 
   try {
     const data = await auth.api.requestPasswordReset({
       body: {
-        email: email,
-        redirectTo: new URL(
-          "/reset-password",
-          envStore.BETTER_AUTH_URL,
-        ).toString(),
+        email: parseResult.data.email,
       },
     });
+
+    console.log(data);
     return {
       success: data.status,
       error: !data.status ? "パスワードの初期化に失敗しました。" : undefined,

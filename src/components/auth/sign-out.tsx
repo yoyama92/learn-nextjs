@@ -6,15 +6,16 @@ import { signOut } from "../../actions/auth";
 
 export const SignOut = () => {
   return (
-    <button
-      type="button"
-      onClick={() => {
-        signOut();
+    <form
+      action={async () => {
+        await signOut();
       }}
     >
-      <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
-      <span>ログアウト</span>
-    </button>
+      <button type="submit" className="flex flex-row gap-1 items-center">
+        <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
+        <span>ログアウト</span>
+      </button>
+    </form>
   );
 };
 
