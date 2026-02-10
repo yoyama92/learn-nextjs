@@ -258,7 +258,6 @@ describe("Auth Actions", () => {
       expect(auth.api.requestPasswordReset).toHaveBeenCalledWith({
         body: {
           email: "user@example.com",
-          redirectTo: "http://localhost:3000/reset-password",
         },
       });
     });

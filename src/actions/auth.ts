@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "../lib/auth";
-import { envStore } from "../lib/env";
 import {
   type ChangePasswordSchema,
   changePasswordSchema,
