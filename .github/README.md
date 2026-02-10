@@ -14,27 +14,9 @@
 - Prisma
 - Zod
 
-## 実行方法
+## 環境構築ガイド
 
-1. 外部サービスの起動
-   ```
-   ## プロジェクトルートからdockerディレクトリに移動して実行する
-   cd ./docker
-   docker compose up -d
-   ```
-
-2. アプリケーションの起動
-   ```
-   ## プロジェクトルートで実行する
-   pnpm -- pnpm i --frozen-lockfile
-   pnpm -- pnpm dev
-   ```
-
-## アクセス情報
-
-- アプリケーション：[localhost:3000](http://localhost:3000/)
-- pgAdmin：[localhost:5050](http://localhost:5050/)
-- Amazon SES：[localhost:8001](http://localhost:8005/)
+- [環境構築ガイド](./docs/SETUP.md)
 
 ## 機能
 
