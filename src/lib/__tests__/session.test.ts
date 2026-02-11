@@ -172,10 +172,7 @@ describe("authHandler", () => {
 
     const result = await authHandler(callback);
 
-    expect(callback).toHaveBeenCalledWith(
-      userSession.user.id,
-      userSession.user,
-    );
+    expect(callback).toHaveBeenCalledWith(userSession);
     expect(result).toEqual({ data: "test" });
   });
 

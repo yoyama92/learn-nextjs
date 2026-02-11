@@ -44,7 +44,10 @@ export const signIn = async (_: unknown, formData: FormData) => {
         formData: formData,
       };
     } else {
-      return { error: "システムエラーが発生しました。", formData: formData };
+      return {
+        error: "システムエラーが発生しました。",
+        formData: formData,
+      };
     }
   }
 
@@ -83,7 +86,10 @@ export const resetPassword = async (
   );
 
   if (!parseResult.success || !parseResult.data.email) {
-    return { error: "メールアドレスを入力してください。", formData: formData };
+    return {
+      error: "メールアドレスを入力してください。",
+      formData: formData,
+    };
   }
 
   try {
@@ -93,7 +99,6 @@ export const resetPassword = async (
       },
     });
 
-    console.log(data);
     return {
       success: data.status,
       error: !data.status ? "パスワードの初期化に失敗しました。" : undefined,

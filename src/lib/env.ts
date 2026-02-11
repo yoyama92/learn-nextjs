@@ -38,6 +38,7 @@ const envSchema = envSchemaBase.extend({
     ),
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
   DATABASE_URL: z.url().describe("データベースの接続URL"),
+  LOG_LEVEL: z.string().optional(),
 });
 
 const publicEnvSchema = envSchema.pick({

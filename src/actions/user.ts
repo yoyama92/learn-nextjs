@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 
 import { auth } from "../lib/auth";
-import { authHandler } from "../lib/session";
+import { definePrivateAction } from "../lib/define-action";
 import {
   type PasswordChangeSchema,
   passwordChangeSchema,
@@ -16,48 +16,46 @@ import {
  * @param user ユーザー情報
  * @returns 更新結果
  */
-export const postUser = async (user: UserSchema) => {
-  return authHandler(async () => {
-    try {
-      const data = userSchema.parse(user);
-      return await auth.api.updateUser({
-        body: {
-          name: data.name,
-        },
-        headers: await headers(),
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error updating user:", error.message);
-      }
-      return null;
-    }
+export const postUser = definePrivateAction(async function postUser(
+  user: UserSchema,
+) {
+  const data = userSchema.parse(user);
+  return await auth.api.updateUser({
+    body: {
+      name: data.name,
+    },
+    headers: await headers(),
   });
-};
+});
 
 /**
  * パスワードを更新する。
  * @param input 更新内容
  * @returns 更新結果
  */
-export const changePassword = async (input: PasswordChangeSchema) => {
-  return authHandler(async () => {
-    if (input.newPassword !== input.confirmNewPassword) {
-      return { success: false };
-    }
-    try {
-      const data = passwordChangeSchema.parse(input);
-      await auth.api.changePassword({
-        body: {
-          newPassword: data.newPassword,
-          currentPassword: data.currentPassword,
-          revokeOtherSessions: true,
-        },
-        headers: await headers(),
-      });
-      return { success: true };
-    } catch {
-      return { success: false };
-    }
+export const changePassword = definePrivateAction(async function changePassword(
+  input: PasswordChangeSchema,
+) {
+  if (input.newPassword !== input.confirmNewPassword) {
+    return {
+      success: false,
+    };
+  }
+  const { success, data } = passwordChangeSchema.safeParse(input);
+  if (!success) {
+    return {
+      success: false,
+    };
+  }
+  await auth.api.changePassword({
+    body: {
+      newPassword: data.newPassword,
+      currentPassword: data.currentPassword,
+      revokeOtherSessions: true,
+    },
+    headers: await headers(),
   });
-};
+  return {
+    success: true,
+  };
+});

@@ -25,16 +25,12 @@ export const EditUserForm = ({ user }: { user: EditUserSchema }) => {
         id: user.id,
         ...data,
       });
-      if (result === null) {
-        window.alert("更新に失敗しました。");
-        return;
-      }
       if (result?.success) {
         window.alert("更新に成功しました");
+        router.push("/admin/users");
       } else {
         window.alert("更新に失敗しました。");
       }
-      router.push("/admin/users");
     } catch (error) {
       if (error instanceof Error) {
         window.alert(`更新に失敗しました。: ${error.message}`);

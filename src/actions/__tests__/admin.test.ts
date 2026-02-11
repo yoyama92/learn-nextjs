@@ -25,13 +25,18 @@ vi.mock("../../lib/auth", () => ({
 
 vi.mock("../../lib/session", () => ({
   authHandler: vi.fn(async (callback) => {
-    const mockUser = {
-      id: "admin-123",
-      email: "admin@example.com",
-      role: "admin",
-      name: "Admin User",
+    const mockSession = {
+      session: {
+        id: "session-id",
+      },
+      user: {
+        id: "admin-123",
+        email: "admin@example.com",
+        role: "admin",
+        name: "Admin User",
+      },
     };
-    return callback("admin-123", mockUser);
+    return callback(mockSession);
   }),
 }));
 
@@ -90,19 +95,19 @@ describe("Admin Actions", () => {
       });
     });
 
-    test("ユーザー作成時のエラーをハンドル", async () => {
+    test("ユーザー作成時のエラー", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
       (createUser as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("DB error"),
       );
 
-      const result = await postNewUser({
-        name: "New User",
-        email: "newuser@example.com",
-        isAdmin: false,
-      });
-
-      expect(result).toBeNull();
+      await expect(
+        postNewUser({
+          name: "New User",
+          email: "newuser@example.com",
+          isAdmin: false,
+        }),
+      ).rejects.toThrow(Error);
     });
 
     test("authHandler で管理者権限をチェック", async () => {
@@ -175,7 +180,7 @@ describe("Admin Actions", () => {
       });
     });
 
-    test("API例外をハンドル", async () => {
+    test("API例外", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
       (
         auth.api.removeUser as unknown as ReturnType<
@@ -183,12 +188,7 @@ describe("Admin Actions", () => {
         >
       ).mockRejectedValue(new Error("API error"));
 
-      const result = await postDeleteUser({ id: "user-456" });
-
-      expect(result).toEqual({
-        success: false,
-        message: "削除に失敗しました。",
-      });
+      await expect(postDeleteUser({ id: "user-456" })).rejects.toThrow(Error);
     });
   });
 
@@ -274,14 +274,14 @@ describe("Admin Actions", () => {
         >
       ).mockRejectedValue(new Error("Update failed"));
 
-      const result = await postEditUser({
-        id: "user-456",
-        name: "Updated User",
-        email: "updated@example.com",
-        isAdmin: false,
-      });
-
-      expect(result).toBeNull();
+      await expect(
+        postEditUser({
+          id: "user-456",
+          name: "Updated User",
+          email: "updated@example.com",
+          isAdmin: false,
+        }),
+      ).rejects.toThrowError();
     });
   });
 
