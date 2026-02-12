@@ -1,4 +1,5 @@
 import { envStore } from "../../lib/env";
+import { getLogger } from "../../lib/request-context";
 import type { ExportUsersRequestSchema } from "../../schemas/batch";
 import { buildCSVContent } from "../../utils/csv";
 import {
@@ -27,13 +28,15 @@ export const exportUsers = async (
     Body: buildCSVContent(headers, fileContent),
     ContentType: "application/json",
   };
+
+  const logger = getLogger();
   try {
     await s3Client.send(new PutObjectCommand(params));
-    console.log(
+    logger.info(
       `Users exported successfully to ${envStore.AWS_S3_BUCKET}/${fileName}`,
     );
   } catch (error) {
-    console.error("Error exporting users:", error);
+    logger.error({ error }, "Error exporting users");
     throw error; // エラーを再スローして呼び出し元に通知
   }
 };
