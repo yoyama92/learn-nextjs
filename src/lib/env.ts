@@ -4,9 +4,12 @@ import { z } from "./zod";
  * ランタイムが定義する環境変数
  */
 const envSchemaBase = z.object({
-  NEXT_RUNTIME: z.union([z.literal("nodejs"), z.literal("edge")]).optional(),
   NODE_ENV: z
-    .union([z.literal("development"), z.literal("production")])
+    .union([
+      z.literal("development"),
+      z.literal("production"),
+      z.literal("test"),
+    ])
     .optional(),
 });
 
@@ -38,6 +41,7 @@ const envSchema = envSchemaBase.extend({
     ),
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
   DATABASE_URL: z.url().describe("データベースの接続URL"),
+  LOG_LEVEL: z.string().optional(),
 });
 
 const publicEnvSchema = envSchema.pick({

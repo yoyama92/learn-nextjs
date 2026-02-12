@@ -22,7 +22,7 @@ app
 
     // 実処理はレスポンス後に実行する。
     after(
-      batchHandler(body, async (body) => {
+      batchHandler(body, c.req.path, async (body) => {
         await exportUsers(body);
       }),
     );

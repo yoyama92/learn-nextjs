@@ -1,6 +1,7 @@
 import type { Prisma } from "../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
+import { getLogger } from "../../lib/request-context";
 import { generateRandomPassword } from "../../utils/password";
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
@@ -122,7 +123,8 @@ export const createUser = async (data: {
       mailSent: result.$metadata.httpStatusCode === 200,
     };
   } catch (error) {
-    console.error("Error sending email:", error);
+    const logger = getLogger();
+    logger.error({ error: error }, "Error sending email");
     return {
       mailSent: false,
     };

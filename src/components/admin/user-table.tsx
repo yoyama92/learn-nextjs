@@ -118,16 +118,19 @@ const useDeleteDialog = ({
       if (!confirmed) {
         return;
       }
+      try {
+        const result = await postDeleteUser({
+          id: row.id,
+        });
 
-      const result = await postDeleteUser({
-        id: row.id,
-      });
-
-      if (result.success) {
-        window.alert("削除しました。");
-        done();
-      } else {
-        window.alert(result.message);
+        if (result.success) {
+          window.alert("削除しました。");
+          done();
+        } else {
+          window.alert(result.message);
+        }
+      } catch {
+        window.alert("削除に失敗しました。");
       }
     },
   };

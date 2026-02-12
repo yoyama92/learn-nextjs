@@ -1,4 +1,5 @@
 import { envStore } from "../../lib/env";
+import { getLogger } from "../../lib/request-context";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
 /**
@@ -10,6 +11,7 @@ export const passwordReminder = async (
   email: string,
   token: string,
 ): Promise<{ success: boolean }> => {
+  const logger = getLogger();
   const url = new URL("/reset-password", envStore.BETTER_AUTH_URL);
   url.searchParams.append("token", token);
   try {
@@ -33,13 +35,13 @@ export const passwordReminder = async (
     };
     const result = await sesClient.send(new SendEmailCommand(emailParams));
     if (result.$metadata.httpStatusCode !== 200) {
-      console.error("Failed to send email:", result);
+      logger.error({ result: result }, "Failed to send email");
       throw new Error("Failed to send email");
     }
-    console.log("Email sent successfully:", result);
+    logger.info({ result }, "Email sent successfully");
     return { success: true };
   } catch (error) {
-    console.error("Error in password reminder:", error);
+    logger.error({ error }, "Error in password reminder");
     return { success: false };
   }
 };

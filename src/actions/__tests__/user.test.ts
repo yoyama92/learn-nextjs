@@ -65,11 +65,11 @@ describe("User Actions", () => {
     test("名前を空にして更新", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
 
-      const result = await postUser({
-        name: "",
-      });
-
-      expect(result).toBeNull();
+      await expect(
+        postUser({
+          name: "",
+        }),
+      ).rejects.toThrowError();
       expect(auth.api.updateUser).not.toBeCalled();
     });
 
@@ -79,11 +79,11 @@ describe("User Actions", () => {
         auth.api.updateUser as unknown as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error("Update failed"));
 
-      const result = await postUser({
-        name: "New Name",
-      });
-
-      expect(result).toBeNull();
+      await expect(
+        postUser({
+          name: "New Name",
+        }),
+      ).rejects.toThrowError();
     });
 
     test("authHandler を通じて認証をチェック", async () => {
@@ -100,7 +100,8 @@ describe("User Actions", () => {
         name: "New Name",
       });
 
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function));
+      // 権限指定なし
+      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), undefined);
     });
   });
 
@@ -171,13 +172,13 @@ describe("User Actions", () => {
         auth.api.changePassword as unknown as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error("Password change failed"));
 
-      const result = await changePassword({
-        currentPassword: "OldPassword123!",
-        newPassword: "NewPassword123!",
-        confirmNewPassword: "NewPassword123!",
-      });
-
-      expect(result).toEqual({ success: false });
+      await expect(
+        changePassword({
+          currentPassword: "OldPassword123!",
+          newPassword: "NewPassword123!",
+          confirmNewPassword: "NewPassword123!",
+        }),
+      ).rejects.toThrowError();
     });
 
     test("authHandler を通じて認証をチェック", async () => {
@@ -204,7 +205,7 @@ describe("User Actions", () => {
         confirmNewPassword: "NewPassword123!",
       });
 
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function));
+      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), undefined);
     });
   });
 });

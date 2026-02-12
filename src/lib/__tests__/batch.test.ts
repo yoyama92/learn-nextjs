@@ -7,7 +7,7 @@ describe("batchHandler", () => {
     const mockExecutor = vi.fn().mockResolvedValue(undefined);
     const body = { action: "test", data: { id: 1 } };
 
-    await batchHandler(body, mockExecutor);
+    await batchHandler(body, "test", mockExecutor);
 
     expect(mockExecutor).toHaveBeenCalledWith(body);
     expect(mockExecutor).toHaveBeenCalledTimes(1);
@@ -17,7 +17,7 @@ describe("batchHandler", () => {
     const mockExecutor = vi.fn().mockResolvedValue(undefined);
     const testBody = { id: 123, name: "test" };
 
-    await batchHandler(testBody, mockExecutor);
+    await batchHandler(testBody, "test", mockExecutor);
 
     expect(mockExecutor).toHaveBeenCalledWith(testBody);
   });

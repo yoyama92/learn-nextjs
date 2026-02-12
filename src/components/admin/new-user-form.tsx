@@ -17,10 +17,6 @@ export const NewUserForm = () => {
   const onSubmit: SubmitHandler<CreateUserSchema> = async (data) => {
     try {
       const result = await postNewUser(data);
-      if (result === null) {
-        window.alert("作成に失敗しました。");
-        return;
-      }
       if (result?.mailSent) {
         window.alert("新規追加に成功しました");
       } else {

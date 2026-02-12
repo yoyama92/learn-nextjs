@@ -1,13 +1,17 @@
+import { createBatchLogger } from "./logger";
+
 export const batchHandler = async <T>(
   body: T,
+  name: string,
   execute: (body: T) => Promise<void>,
 ) => {
+  const logger = createBatchLogger(name);
   // バッチ処理をここで実行
-  console.log("Batch processing started:", body);
+  logger.info({ body }, "Batch processing started");
   try {
     await execute(body);
-    console.log("Batch processing completed");
+    logger.info("Batch processing completed");
   } catch (error) {
-    console.error("Batch processing failed:", error);
+    logger.error({ error }, "Batch processing failed");
   }
 };

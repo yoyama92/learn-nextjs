@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { ForbiddenError, UnauthorizedError } from "../../utils/error";
 import { SignOutButton } from "../auth/sign-out";
+import { signOut } from "../../actions/auth";
 
 /**
  * 404 Forbidden ページ
@@ -48,11 +49,16 @@ export const ErrorPage = ({
 
   return (
     error.message !== UnauthorizedError.MESSAGE && (
-      <div className="max-sm:p-4 p-6 flex flex-col gap-4">
-        <h2>原因不明のエラーが発生しました。</h2>
-        <button type="button" onClick={() => reset()}>
-          再読み込み
-        </button>
+      <div className="flex flex-col gap-4 items-center justify-center h-screen">
+        <h2 className="text-2xl">原因不明のエラーが発生しました。</h2>
+        <div className="flex flex-row gap-4">
+          <button type="button" className="btn" onClick={() => reset()}>
+            再読み込み
+          </button>
+          <button type="button" className="btn" onClick={() => signOut()}>
+            ログアウト
+          </button>
+        </div>
       </div>
     )
   );

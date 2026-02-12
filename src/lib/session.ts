@@ -1,12 +1,11 @@
 import { headers } from "next/headers";
 
-import type { UserSchema } from "../schemas/user";
 import { forbidden, unauthorized } from "../utils/error";
 import { auth } from "./auth";
 
-type AuthHandlerCallback<T> = (id: string, user: UserSchema) => Promise<T>;
-
 export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
+
+type AuthHandlerCallback<T> = (session: NonNullable<Session>) => Promise<T>;
 
 /**
  * セッションの認証・認可処理
@@ -40,11 +39,12 @@ export const authHandler = async <T>(
   callback: AuthHandlerCallback<T>,
   options?: {
     adminOnly?: boolean;
+    scope?: string;
+    action?: string;
   },
 ): Promise<T> => {
-  const { user } = await verifySession(options);
-
-  return callback(user.id, user);
+  const session = await verifySession(options);
+  return await callback(session);
 };
 
 /**
