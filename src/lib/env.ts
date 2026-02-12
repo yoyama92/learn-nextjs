@@ -5,7 +5,11 @@ import { z } from "./zod";
  */
 const envSchemaBase = z.object({
   NODE_ENV: z
-    .union([z.literal("development"), z.literal("production"), z.literal("ci")])
+    .union([
+      z.literal("development"),
+      z.literal("production"),
+      z.literal("test"),
+    ])
     .optional(),
 });
 

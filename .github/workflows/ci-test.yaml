@@ -31,6 +31,8 @@ jobs:
     strategy:
       matrix:
         node-version: [24]
+    env:
+      NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
       - name: Install pnpm
@@ -74,4 +76,4 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body-file knip-report.md --edit-last --create-if-none
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
