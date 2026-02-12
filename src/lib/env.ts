@@ -4,9 +4,8 @@ import { z } from "./zod";
  * ランタイムが定義する環境変数
  */
 const envSchemaBase = z.object({
-  NEXT_RUNTIME: z.union([z.literal("nodejs"), z.literal("edge")]).optional(),
   NODE_ENV: z
-    .union([z.literal("development"), z.literal("production")])
+    .union([z.literal("development"), z.literal("production"), z.literal("ci")])
     .optional(),
 });
 
