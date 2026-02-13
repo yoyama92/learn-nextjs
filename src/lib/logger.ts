@@ -16,7 +16,9 @@ export const baseLogger = pino({
 
 export const createRequestLogger = (
   session?: Session,
-  extra?: Record<string, unknown>,
+  extra?: {
+    scope: "page" | "action";
+  } & Record<string, unknown>,
 ) => {
   const user = session?.user
     ? {

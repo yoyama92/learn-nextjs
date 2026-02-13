@@ -1,50 +1,39 @@
 import { headers } from "next/headers";
+import { redirect as nextRedirect } from "next/navigation";
+import { cache } from "react";
 
 import { forbidden, unauthorized } from "../utils/error";
 import { auth } from "./auth";
 
 export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
-type AuthHandlerCallback<T> = (session: NonNullable<Session>) => Promise<T>;
+const getSession = cache(async (): Promise<Session> => {
+  const reqHeaders = await headers();
+  return auth.api.getSession({ headers: reqHeaders });
+});
 
 /**
  * セッションの認証・認可処理
  * @param options.adminOnly 管理者のみ許可する場合にtrueを設定する。
  * @returns
  */
-export const verifySession = async (options?: {
+export const requestSession = async (options?: {
   adminOnly?: boolean;
+  redirect?: boolean;
 }): Promise<NonNullable<Session>> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
   if (!session) {
+    if (options?.redirect) {
+      nextRedirect("/sign-in");
+    }
     unauthorized();
   }
 
-  if (options?.adminOnly && !isAdminUser(session)) {
+  if (options?.adminOnly && !assertAdmin(session)) {
     forbidden();
   }
 
   return session;
-};
-
-/**
- * 認証・認可を検証してから実行する
- * @param callback 実行したい処理
- * @param options 認可設定
- * @returns callbackの実行結果
- */
-export const authHandler = async <T>(
-  callback: AuthHandlerCallback<T>,
-  options?: {
-    adminOnly?: boolean;
-    scope?: string;
-    action?: string;
-  },
-): Promise<T> => {
-  const session = await verifySession(options);
-  return await callback(session);
 };
 
 /**
@@ -53,6 +42,6 @@ export const authHandler = async <T>(
  * @param dbUser DBから取得したユーザー情報
  * @returns 管理者としてログインしている場合にtrueを返す。
  */
-const isAdminUser = (session: Session) => {
-  return session?.user?.role === "admin";
+const assertAdmin = (session: NonNullable<Session>) => {
+  return session.user.role === "admin";
 };

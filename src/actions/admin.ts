@@ -22,7 +22,7 @@ import { createUser, getUsersPaginated } from "../server/services/userService";
  * @returns メール送信成否。メール送信以外でエラーが発生した場合はnullを返す。
  */
 export const postNewUser = definePrivateAction(
-  async function postNewUser(user: CreateUserSchema) {
+  async (user: CreateUserSchema) => {
     const data = createUserSchema.parse(user);
     return await createUser({
       name: data.name,
@@ -33,6 +33,7 @@ export const postNewUser = definePrivateAction(
   {
     // 管理者のみがこのアクションを実行できるようにする
     adminOnly: true,
+    actionName: "admin_post_new_user",
   },
 );
 
@@ -42,7 +43,7 @@ export const postNewUser = definePrivateAction(
  * @returns 削除結果
  */
 export const postDeleteUser = definePrivateAction(
-  async function postDeleteUser(user: DeleteUserSchema, session) {
+  async (user: DeleteUserSchema, session) => {
     const id = session.user.id;
     if (id === user.id) {
       return {
@@ -71,6 +72,7 @@ export const postDeleteUser = definePrivateAction(
   {
     // 管理者のみがこのアクションを実行できるようにする
     adminOnly: true,
+    actionName: "admin_post_delete_user",
   },
 );
 
@@ -80,7 +82,7 @@ export const postDeleteUser = definePrivateAction(
  * @returns 成功か否か
  */
 export const postEditUser = definePrivateAction(
-  async function postEditUser(user: EditUserSchema) {
+  async (user: EditUserSchema) => {
     const data = editUserSchema.parse(user);
     await auth.api.adminUpdateUser({
       body: {
@@ -101,15 +103,17 @@ export const postEditUser = definePrivateAction(
   {
     // 管理者のみがこのアクションを実行できるようにする
     adminOnly: true,
+    actionName: "admin_post_edit_user",
   },
 );
 
 export const getUsers = definePrivateAction(
-  async function getUsers(pagination: GetPaginationSchema) {
+  async (pagination: GetPaginationSchema) => {
     const data = getPaginationSchema.parse(pagination);
     return await getUsersPaginated(data.page, data.pageSize);
   },
   {
     adminOnly: true,
+    actionName: "admin_get_users",
   },
 );
