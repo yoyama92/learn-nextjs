@@ -16,16 +16,15 @@ type PageProps<
 };
 
 type DefinePrivatePageOptions = {
-  /** ログ用のページ名（minifyで壊れる Page.name に依存しない） */
+  /** ログ用のページ名 */
   pageName: string;
-
-  /** 認可 */
+  /** 管理者のみに認可 */
   adminOnly?: boolean;
 
   /** 未ログイン時に /sign-in へ */
   redirect?: boolean;
 
-  /** Suspense fallback を噛ませる（デフォ true） */
+  /** Suspense fallback を使うか（デフォルトtrue） */
   suspense?: boolean;
 };
 
