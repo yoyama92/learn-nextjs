@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 
-import { PageWrapper } from "../../../components/_common/page";
+import { definePrivatePage } from "../../../components/_common/page";
 import { UserInfo } from "../../../components/account/user";
-import { verifySession } from "../../../lib/session";
 
 export const metadata: Metadata = {
   title: "User Profile - Next.js Sample App",
@@ -11,23 +10,19 @@ export const metadata: Metadata = {
 /**
  * ユーザー情報ページ
  */
-export default function Page() {
-  return (
-    <PageWrapper>
-      <AsyncPage />
-    </PageWrapper>
-  );
-}
-
-const AsyncPage = async () => {
-  const { user } = await verifySession();
-  return (
-    <UserInfo
-      user={{
-        name: user.name,
-        email: user.email,
-        isAdmin: user.role === "admin",
-      }}
-    />
-  );
-};
+export default definePrivatePage(
+  async function Account({ session: { user } }) {
+    return (
+      <UserInfo
+        user={{
+          name: user.name,
+          email: user.email,
+          isAdmin: user.role === "admin",
+        }}
+      />
+    );
+  },
+  {
+    pageName: "account",
+  },
+);

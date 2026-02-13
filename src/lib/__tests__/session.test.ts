@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ForbiddenError, UnauthorizedError } from "../../utils/error";
 import { auth } from "../auth";
-import { authHandler, type Session, verifySession } from "../session";
+import { type Session, requestSession } from "../session";
 
 // モック化するモジュール
 vi.mock("next/headers", () => ({
@@ -60,7 +60,7 @@ const adminSession = {
   },
 } satisfies Session;
 
-describe("verifySession", () => {
+describe("requestSession", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -76,7 +76,7 @@ describe("verifySession", () => {
       >
     ).mockResolvedValue(userSession);
 
-    const result = await verifySession();
+    const result = await requestSession();
 
     expect(result).toEqual(userSession);
   });
@@ -93,7 +93,7 @@ describe("verifySession", () => {
       >
     ).mockResolvedValue(null);
 
-    await expect(verifySession()).rejects.toThrow(UnauthorizedError);
+    await expect(requestSession()).rejects.toThrow(UnauthorizedError);
   });
 
   test("adminOnlyがtrueで管理者でない場合forbidden例外を投げる", async () => {
@@ -107,7 +107,7 @@ describe("verifySession", () => {
       >
     ).mockResolvedValue(userSession);
 
-    await expect(verifySession({ adminOnly: true })).rejects.toThrow(
+    await expect(requestSession({ adminOnly: true })).rejects.toThrow(
       ForbiddenError,
     );
   });
@@ -123,7 +123,7 @@ describe("verifySession", () => {
       >
     ).mockResolvedValue(adminSession);
 
-    const result = await verifySession({ adminOnly: true });
+    const result = await requestSession({ adminOnly: true });
 
     expect(result).toEqual(adminSession);
   });
@@ -140,112 +140,11 @@ describe("verifySession", () => {
       >
     ).mockResolvedValue(userSession);
 
-    await verifySession();
+    await requestSession();
 
     expect(headers).toHaveBeenCalled();
     expect(auth.api.getSession).toHaveBeenCalledWith({
       headers: mockHeaders,
     });
-  });
-});
-
-describe("authHandler", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  test("callbackが正しい引数で呼ばれる", async () => {
-    const mockHeaders = {};
-    (headers as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockHeaders,
-    );
-    (
-      auth.api.getSession as unknown as ReturnType<
-        typeof vi.fn<typeof auth.api.getSession>
-      >
-    ).mockResolvedValue(userSession);
-
-    const callback = vi
-      .fn()
-      .mockResolvedValue({ success: true })
-      .mockResolvedValueOnce({ data: "test" });
-
-    const result = await authHandler(callback);
-
-    expect(callback).toHaveBeenCalledWith(userSession);
-    expect(result).toEqual({ data: "test" });
-  });
-
-  test("callbackの戻り値が返される", async () => {
-    const mockHeaders = {};
-    (headers as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockHeaders,
-    );
-    (
-      auth.api.getSession as unknown as ReturnType<
-        typeof vi.fn<typeof auth.api.getSession>
-      >
-    ).mockResolvedValue(userSession);
-
-    const callback = vi.fn().mockResolvedValue({ result: "success" });
-
-    const result = await authHandler(callback);
-
-    expect(result).toEqual({ result: "success" });
-  });
-
-  test("adminOnlyオプションが正しく渡される", async () => {
-    const mockHeaders = {};
-    (headers as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockHeaders,
-    );
-    (
-      auth.api.getSession as unknown as ReturnType<
-        typeof vi.fn<typeof auth.api.getSession>
-      >
-    ).mockResolvedValue(adminSession);
-
-    const callback = vi.fn().mockResolvedValue({ result: "success" });
-
-    const result = await authHandler(callback, { adminOnly: true });
-
-    expect(result).toEqual({ result: "success" });
-    expect(callback).toHaveBeenCalled();
-  });
-
-  test("adminOnlyオプションを渡されるが管理者でない場合エラーが投げられる", async () => {
-    const mockHeaders = {};
-    (headers as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-      mockHeaders,
-    );
-    (
-      auth.api.getSession as unknown as ReturnType<
-        typeof vi.fn<typeof auth.api.getSession>
-      >
-    ).mockResolvedValue(userSession);
-
-    const callback = vi.fn().mockResolvedValue({ success: true });
-
-    await expect(authHandler(callback, { adminOnly: true })).rejects.toThrow(
-      ForbiddenError,
-    );
-
-    expect(callback).not.toHaveBeenCalled();
-  });
-
-  test("セッション検証に失敗した場合エラーが投げられる", async () => {
-    const mockHeaders = {};
-    (headers as ReturnType<typeof vi.fn>).mockResolvedValue(mockHeaders);
-    (
-      auth.api.getSession as unknown as ReturnType<
-        typeof vi.fn<typeof auth.api.getSession>
-      >
-    ).mockResolvedValue(null);
-
-    const callback = vi.fn();
-
-    await expect(authHandler(callback)).rejects.toThrow(UnauthorizedError);
-
-    expect(callback).not.toHaveBeenCalled();
   });
 });

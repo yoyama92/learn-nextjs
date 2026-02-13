@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { authHandler } from "../../lib/session";
+import { requestSession } from "../../lib/session";
 import { changePassword, postUser } from "../user";
 
 // モック化
@@ -20,14 +20,14 @@ vi.mock("../../lib/auth", () => ({
 }));
 
 vi.mock("../../lib/session", () => ({
-  authHandler: vi.fn(async (callback) => {
+  requestSession: vi.fn(async () => {
     const mockUser = {
       id: "user-123",
       email: "user@example.com",
       role: "user",
       name: "Test User",
     };
-    return callback("user-123", mockUser);
+    return mockUser;
   }),
 }));
 
@@ -86,7 +86,7 @@ describe("User Actions", () => {
       ).rejects.toThrowError();
     });
 
-    test("authHandler を通じて認証をチェック", async () => {
+    test("requestSession を通じて認証をチェック", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
       (
         auth.api.updateUser as unknown as ReturnType<
@@ -101,7 +101,9 @@ describe("User Actions", () => {
       });
 
       // 権限指定なし
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), undefined);
+      expect(requestSession).toHaveBeenCalledWith({
+        adminOnly: undefined,
+      });
     });
   });
 
@@ -181,7 +183,7 @@ describe("User Actions", () => {
       ).rejects.toThrowError();
     });
 
-    test("authHandler を通じて認証をチェック", async () => {
+    test("requestSession を通じて認証をチェック", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
       (
         auth.api.changePassword as unknown as ReturnType<
@@ -205,7 +207,9 @@ describe("User Actions", () => {
         confirmNewPassword: "NewPassword123!",
       });
 
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), undefined);
+      expect(requestSession).toHaveBeenCalledWith({
+        adminOnly: undefined,
+      });
     });
   });
 });

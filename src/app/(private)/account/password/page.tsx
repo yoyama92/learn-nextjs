@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 
-import { PageWrapper } from "../../../../components/_common/page";
+import { definePrivatePage } from "../../../../components/_common/page";
 import { PasswordChangeForm } from "../../../../components/auth/password-change";
-import { verifySession } from "../../../../lib/session";
 
 export const metadata: Metadata = {
   title: "Change Password - Next.js Sample App",
@@ -11,21 +10,17 @@ export const metadata: Metadata = {
 /**
  * ログイン後のパスワード変更ページ
  */
-export default function Page() {
-  return (
-    <PageWrapper>
-      <AsyncPage />
-    </PageWrapper>
-  );
-}
-const AsyncPage = async () => {
-  const { user } = await verifySession();
-
-  return (
-    <PasswordChangeForm
-      user={{
-        email: user.email,
-      }}
-    />
-  );
-};
+export default definePrivatePage(
+  async ({ session: { user } }) => {
+    return (
+      <PasswordChangeForm
+        user={{
+          email: user.email,
+        }}
+      />
+    );
+  },
+  {
+    pageName: "password",
+  },
+);

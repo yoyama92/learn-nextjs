@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { authHandler } from "../../lib/session";
+import { requestSession } from "../../lib/session";
 import {
   createUser,
   getUsersPaginated,
@@ -24,7 +24,7 @@ vi.mock("../../lib/auth", () => ({
 }));
 
 vi.mock("../../lib/session", () => ({
-  authHandler: vi.fn(async (callback) => {
+  requestSession: vi.fn(async () => {
     const mockSession = {
       session: {
         id: "session-id",
@@ -36,7 +36,7 @@ vi.mock("../../lib/session", () => ({
         name: "Admin User",
       },
     };
-    return callback(mockSession);
+    return mockSession;
   }),
 }));
 
@@ -124,7 +124,7 @@ describe("Admin Actions", () => {
         isAdmin: false,
       });
 
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), {
+      expect(requestSession).toHaveBeenCalledWith({
         adminOnly: true,
       });
     });
@@ -309,7 +309,7 @@ describe("Admin Actions", () => {
       expect(getUsersPaginated).toHaveBeenCalledWith(1, 10);
     });
 
-    test("authHandler で管理者権限をチェック", async () => {
+    test("requestSession で管理者権限をチェック", async () => {
       const resolvedValue = {
         total: 100,
         pageSize: 10,
@@ -328,7 +328,7 @@ describe("Admin Actions", () => {
         pageSize: 10,
       });
 
-      expect(authHandler).toHaveBeenCalledWith(expect.any(Function), {
+      expect(requestSession).toHaveBeenCalledWith({
         adminOnly: true,
       });
     });

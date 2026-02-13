@@ -19,3 +19,10 @@ export class UnauthorizedError extends Error {
     super(UnauthorizedError.MESSAGE);
   }
 }
+
+export class ActionError extends Error {
+  constructor(public actionName: string) {
+    super("Action failed");
+    this.name = "ActionError";
+  }
+}
