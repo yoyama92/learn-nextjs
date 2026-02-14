@@ -9,6 +9,7 @@ import {
   type ChangePasswordSchema,
   changePasswordSchema,
   resetPasswordSchema,
+  sendVerificationEmailSchema,
   signInSchema,
 } from "../schemas/auth";
 
@@ -38,11 +39,25 @@ export const signIn = async (_: unknown, formData: FormData) => {
     });
   } catch (error) {
     // サインインに失敗した場合
-    if (error instanceof APIError && error.status === "UNAUTHORIZED") {
-      return {
-        error: "メールアドレスもしくはパスワードが異なります。",
-        formData: formData,
-      };
+    if (error instanceof APIError) {
+      if (error.status === "UNAUTHORIZED") {
+        return {
+          error: "メールアドレスもしくはパスワードが異なります。",
+          status: error.status,
+          formData: formData,
+        };
+      } else if (error.status === "FORBIDDEN") {
+        return {
+          error: "メールアドレスが認証されていません。",
+          status: error.status,
+          formData: formData,
+        };
+      } else {
+        return {
+          error: "システムエラーが発生しました。",
+          formData: formData,
+        };
+      }
     } else {
       return {
         error: "システムエラーが発生しました。",
@@ -143,4 +158,26 @@ export const changePassword = async (
       success: false,
     };
   }
+};
+
+export const sendVerificationEmail = async (_: unknown, formData: FormData) => {
+  const parseResult = sendVerificationEmailSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+
+  if (!parseResult.success) {
+    return {
+      success: false,
+      formData: formData,
+    };
+  }
+  const sendEmailResult = await auth.api.sendVerificationEmail({
+    body: {
+      email: parseResult.data.email,
+    },
+  });
+  return {
+    success: sendEmailResult.status,
+    formData: formData,
+  };
 };
