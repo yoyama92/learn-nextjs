@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { assertAdmin, requestSession } from "../../lib/session";
+import { assertAdmin } from "../../lib/session";
 import {
   createUser,
   getUsersPaginated,
