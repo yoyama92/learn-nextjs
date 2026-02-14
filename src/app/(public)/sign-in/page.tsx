@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { signIn } from "../../../actions/auth";
 import { PageWrapper } from "../../../components/_common/page";
 import { SignIn } from "../../../components/auth/sign-in";
 import { auth } from "../../../lib/auth";
@@ -31,16 +30,5 @@ const AsyncPage = async () => {
   if (session) {
     redirect("/");
   }
-  return (
-    <SignIn
-      title="ログイン"
-      buttonLabel="ログインする"
-      signIn={signIn}
-      footer={
-        <a href="/reset-password" className="link link-primary mt-2">
-          パスワードを忘れた場合
-        </a>
-      }
-    />
-  );
+  return <SignIn />;
 };

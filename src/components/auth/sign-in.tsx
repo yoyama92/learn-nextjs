@@ -1,7 +1,8 @@
 "use client";
 
-import { type ReactNode, useActionState, useId } from "react";
+import { useId } from "react";
 
+import { useSignIn } from "../../hooks/auth/use-signin";
 import { type SignInSchema, signInSchemaKeys } from "../../schemas/auth";
 
 const useFormIds = (): Record<keyof SignInSchema, string> => {
@@ -13,35 +14,14 @@ const useFormIds = (): Record<keyof SignInSchema, string> => {
   };
 };
 
-export const SignIn = ({
-  title,
-  buttonLabel,
-  signIn,
-  footer,
-}: {
-  title: string;
-  buttonLabel: string;
-  signIn: (
-    _: unknown,
-    formData: FormData,
-  ) => Promise<{
-    error?: string | undefined;
-    formData: FormData;
-  }>;
-  footer?: ReactNode;
-}) => {
-  const initialState = {
-    error: "",
-    formData: new FormData(),
-  };
-
-  const [state, formAction, isPending] = useActionState(signIn, initialState);
+export const SignIn = () => {
+  const [state, formAction, isPending] = useSignIn();
   const formIds = useFormIds();
   return (
     <div className="flex justify-center items-center min-h-screen">
       <form action={formAction} autoComplete="on">
         <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-sm border p-4">
-          <h2 className="card-title justify-center mb-2">{title}</h2>
+          <h2 className="card-title justify-center mb-2">ログイン</h2>
           <label className="label" htmlFor={formIds.email}>
             メールアドレス
           </label>
@@ -83,9 +63,11 @@ export const SignIn = ({
             className="btn btn-primary mt-2"
             disabled={isPending}
           >
-            {buttonLabel}
+            ログインする
           </button>
-          {footer}
+          <a href="/reset-password" className="link link-primary mt-2">
+            パスワードを忘れた場合
+          </a>
         </fieldset>
       </form>
     </div>

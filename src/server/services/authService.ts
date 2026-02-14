@@ -2,6 +2,44 @@ import { envStore } from "../../lib/env";
 import { getLogger } from "../../lib/request-context";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
 
+export const sendVerificationEmail = async (
+  user: {
+    email: string;
+    emailVerified: boolean;
+  },
+  token: string,
+) => {
+  if (user.emailVerified) {
+    return;
+  }
+  const logger = getLogger();
+  const url = new URL("/verify-email", envStore.BETTER_AUTH_URL);
+  url.searchParams.append("token", token);
+  const emailParams = {
+    Destination: {
+      ToAddresses: [user.email],
+    },
+    Content: {
+      Simple: {
+        Subject: {
+          Data: "Verify Email",
+        },
+        Body: {
+          Text: {
+            Data: `Click the link to verify your email: ${url.toString()}`,
+          },
+        },
+      },
+    },
+    FromEmailAddress: envStore.AWS_SES_FROM_EMAIL || "",
+  };
+  const result = await sesClient.send(new SendEmailCommand(emailParams));
+  if (result.$metadata.httpStatusCode !== 200) {
+    logger.error({ result: result }, "Failed to send email");
+    throw new Error("Failed to send email");
+  }
+};
+
 /**
  * パスワードリマインダーを送信する
  * @param email ユーザーのメールアドレス

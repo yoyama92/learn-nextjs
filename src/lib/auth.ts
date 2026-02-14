@@ -4,14 +4,23 @@ import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 
 import { prisma } from "../server/infrastructures/db";
-import { passwordReminder } from "../server/services/authService";
+import {
+  passwordReminder,
+  sendVerificationEmail,
+} from "../server/services/authService";
 import { getLogger } from "./request-context";
 
 export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, token }) => {
       await passwordReminder(user.email, token);
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, token }) => {
+      await sendVerificationEmail(user, token);
     },
   },
   database: prismaAdapter(prisma, {

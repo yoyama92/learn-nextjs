@@ -9,6 +9,10 @@ export const signInSchemaKeys = signInSchema.keyof().enum;
 
 export type SignInSchema = z.infer<typeof signInSchema>;
 
+export const sendVerificationEmailSchema = z.object({
+  email: z.email().min(1),
+});
+
 export const resetPasswordSchema = z.object({
   email: z.email().min(1),
 });

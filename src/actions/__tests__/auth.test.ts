@@ -171,6 +171,7 @@ describe("Auth Actions", () => {
       expect(result).toEqual({
         error: "メールアドレスもしくはパスワードが異なります。",
         formData: formData,
+        status: "UNAUTHORIZED",
       });
     });
 
