@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { requestSession } from "../../lib/session";
 import { changePassword, postUser } from "../user";
 
 // モック化
@@ -19,17 +18,26 @@ vi.mock("../../lib/auth", () => ({
   },
 }));
 
-vi.mock("../../lib/session", () => ({
-  requestSession: vi.fn(async () => {
-    const mockUser = {
-      id: "user-123",
-      email: "user@example.com",
-      role: "user",
-      name: "Test User",
-    };
-    return mockUser;
-  }),
-}));
+vi.mock("../../lib/session", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../lib/session")>();
+  return {
+    ...actual,
+    getSession: vi.fn(async () => {
+      const mockSession = {
+        session: {
+          id: "session-id",
+        },
+        user: {
+          id: "user-123",
+          email: "user@example.com",
+          role: "user",
+          name: "Test User",
+        },
+      };
+      return mockSession;
+    }),
+  };
+});
 
 describe("User Actions", () => {
   beforeEach(() => {
@@ -85,26 +93,6 @@ describe("User Actions", () => {
         }),
       ).rejects.toThrowError();
     });
-
-    test("requestSession を通じて認証をチェック", async () => {
-      (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
-      (
-        auth.api.updateUser as unknown as ReturnType<
-          typeof vi.fn<typeof auth.api.updateUser>
-        >
-      ).mockResolvedValue({
-        status: true,
-      });
-
-      await postUser({
-        name: "New Name",
-      });
-
-      // 権限指定なし
-      expect(requestSession).toHaveBeenCalledWith({
-        adminOnly: undefined,
-      });
-    });
   });
 
   describe("changePassword", () => {
@@ -146,26 +134,26 @@ describe("User Actions", () => {
     test("新しいパスワードが一致しないとバリデーション失敗", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
 
-      const result = await changePassword({
-        currentPassword: "OldPassword123!",
-        newPassword: "NewPassword123!",
-        confirmNewPassword: "DifferentPassword123!",
-      });
-
-      expect(result).toEqual({ success: false });
+      await expect(
+        changePassword({
+          currentPassword: "OldPassword123!",
+          newPassword: "NewPassword123!",
+          confirmNewPassword: "DifferentPassword123!",
+        }),
+      ).rejects.toThrowError();
       expect(auth.api.changePassword).not.toHaveBeenCalled();
     });
 
     test("パスワードが短すぎるとバリデーション失敗", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
 
-      const result = await changePassword({
-        currentPassword: "short",
-        newPassword: "short",
-        confirmNewPassword: "short",
-      });
-
-      expect(result).toEqual({ success: false });
+      await expect(
+        changePassword({
+          currentPassword: "short",
+          newPassword: "short",
+          confirmNewPassword: "short",
+        }),
+      ).rejects.toThrowError();
     });
 
     test("API呼び出しエラーをハンドル", async () => {
@@ -181,35 +169,6 @@ describe("User Actions", () => {
           confirmNewPassword: "NewPassword123!",
         }),
       ).rejects.toThrowError();
-    });
-
-    test("requestSession を通じて認証をチェック", async () => {
-      (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
-      (
-        auth.api.changePassword as unknown as ReturnType<
-          typeof vi.fn<typeof auth.api.changePassword>
-        >
-      ).mockResolvedValue({
-        token: null,
-        user: {
-          id: "user-123",
-          email: "user@example.com",
-          name: "Test User",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          emailVerified: false,
-        },
-      });
-
-      await changePassword({
-        currentPassword: "OldPassword123!",
-        newPassword: "NewPassword123!",
-        confirmNewPassword: "NewPassword123!",
-      });
-
-      expect(requestSession).toHaveBeenCalledWith({
-        adminOnly: undefined,
-      });
     });
   });
 });

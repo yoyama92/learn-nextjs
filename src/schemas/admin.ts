@@ -22,8 +22,6 @@ export const deleteUserSchema = z.object({
   id: z.string(),
 });
 
-export type DeleteUserSchema = z.infer<typeof deleteUserSchema>;
-
 export const editUserSchema = userSchema.extend({
   id: z.string(),
 });
@@ -34,5 +32,3 @@ export const getPaginationSchema = z.object({
   page: z.number().int().min(1).default(1),
   pageSize: z.number().int().min(1).max(100),
 });
-
-export type GetPaginationSchema = z.infer<typeof getPaginationSchema>;

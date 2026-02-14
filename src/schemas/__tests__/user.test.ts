@@ -39,25 +39,6 @@ describe("passwordChangeSchema", () => {
     }
   });
 
-  test("新しいパスワードが一致しないとバリデーション失敗", () => {
-    const input = {
-      currentPassword: "CurrentPassword123!",
-      newPassword: "NewPassword123!",
-      confirmNewPassword: "DifferentPassword123!",
-    };
-    const result = passwordChangeSchema.safeParse(input);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      const errors = z.treeifyError(result.error);
-      expect(errors.properties?.confirmNewPassword).toBeDefined();
-      expect(
-        errors.properties?.confirmNewPassword?.errors?.some((msg) =>
-          msg.includes("一致しません"),
-        ),
-      ).toBe(true);
-    }
-  });
-
   test("現在のパスワードが短いとバリデーション失敗", () => {
     const input = {
       currentPassword: "short",

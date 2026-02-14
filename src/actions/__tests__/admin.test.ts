@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { requestSession } from "../../lib/session";
+import { assertAdmin, requestSession } from "../../lib/session";
 import {
   createUser,
   getUsersPaginated,
@@ -23,22 +23,42 @@ vi.mock("../../lib/auth", () => ({
   },
 }));
 
-vi.mock("../../lib/session", () => ({
-  requestSession: vi.fn(async () => {
-    const mockSession = {
-      session: {
-        id: "session-id",
-      },
-      user: {
-        id: "admin-123",
-        email: "admin@example.com",
-        role: "admin",
-        name: "Admin User",
-      },
-    };
-    return mockSession;
-  }),
-}));
+vi.mock("../../lib/session", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../lib/session")>();
+  return {
+    assertAdmin: vi.fn((session) => {
+      return actual.assertAdmin(session);
+    }),
+    getSession: vi.fn(async () => {
+      const mockSession = {
+        session: {
+          id: "session-id",
+        },
+        user: {
+          id: "admin-123",
+          email: "admin@example.com",
+          role: "admin",
+          name: "Admin User",
+        },
+      };
+      return mockSession;
+    }),
+    requestSession: vi.fn(async () => {
+      const mockSession = {
+        session: {
+          id: "session-id",
+        },
+        user: {
+          id: "admin-123",
+          email: "admin@example.com",
+          role: "admin",
+          name: "Admin User",
+        },
+      };
+      return mockSession;
+    }),
+  };
+});
 
 vi.mock("../../server/services/userService", () => ({
   createUser: vi.fn(),
@@ -110,7 +130,7 @@ describe("Admin Actions", () => {
       ).rejects.toThrow(Error);
     });
 
-    test("authHandler で管理者権限をチェック", async () => {
+    test("assertAdmin で管理者権限をチェック", async () => {
       (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
       (
         createUser as ReturnType<typeof vi.fn<typeof createUser>>
@@ -124,9 +144,7 @@ describe("Admin Actions", () => {
         isAdmin: false,
       });
 
-      expect(requestSession).toHaveBeenCalledWith({
-        adminOnly: true,
-      });
+      expect(assertAdmin).toHaveBeenCalled();
     });
   });
 
@@ -309,7 +327,7 @@ describe("Admin Actions", () => {
       expect(getUsersPaginated).toHaveBeenCalledWith(1, 10);
     });
 
-    test("requestSession で管理者権限をチェック", async () => {
+    test("assertAdmin で管理者権限をチェック", async () => {
       const resolvedValue = {
         total: 100,
         pageSize: 10,
@@ -328,9 +346,7 @@ describe("Admin Actions", () => {
         pageSize: 10,
       });
 
-      expect(requestSession).toHaveBeenCalledWith({
-        adminOnly: true,
-      });
+      expect(assertAdmin).toHaveBeenCalled();
     });
   });
 });
