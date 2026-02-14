@@ -46,8 +46,8 @@ const UserList = ({
     name: string;
     email: string;
     isAdmin?: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
   }[];
   pagination: {
     currentPage: number;
