@@ -5,16 +5,13 @@ import { UserListWithPagination } from "../../../../components/admin/user-list";
 /**
  * 管理者用ユーザー一覧ページ
  */
-export default definePrivatePage(
-  async () => {
-    const data = await getUsers({
-      page: 1,
-      pageSize: 10,
-    });
-    return <UserListWithPagination initialData={data} />;
-  },
-  {
-    adminOnly: true,
-    pageName: "admin_user_list",
-  },
-);
+export default definePrivatePage({
+  adminOnly: true,
+  name: "admin_user_list",
+}).page(async () => {
+  const data = await getUsers({
+    page: 1,
+    pageSize: 10,
+  });
+  return <UserListWithPagination initialData={data} />;
+});

@@ -19,26 +19,23 @@ type Params = z.infer<typeof paramSchema>;
 /**
  * ユーザー情報編集ページ
  */
-export default definePrivatePage<Params>(
-  async ({ props: { params } }) => {
-    const { id } = await params;
-    const userInfo = await getUser(id);
-    if (!userInfo) {
-      notFound();
-    }
-    return (
-      <EditUserForm
-        user={{
-          id: userInfo.id,
-          email: userInfo.email,
-          name: userInfo.name,
-          isAdmin: userInfo.role === "admin",
-        }}
-      />
-    );
-  },
-  {
-    adminOnly: true,
-    pageName: "admin_edit_user",
-  },
-);
+export default definePrivatePage<Params>({
+  adminOnly: true,
+  name: "admin_edit_user",
+}).page(async ({ props: { params } }) => {
+  const { id } = await params;
+  const userInfo = await getUser(id);
+  if (!userInfo) {
+    notFound();
+  }
+  return (
+    <EditUserForm
+      user={{
+        id: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
+        isAdmin: userInfo.role === "admin",
+      }}
+    />
+  );
+});

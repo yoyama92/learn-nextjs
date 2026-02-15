@@ -17,7 +17,7 @@ type PageProps<
 
 type DefinePrivatePageOptions = {
   /** ログ用のページ名 */
-  pageName: string;
+  name: string;
   /** 管理者のみに認可 */
   adminOnly?: boolean;
 
@@ -39,33 +39,41 @@ export const definePrivatePage = <
   TParam extends object | undefined = undefined,
   TSearchParams extends SearchParams | undefined = undefined,
 >(
-  Page: (args: {
-    props: PageProps<TParam, TSearchParams>;
-    session: NonNullable<Session>;
-  }) => Promise<JSX.Element>,
   opts: DefinePrivatePageOptions,
 ) => {
-  return async (
-    props: PageProps<TParam, TSearchParams>,
-  ): Promise<JSX.Element> => {
-    const session = await requestSession(opts);
-    const requestId = crypto.randomUUID();
-    const log = createRequestLogger(session, {
-      page: opts.pageName,
-      scope: "page",
-      requestId: requestId,
-      adminOnly: opts.adminOnly,
-    });
+  return {
+    page: (
+      Page: (args: {
+        props: PageProps<TParam, TSearchParams>;
+        session: NonNullable<Session>;
+      }) => Promise<JSX.Element>,
+    ) => {
+      return async (
+        props: PageProps<TParam, TSearchParams>,
+      ): Promise<JSX.Element> => {
+        const session = await requestSession(opts);
+        const requestId = crypto.randomUUID();
+        const log = createRequestLogger(session, {
+          page: opts.name,
+          scope: "page",
+          requestId: requestId,
+          adminOnly: opts.adminOnly,
+        });
 
-    return runWithLogger(log, async () => {
-      log.info({ event: "render_element" }, "start");
+        return runWithLogger(log, async () => {
+          log.info({ event: "render_element" }, "start");
 
-      const inner = <Page props={props} session={session} />;
+          const inner = <Page props={props} session={session} />;
+          const page =
+            opts?.suspense === false ? (
+              inner
+            ) : (
+              <PageWrapper>{inner}</PageWrapper>
+            );
 
-      const component =
-        opts?.suspense === false ? inner : <PageWrapper>{inner}</PageWrapper>;
-
-      return component;
-    });
+          return page;
+        });
+      };
+    },
   };
 };
