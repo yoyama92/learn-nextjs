@@ -49,9 +49,11 @@ export const definePrivatePage = <
     props: PageProps<TParam, TSearchParams>,
   ): Promise<JSX.Element> => {
     const session = await requestSession(opts);
+    const requestId = crypto.randomUUID();
     const log = createRequestLogger(session, {
       page: opts.pageName,
       scope: "page",
+      requestId: requestId,
       adminOnly: opts.adminOnly,
     });
 
