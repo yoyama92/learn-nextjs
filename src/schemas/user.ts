@@ -8,6 +8,10 @@ export const userSchemaKeys = userSchema.keyof().enum;
 
 export type UserSchema = z.infer<typeof userSchema>;
 
+export const postUserResponseSchema = z.object({
+  status: z.boolean(),
+});
+
 export const passwordChangeSchema = z
   .object({
     currentPassword: passwordSchema,
@@ -27,3 +31,7 @@ export const passwordChangeSchema = z
 export const passwordChangeSchemaKeys = passwordChangeSchema.keyof().enum;
 
 export type PasswordChangeSchema = z.infer<typeof passwordChangeSchema>;
+
+export const passwordChangeResponseSchema = z.object({
+    success: z.literal(true),
+  })

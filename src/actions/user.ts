@@ -1,11 +1,15 @@
 "use server";
 
 import { headers } from "next/headers";
-import z from "zod";
 
 import { auth } from "../lib/auth";
 import { definePrivateAction } from "../lib/define-action";
-import { passwordChangeSchema, userSchema } from "../schemas/user";
+import {
+  passwordChangeResponseSchema,
+  passwordChangeSchema,
+  postUserResponseSchema,
+  userSchema,
+} from "../schemas/user";
 
 /**
  * ユーザー情報を更新する
@@ -14,9 +18,7 @@ import { passwordChangeSchema, userSchema } from "../schemas/user";
  */
 export const postUser = definePrivateAction({
   input: userSchema,
-  output: z.object({
-    status: z.boolean(),
-  }),
+  output: postUserResponseSchema,
   name: "post_user",
 }).handler(async ({ input }) => {
   return await auth.api.updateUser({
@@ -34,9 +36,7 @@ export const postUser = definePrivateAction({
  */
 export const changePassword = definePrivateAction({
   input: passwordChangeSchema,
-  output: z.object({
-    success: z.literal(true),
-  }),
+  output: passwordChangeResponseSchema,
   name: "change_password",
 }).handler(async ({ input }) => {
   await auth.api.changePassword({

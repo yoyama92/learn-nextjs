@@ -1,14 +1,17 @@
 "use server";
 
 import { headers } from "next/headers";
-import z from "zod";
 
 import { auth } from "../lib/auth";
 import { defineAdminAction } from "../lib/define-action";
 import {
+  createUserResponseSchema,
   createUserSchema,
+  deleteUserResponseSchema,
   deleteUserSchema,
+  editUserResponseSchema,
   editUserSchema,
+  getPaginationResponseSchema,
   getPaginationSchema,
 } from "../schemas/admin";
 import { createUser, getUsersPaginated } from "../server/services/userService";
@@ -20,9 +23,7 @@ import { createUser, getUsersPaginated } from "../server/services/userService";
  */
 export const postNewUser = defineAdminAction({
   input: createUserSchema,
-  output: z.object({
-    mailSent: z.boolean(),
-  }),
+  output: createUserResponseSchema,
   name: "admin_post_new_user",
 }).handler(async ({ input }) => {
   return await createUser(input);
@@ -35,15 +36,7 @@ export const postNewUser = defineAdminAction({
  */
 export const postDeleteUser = defineAdminAction({
   input: deleteUserSchema,
-  output: z.discriminatedUnion("success", [
-    z.object({
-      success: z.literal(false),
-      message: z.string(),
-    }),
-    z.object({
-      success: z.literal(true),
-    }),
-  ]),
+  output: deleteUserResponseSchema,
   name: "admin_post_delete_user",
 }).handler(async ({ ctx, input }) => {
   const id = ctx.session.user.id;
@@ -79,9 +72,7 @@ export const postDeleteUser = defineAdminAction({
  */
 export const postEditUser = defineAdminAction({
   input: editUserSchema,
-  output: z.object({
-    success: z.literal(true),
-  }),
+  output: editUserResponseSchema,
   name: "admin_post_edit_user",
 }).handler(async ({ input }) => {
   await auth.api.adminUpdateUser({
@@ -103,22 +94,7 @@ export const postEditUser = defineAdminAction({
 
 export const getUsers = defineAdminAction({
   input: getPaginationSchema,
-  output: z.object({
-    users: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        email: z.string(),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-        role: z.string().nullable(),
-      }),
-    ),
-    total: z.number().positive(),
-    pageSize: z.number().positive(),
-    totalPages: z.number().positive(),
-    currentPage: z.number().positive(),
-  }),
+  output: getPaginationResponseSchema,
   name: "admin_get_users",
 }).handler(async ({ input }) => {
   const result = await getUsersPaginated(input.page, input.pageSize);
