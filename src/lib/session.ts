@@ -42,6 +42,6 @@ export const requestSession = async (options?: {
  * @param dbUser DBから取得したユーザー情報
  * @returns 管理者としてログインしている場合にtrueを返す。
  */
-export const assertAdmin = (session: NonNullable<Session>) => {
+export const assertAdmin = (session: NonNullable<Session>): boolean => {
   return session.user.role === "admin";
 };

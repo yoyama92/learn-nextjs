@@ -1,5 +1,6 @@
 import type { Logger } from "pino";
 import z from "zod";
+
 import { ActionError, toActionError } from "../utils/error";
 import { createRequestLogger } from "./logger";
 import { runWithLogger } from "./request-context";
@@ -18,9 +19,21 @@ type DefineActionOptions<
   O extends z.ZodType,
   A extends AuthMode,
 > = {
+  /**
+   * アクション名
+   */
   name: string;
+  /**
+   * 入力値のスキーマ
+   */
   input: I;
+  /**
+   * 戻り値のスキーマ
+   */
   output: O;
+  /**
+   * 要求する権限
+   */
   auth: A;
 };
 
@@ -32,99 +45,131 @@ type SessionForAuth<A extends AuthMode> = A extends "public"
       ? NonNullable<Session>
       : never;
 
-const buildDefineAction = (deps: {
+type ActionDependencies = {
   createContext: (opts: {
     name: string;
     auth: AuthMode;
   }) => Promise<ActionContext<AuthMode>>;
   assertAdmin: (session: NonNullable<Session>) => boolean;
-}) => {
-  const defineAction = <
-    I extends z.ZodType,
-    O extends z.ZodType,
-    A extends AuthMode,
-  >(
-    options: DefineActionOptions<I, O, A>,
-  ) => {
-    const handler = (
-      fn: (args: {
-        ctx: ActionContext<A>;
-        input: z.infer<I>;
-      }) => Promise<z.infer<O>>,
-    ) => {
-      return async (rawInput: z.infer<I>): Promise<z.infer<O>> => {
-        const ctx = await deps.createContext({
-          name: options.name,
-          auth: options.auth,
-        });
-        const log = ctx.logger;
-        return runWithLogger(log, async () => {
-          const started = Date.now();
-          log.info({ event: "action_start" }, "start");
-          try {
-            // input validate
-            const input = options.input.parse(rawInput);
-            // auth
-            if (options.auth !== "public") {
-              if (!ctx.session) {
-                throw new ActionError("UNAUTHORIZED");
-              }
+};
 
-              if (options.auth === "admin" && !deps.assertAdmin(ctx.session)) {
-                throw new ActionError("FORBIDDEN");
-              }
-            }
+type ActionType<
+  I extends z.ZodType,
+  O extends z.ZodType,
+  A extends AuthMode,
+> = (args: { ctx: ActionContext<A>; input: z.infer<I> }) => Promise<z.infer<O>>;
 
-            // business
-            const rawResult = await fn({
-              ctx: {
-                ...ctx,
-                session: ctx.session as SessionForAuth<A>,
-              },
-              input,
-            });
+/**
+ * ctxの型をAction用に変換して返す。
+ * 認証が必要なActionのときにSessionをNonNullableにすることが目的
+ */
+const getActionContext = <
+  I extends z.ZodType,
+  O extends z.ZodType,
+  A extends AuthMode,
+>(
+  ctx: ActionContext<AuthMode>,
+  options: DefineActionOptions<I, O, A>,
+  assertAdmin: (session: NonNullable<Session>) => boolean,
+) => {
+  if (options.auth === "public") {
+    return ctx;
+  }
 
-            // output validate
-            const result = options.output.parse(rawResult);
+  if (!ctx.session) {
+    throw new ActionError("UNAUTHORIZED");
+  }
 
-            log.info(
-              { event: "action_done", ms: Date.now() - started },
-              "done",
-            );
-            return result;
-          } catch (e) {
-            // ZodError -> VALIDATION_ERROR（builder側で判定）
-            const err =
-              e instanceof z.ZodError
-                ? new ActionError("VALIDATION_ERROR")
-                : toActionError(e);
+  if (options.auth === "admin" && !assertAdmin(ctx.session)) {
+    throw new ActionError("FORBIDDEN");
+  }
 
-            log.error(
-              { error: e, event: "action_error", ms: Date.now() - started },
-              "error",
-            );
-
-            throw err;
-          }
-        });
-      };
-    };
-
-    return { handler };
+  return {
+    ...ctx,
+    session: ctx.session,
   };
+};
 
+const buildAction = async <
+  I extends z.ZodType,
+  O extends z.ZodType,
+  A extends AuthMode,
+>(
+  fn: ActionType<I, O, A>,
+  rawInput: z.infer<I>,
+  deps: ActionDependencies,
+  options: DefineActionOptions<I, O, A>,
+) => {
+  const ctx = await deps.createContext({
+    name: options.name,
+    auth: options.auth,
+  });
+  const log = ctx.logger;
+  return runWithLogger(log, async () => {
+    const started = Date.now();
+    log.info({ event: "action_start" }, "start");
+    try {
+      // 入力値のバリデーション
+      const input = options.input.parse(rawInput);
+
+      const rawResult = await fn({
+        ctx: getActionContext(ctx, options, deps.assertAdmin),
+        input,
+      });
+
+      // 戻り値のバリデーション
+      const result = options.output.parse(rawResult);
+
+      log.info({ event: "action_done", ms: Date.now() - started }, "done");
+      return result;
+    } catch (error) {
+      const err =
+        error instanceof z.ZodError
+          ? new ActionError("VALIDATION_ERROR")
+          : toActionError(error);
+
+      log.error(
+        { error: error, event: "action_error", ms: Date.now() - started },
+        "error",
+      );
+
+      throw err;
+    }
+  });
+};
+
+const defineAction = <
+  I extends z.ZodType,
+  O extends z.ZodType,
+  A extends AuthMode,
+>(
+  deps: ActionDependencies,
+  options: DefineActionOptions<I, O, A>,
+) => {
+  const handler = (fn: ActionType<I, O, A>) => {
+    return async (rawInput: z.infer<I>): Promise<z.infer<O>> => {
+      return await buildAction(fn, rawInput, deps, options);
+    };
+  };
+  return { handler };
+};
+
+const buildDefineActions = (deps: ActionDependencies) => {
+  // 管理者権限
   const defineAdminAction = <I extends z.ZodType, O extends z.ZodType>(
     o: Omit<DefineActionOptions<I, O, "admin">, "auth">,
   ) => {
-    return defineAction<I, O, "admin">({
+    return defineAction<I, O, "admin">(deps, {
       ...o,
       auth: "admin",
     });
   };
+
+  // 認証できていればよい
   const definePrivateAction = <I extends z.ZodType, O extends z.ZodType>(
     o: Omit<DefineActionOptions<I, O, "private">, "auth">,
   ) => {
-    return defineAction<I, O, "private">({
+    return defineAction<I, O, "private">(deps, {
       ...o,
       auth: "private",
     });
@@ -136,18 +181,21 @@ const buildDefineAction = (deps: {
   };
 };
 
-export const { defineAdminAction, definePrivateAction } = buildDefineAction({
+export const { defineAdminAction, definePrivateAction } = buildDefineActions({
   createContext: async (opts) => {
     const adminOnly = opts.auth === "admin";
     const session = await getSession();
+
+    const requestId = crypto.randomUUID();
     const log = createRequestLogger(session, {
       action: opts.name,
       scope: "action",
+      requestId: requestId,
       adminOnly: adminOnly,
     });
+
     return {
-      // TODO requestIdの実装
-      requestId: "1",
+      requestId: requestId,
       logger: log,
       session: session,
     };
