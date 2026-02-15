@@ -10,19 +10,16 @@ export const metadata: Metadata = {
 /**
  * ユーザー情報ページ
  */
-export default definePrivatePage(
-  async function Account({ session: { user } }) {
-    return (
-      <UserInfo
-        user={{
-          name: user.name,
-          email: user.email,
-          isAdmin: user.role === "admin",
-        }}
-      />
-    );
-  },
-  {
-    pageName: "account",
-  },
-);
+export default definePrivatePage({
+  name: "account",
+}).page(async ({ session: { user } }) => {
+  return (
+    <UserInfo
+      user={{
+        name: user.name,
+        email: user.email,
+        isAdmin: user.role === "admin",
+      }}
+    />
+  );
+});

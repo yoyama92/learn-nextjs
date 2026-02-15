@@ -3,15 +3,15 @@
 import { headers } from "next/headers";
 
 import { auth } from "../lib/auth";
-import { definePrivateAction } from "../lib/define-action";
+import { defineAdminAction } from "../lib/define-action";
 import {
-  type CreateUserSchema,
+  createUserResponseSchema,
   createUserSchema,
-  type DeleteUserSchema,
+  deleteUserResponseSchema,
   deleteUserSchema,
-  type EditUserSchema,
+  editUserResponseSchema,
   editUserSchema,
-  type GetPaginationSchema,
+  getPaginationResponseSchema,
   getPaginationSchema,
 } from "../schemas/admin";
 import { createUser, getUsersPaginated } from "../server/services/userService";
@@ -21,99 +21,91 @@ import { createUser, getUsersPaginated } from "../server/services/userService";
  * @param user 追加するユーザー情報
  * @returns メール送信成否。メール送信以外でエラーが発生した場合はnullを返す。
  */
-export const postNewUser = definePrivateAction(
-  async (user: CreateUserSchema) => {
-    const data = createUserSchema.parse(user);
-    return await createUser({
-      name: data.name,
-      email: data.email,
-      isAdmin: data.isAdmin,
-    });
-  },
-  {
-    // 管理者のみがこのアクションを実行できるようにする
-    adminOnly: true,
-    actionName: "admin_post_new_user",
-  },
-);
+export const postNewUser = defineAdminAction({
+  input: createUserSchema,
+  output: createUserResponseSchema,
+  name: "admin_post_new_user",
+}).handler(async ({ input }) => {
+  return await createUser(input);
+});
 
 /**
  * ユーザーを削除する。
  * @param user 削除するユーザー情報
  * @returns 削除結果
  */
-export const postDeleteUser = definePrivateAction(
-  async (user: DeleteUserSchema, session) => {
-    const id = session.user.id;
-    if (id === user.id) {
-      return {
-        success: false,
-        message: "自分自身は削除できません。",
-      };
-    }
-    const data = deleteUserSchema.parse(user);
-    const result = await auth.api.removeUser({
-      body: {
-        userId: data.id,
-      },
-      headers: await headers(),
-    });
-    if (result.success) {
-      return {
-        success: true,
-      };
-    } else {
-      return {
-        success: false,
-        message: "削除に失敗しました。",
-      };
-    }
-  },
-  {
-    // 管理者のみがこのアクションを実行できるようにする
-    adminOnly: true,
-    actionName: "admin_post_delete_user",
-  },
-);
+export const postDeleteUser = defineAdminAction({
+  input: deleteUserSchema,
+  output: deleteUserResponseSchema,
+  name: "admin_post_delete_user",
+}).handler(async ({ ctx, input }) => {
+  const id = ctx.session.user.id;
+  if (id === input.id) {
+    return {
+      success: false,
+      message: "自分自身は削除できません。",
+    };
+  }
+
+  const result = await auth.api.removeUser({
+    body: {
+      userId: input.id,
+    },
+    headers: await headers(),
+  });
+  if (result.success) {
+    return {
+      success: true,
+    };
+  } else {
+    return {
+      success: false,
+      message: "削除に失敗しました。",
+    };
+  }
+});
 
 /**
  * ユーザーを更新する。
  * @param user 更新するユーザー情報
  * @returns 成功か否か
  */
-export const postEditUser = definePrivateAction(
-  async (user: EditUserSchema) => {
-    const data = editUserSchema.parse(user);
-    await auth.api.adminUpdateUser({
-      body: {
-        userId: user.id,
-        data: {
-          name: data.name,
-          email: data.email,
-          role: data.isAdmin ? "admin" : "user",
-        },
+export const postEditUser = defineAdminAction({
+  input: editUserSchema,
+  output: editUserResponseSchema,
+  name: "admin_post_edit_user",
+}).handler(async ({ input }) => {
+  await auth.api.adminUpdateUser({
+    body: {
+      userId: input.id,
+      data: {
+        name: input.name,
+        email: input.email,
+        role: input.isAdmin ? "admin" : "user",
       },
-      headers: await headers(),
-    });
+    },
+    headers: await headers(),
+  });
 
-    return {
-      success: true,
-    };
-  },
-  {
-    // 管理者のみがこのアクションを実行できるようにする
-    adminOnly: true,
-    actionName: "admin_post_edit_user",
-  },
-);
+  return {
+    success: true,
+  };
+});
 
-export const getUsers = definePrivateAction(
-  async (pagination: GetPaginationSchema) => {
-    const data = getPaginationSchema.parse(pagination);
-    return await getUsersPaginated(data.page, data.pageSize);
-  },
-  {
-    adminOnly: true,
-    actionName: "admin_get_users",
-  },
-);
+export const getUsers = defineAdminAction({
+  input: getPaginationSchema,
+  output: getPaginationResponseSchema,
+  name: "admin_get_users",
+}).handler(async ({ input }) => {
+  const result = await getUsersPaginated(input.page, input.pageSize);
+  return {
+    ...result,
+    users: result.users.map((user) => {
+      return {
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.createdAt.toISOString(),
+      };
+    }),
+  };
+});

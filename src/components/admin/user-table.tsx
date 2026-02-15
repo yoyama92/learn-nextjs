@@ -16,8 +16,8 @@ type Row = {
   name: string;
   email: string;
   isAdmin?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const ActionCell = ({
@@ -91,14 +91,14 @@ const columns = [
     id: "createdAt",
     header: "登録日時",
     cell: (info) => {
-      return info.getValue().toLocaleString("ja-JP");
+      return new Date(info.getValue()).toLocaleString("ja-JP");
     },
   }),
   columnHelper.accessor((row) => row.updatedAt, {
     id: "updatedAt",
     header: "更新日時",
     cell: (info) => {
-      return info.getValue().toLocaleString("ja-JP");
+      return new Date(info.getValue()).toLocaleString("ja-JP");
     },
   }),
 ];

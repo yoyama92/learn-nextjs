@@ -26,3 +26,12 @@ export class ActionError extends Error {
     this.name = "ActionError";
   }
 }
+
+export const toActionError = (err: unknown): ActionError => {
+  if (err instanceof ActionError) {
+    return err;
+  }
+
+  // ZodError はここで VALIDATION_ERROR に寄せる（ZodError import は builder側でもOK）
+  return new ActionError("INTERNAL");
+};

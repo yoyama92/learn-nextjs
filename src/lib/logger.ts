@@ -18,6 +18,7 @@ export const createRequestLogger = (
   session?: Session,
   extra?: {
     scope: "page" | "action";
+    requestId: string;
   } & Record<string, unknown>,
 ) => {
   const user = session?.user

@@ -10,17 +10,14 @@ export const metadata: Metadata = {
 /**
  * ログイン後のパスワード変更ページ
  */
-export default definePrivatePage(
-  async ({ session: { user } }) => {
-    return (
-      <PasswordChangeForm
-        user={{
-          email: user.email,
-        }}
-      />
-    );
-  },
-  {
-    pageName: "password",
-  },
-);
+export default definePrivatePage({
+  name: "password",
+}).page(async ({ session: { user } }) => {
+  return (
+    <PasswordChangeForm
+      user={{
+        email: user.email,
+      }}
+    />
+  );
+});

@@ -7,7 +7,7 @@ import { auth } from "./auth";
 
 export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
-const getSession = cache(async (): Promise<Session> => {
+export const getSession = cache(async (): Promise<Session> => {
   const reqHeaders = await headers();
   return auth.api.getSession({ headers: reqHeaders });
 });
@@ -42,6 +42,6 @@ export const requestSession = async (options?: {
  * @param dbUser DBから取得したユーザー情報
  * @returns 管理者としてログインしている場合にtrueを返す。
  */
-const assertAdmin = (session: NonNullable<Session>) => {
+export const assertAdmin = (session: NonNullable<Session>): boolean => {
   return session.user.role === "admin";
 };
