@@ -33,5 +33,5 @@ export const passwordChangeSchemaKeys = passwordChangeSchema.keyof().enum;
 export type PasswordChangeSchema = z.infer<typeof passwordChangeSchema>;
 
 export const passwordChangeResponseSchema = z.object({
-    success: z.literal(true),
-  })
+  success: z.literal(true),
+});
