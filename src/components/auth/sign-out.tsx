@@ -6,12 +6,11 @@ import { signOut } from "../../actions/auth";
 
 export const SignOut = () => {
   return (
-    <form
-      action={async () => {
-        await signOut();
-      }}
-    >
-      <button type="submit" className="flex flex-row gap-1 items-center">
+    <form className="block p-0" action={signOut}>
+      <button
+        type="submit"
+        className="flex items-center gap-1 w-full text-left px-2.5 py-1"
+      >
         <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
         <span>ログアウト</span>
       </button>
@@ -21,11 +20,7 @@ export const SignOut = () => {
 
 export const SignOutButton = () => {
   return (
-    <form
-      action={async () => {
-        await signOut();
-      }}
-    >
+    <form action={signOut}>
       <button type="submit" className="btn btn-outline">
         ログアウト
       </button>
