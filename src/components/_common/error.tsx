@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ForbiddenError, UnauthorizedError } from "../../utils/error";
-import { SignOutButton } from "../auth/sign-out";
 import { signOut } from "../../actions/auth";
+import { ForbiddenError, UnauthorizedError } from "../../utils/error";
+import { SignOut } from "../auth/sign-out";
 
 /**
- * 404 Forbidden ページ
+ * 403 Forbidden ページ
  */
 export const Forbidden = () => {
   return (
@@ -22,7 +22,7 @@ export const Forbidden = () => {
             ホームに戻る
           </Link>
         </div>
-        <SignOutButton />
+        <SignOut />
       </div>
     </div>
   );

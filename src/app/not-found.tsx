@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SignOutButton } from "../components/auth/sign-out";
+import { SignOut } from "../components/auth/sign-out";
 
 export default function NotFound() {
   return (
@@ -13,7 +13,7 @@ export default function NotFound() {
             ホームに戻る
           </Link>
         </div>
-        <SignOutButton />
+        <SignOut />
       </div>
     </div>
   );
