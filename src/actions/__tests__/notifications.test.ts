@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import {
-  deleteNotification,
-  markAllAsRead,
-  markAsRead,
-} from "../notifications";
+import { markAllAsRead, markAsRead } from "../notifications";
 import { ActionError } from "../../utils/error";
 
 vi.mock("../../lib/session", () => {
@@ -22,11 +18,9 @@ describe("markAsRead", () => {
   });
 
   test("未認証エラーを返す", async () => {
-    await expect(
-      markAsRead({
-        id: crypto.randomUUID(),
-      }),
-    ).rejects.toThrowError(ActionError);
+    await expect(markAsRead(crypto.randomUUID())).rejects.toThrowError(
+      ActionError,
+    );
   });
 });
 
@@ -36,20 +30,8 @@ describe("markAllAsRead", () => {
   });
 
   test("未認証エラーを返す", async () => {
-    await expect(markAllAsRead()).rejects.toThrowError(ActionError);
-  });
-});
-
-describe("deleteNotification", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  test("未認証エラーを返す", async () => {
-    await expect(
-      deleteNotification({
-        id: crypto.randomUUID(),
-      }),
-    ).rejects.toThrowError(ActionError);
+    await expect(markAllAsRead([crypto.randomUUID()])).rejects.toThrowError(
+      ActionError,
+    );
   });
 });

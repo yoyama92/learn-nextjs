@@ -40,7 +40,7 @@ export default definePrivatePage<never, z.infer<typeof searchParamSchema>>({
 
   return (
     <main className="mx-auto min-w-xs max-w-2xl md:w-2xl p-3 md:p-6 space-y-4">
-      <Header unreadCount={unreadCount} />
+      <Header unreadCount={unreadCount} ids={items.map((item) => item.id)} />
       <SearchForm searchParams={query} unreadCount={unreadCount} />
       <NotificationsList items={items} />
       <Footer

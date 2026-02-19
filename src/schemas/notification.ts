@@ -1,8 +1,8 @@
 import z from "zod";
 
-export const idSchema = z.object({
-  id: z.uuidv4(),
-});
+export const idSchema = z.uuidv4();
+
+export const idsSchema = z.array(idSchema);
 
 export const notificationTypeEnum = Object.freeze({
   info: "info",

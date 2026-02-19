@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { deleteNotification, markAsRead } from "../../actions/notifications";
+import { markAsRead } from "../../actions/notifications";
 import type { NotificationType } from "../../schemas/notification";
 
 export const NotificationItem = ({
@@ -46,6 +46,7 @@ export const NotificationItem = ({
                 tabIndex={0}
                 type="button"
                 className="btn btn-ghost btn-sm"
+                disabled={!isUnread}
               >
                 ⋯
               </button>
@@ -55,7 +56,7 @@ export const NotificationItem = ({
                     <form
                       className="block p-0 px-3 py-1"
                       action={async () => {
-                        await markAsRead({ id: item.id });
+                        await markAsRead(item.id);
                       }}
                     >
                       <button type="submit" className="w-full text-left">
@@ -64,21 +65,6 @@ export const NotificationItem = ({
                     </form>
                   </li>
                 )}
-                <li>
-                  <form
-                    className="block p-0 px-3 py-1"
-                    action={async () => {
-                      await deleteNotification({ id: item.id });
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      className="w-full text-error text-left"
-                    >
-                      削除
-                    </button>
-                  </form>
-                </li>
               </ul>
             </div>
           </div>
@@ -95,7 +81,7 @@ export const NotificationItem = ({
               {isUnread && (
                 <form
                   action={async () => {
-                    await markAsRead({ id: item.id });
+                    await markAsRead(item.id);
                   }}
                 >
                   <input type="hidden" name="id" value={item.id} />
