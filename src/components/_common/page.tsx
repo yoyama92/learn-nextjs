@@ -12,7 +12,7 @@ type PageProps<
   TSearchParams extends SearchParams | undefined = undefined,
 > = {
   params: Promise<TParam>;
-  searchParams: Promise<TSearchParams>;
+  searchParams: Promise<Partial<TSearchParams>>;
 };
 
 type DefinePrivatePageOptions = {

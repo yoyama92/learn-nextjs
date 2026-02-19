@@ -85,7 +85,7 @@ export const UserForm = ({
             <fieldset className="fieldset">
               <legend className="fieldset-legend">管理者フラグ</legend>
               <input
-                className="toggle"
+                className="toggle toggle-primary"
                 type="checkbox"
                 {...register(createUserSchemaKeys.isAdmin)}
                 disabled={isSubmitting}
