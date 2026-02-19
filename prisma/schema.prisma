@@ -20,13 +20,14 @@ model User {
 
   emailVerified Boolean @default(false) @map("email_verified") /// メールアドレス確認済みフラグ
 
-  sessions Session[]
-  accounts Account[]
-
   image      String?   @map("image") /// プロフィール画像URL
   banned     Boolean?  @default(false) @map("banned") /// バンフラグ
   banReason  String?   @map("ban_reason") /// バン理由
   banExpires DateTime? @map("ban_expires") /// バン解除日時
+
+  sessions      Session[]
+  accounts      Account[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -82,4 +83,29 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+/// 通知種別
+enum NotificationType {
+  info
+  warn
+  security
+}
+
+/// 通知
+model Notification {
+  id     String @id @default(uuid(4)) @db.Uuid /// ID
+  userId String @map("user_id") /// ユーザーID
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) /// 通知対象ユーザー
+
+  type  NotificationType @default(info) /// 通知種別
+  title String /// タイトル
+  body  String /// 本文
+
+  readAt    DateTime? @map("read_at") /// 既読日時
+  createdAt DateTime  @default(now()) @map("created_at") /// 登録日時
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
 }

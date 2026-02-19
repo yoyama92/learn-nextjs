@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import type { Logger } from "pino";
 import z from "zod";
 
@@ -58,6 +60,22 @@ type ActionType<
   O extends z.ZodType,
   A extends AuthMode,
 > = (args: { ctx: ActionContext<A>; input: z.infer<I> }) => Promise<z.infer<O>>;
+
+export const redirectBack = async (fallback: string = "/"): Promise<never> => {
+  const h = await headers();
+  const referer = h.get("referer");
+  if (!referer) {
+    return redirect(fallback);
+  }
+  const url = new URL(referer);
+
+  // 同一オリジンのみ許可
+  const host = h.get("host");
+  if (url.host !== host) {
+    return redirect(fallback);
+  }
+  redirect(url.pathname + url.search);
+};
 
 /**
  * ctxの型をAction用に変換して返す。
