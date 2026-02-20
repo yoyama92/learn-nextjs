@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 
-import { notificationAudienceEnum } from "../../schemas/admin-notification";
+import {
+  notificationArchiveFilterEnum,
+  notificationAudienceEnum,
+} from "../../schemas/admin-notification";
 import { notificationTypeEnum } from "../../schemas/notification";
+import { buildQuery } from "../../utils/searchParams";
 import type { AdminNotificationSearchParams } from "./notification-list-types";
 
 export const AdminNotificationSearchForm = ({
@@ -51,6 +55,42 @@ export const AdminNotificationSearchForm = ({
             prefetch={false}
           >
             リセット
+          </Link>
+        </div>
+        <div className="tabs tabs-boxed">
+          <Link
+            className={`tab ${
+              searchParams.archived === notificationArchiveFilterEnum.active
+                ? "tab-active"
+                : ""
+            }`}
+            href={`/admin/notifications${buildQuery({
+              archived: notificationArchiveFilterEnum.active,
+              q: searchParams.q,
+              type: searchParams.type,
+              audience: searchParams.audience,
+              page: "1",
+            })}`}
+            prefetch={false}
+          >
+            通常
+          </Link>
+          <Link
+            className={`tab ${
+              searchParams.archived === notificationArchiveFilterEnum.archived
+                ? "tab-active"
+                : ""
+            }`}
+            href={`/admin/notifications${buildQuery({
+              archived: notificationArchiveFilterEnum.archived,
+              q: searchParams.q,
+              type: searchParams.type,
+              audience: searchParams.audience,
+              page: "1",
+            })}`}
+            prefetch={false}
+          >
+            アーカイブ済み
           </Link>
         </div>
       </div>

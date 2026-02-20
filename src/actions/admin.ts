@@ -14,6 +14,11 @@ import {
   getPaginationResponseSchema,
   getPaginationSchema,
 } from "../schemas/admin";
+import {
+  deleteNotificationResponseSchema,
+  deleteNotificationSchema,
+} from "../schemas/admin-notification";
+import { archiveNotificationByAdmin } from "../server/services/notificationService";
 import { createUser, getUsersPaginated } from "../server/services/userService";
 
 /**
@@ -107,5 +112,22 @@ export const getUsers = defineAdminAction({
         updatedAt: user.createdAt.toISOString(),
       };
     }),
+  };
+});
+
+export const postDeleteNotification = defineAdminAction({
+  input: deleteNotificationSchema,
+  output: deleteNotificationResponseSchema,
+  name: "admin_post_delete_notification",
+}).handler(async ({ input }) => {
+  const result = await archiveNotificationByAdmin(input.id);
+  if (result.updated > 0) {
+    return {
+      success: true,
+    };
+  }
+  return {
+    success: false,
+    message: "対象の通知が見つからないか、すでにアーカイブ済みです。",
   };
 });

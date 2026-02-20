@@ -1,5 +1,6 @@
 import {
   type NotificationAudience,
+  type notificationArchiveFilterEnum,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
 import type { NotificationType } from "../../schemas/notification";
@@ -20,6 +21,9 @@ export type AdminNotificationSearchParams = {
   q: string;
   type: NotificationType;
   audience: NotificationAudience;
+  archived:
+    | typeof notificationArchiveFilterEnum.active
+    | typeof notificationArchiveFilterEnum.archived;
   page: number;
 };
 

@@ -38,6 +38,7 @@ export const AdminNotificationList = ({
           q: searchParams.q,
           type: searchParams.type,
           audience: searchParams.audience,
+          archived: searchParams.archived,
         })}`,
         { scroll: false },
       );
@@ -45,11 +46,11 @@ export const AdminNotificationList = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
       <h2 className="text-lg font-bold">通知一覧</h2>
       <AdminNotificationSearchForm searchParams={searchParams} />
 
-      <div className="flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box">
+      <div className="w-full flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box">
         <div className="text-sm text-gray-600">
           全 {total} 件中 {from} 〜 {to} 件を表示
         </div>

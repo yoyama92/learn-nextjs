@@ -1,12 +1,15 @@
 "use client";
 
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
+import { postDeleteNotification } from "../../actions/admin";
 import type { AdminNotificationRow } from "./notification-list-types";
 import {
   toAudienceLabel,
@@ -23,9 +26,8 @@ const columns = [
     cell: (info) => {
       const row = info.row.original;
       return (
-        <div>
-          <div className="font-medium">{row.title}</div>
-          <div className="text-xs opacity-70 line-clamp-2">{row.body}</div>
+        <div className="max-w-64 md:max-w-md lg:max-w-xl truncate font-medium">
+          {row.title}
         </div>
       );
     },
@@ -64,6 +66,7 @@ export const AdminNotificationTable = ({
   items: AdminNotificationRow[];
   total: number;
 }) => {
+  const router = useRouter();
   const table = useReactTable({
     data: items,
     columns,
@@ -72,11 +75,29 @@ export const AdminNotificationTable = ({
     rowCount: total,
   });
 
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "この通知をアーカイブします。よろしいですか？",
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    const result = await postDeleteNotification({ id });
+    if (result.success) {
+      window.alert("アーカイブしました。");
+      router.refresh();
+      return;
+    }
+    window.alert(result.message);
+  };
+
   return (
-    <table className="table table-zebra">
+    <table className="table table-pin-rows table-pin-cols w-full">
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
+            <th></th>
             {headerGroup.headers.map((header) => (
               <th key={header.id}>
                 {header.isPlaceholder
@@ -84,25 +105,53 @@ export const AdminNotificationTable = ({
                   : flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}
+            <th></th>
           </tr>
         ))}
       </thead>
       <tbody>
         {table.getRowModel().rows.length === 0 && (
           <tr>
-            <td colSpan={6} className="text-center">
+            <td colSpan={8} className="text-center">
               該当する通知がありません。
             </td>
           </tr>
         )}
-        {table.getRowModel().rows.map((row) => {
+        {table.getRowModel().rows.map((row, index) => {
           return (
             <tr key={row.id}>
+              <th>{index + 1}</th>
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
+              <td>
+                <div className="flex flex-row">
+                  <div className="tooltip tooltip-top" data-tip="編集">
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-square btn-sm"
+                      onClick={() => {
+                        router.push(`/admin/notifications/${row.original.id}/edit`);
+                      }}
+                    >
+                      <PencilIcon className="w-5" />
+                    </button>
+                  </div>
+                  <div className="tooltip tooltip-top" data-tip="アーカイブ">
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-square btn-sm btn-error text-error hover:text-base-100"
+                      onClick={async () => {
+                        await handleDelete(row.original.id);
+                      }}
+                    >
+                      <TrashIcon className="w-5" />
+                    </button>
+                  </div>
+                </div>
+              </td>
             </tr>
           );
         })}

@@ -1,6 +1,7 @@
 import type { Prisma } from "../../generated/prisma/client";
 import {
   type AdminNotificationListQuery,
+  notificationArchiveFilterEnum,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
 import type { ListQuery, NotificationType } from "../../schemas/notification";
@@ -274,7 +275,17 @@ export const listAdminNotifications = async (
   }[];
 }> => {
   const now = new Date();
+  const archivedWhere =
+    query.archived === notificationArchiveFilterEnum.archived
+      ? ({
+          archivedAt: { lte: now },
+        } satisfies Prisma.NotificationWhereInput)
+      : ({
+          OR: [{ archivedAt: null }, { archivedAt: { gt: now } }],
+        } satisfies Prisma.NotificationWhereInput);
+
   const where = {
+    AND: [archivedWhere],
     ...(query.type !== "all"
       ? {
           type: query.type,
@@ -339,5 +350,25 @@ export const listAdminNotifications = async (
         status,
       };
     }),
+  };
+};
+
+export const archiveNotificationByAdmin = async (
+  id: string,
+): Promise<{
+  updated: number;
+}> => {
+  const result = await prisma.notification.updateMany({
+    where: {
+      id,
+      archivedAt: null,
+    },
+    data: {
+      archivedAt: new Date(),
+    },
+  });
+
+  return {
+    updated: result.count,
   };
 };

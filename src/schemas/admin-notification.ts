@@ -8,6 +8,11 @@ export const notificationAudienceEnum = Object.freeze({
   selectedUsers: "SELECTED",
 });
 
+export const notificationArchiveFilterEnum = Object.freeze({
+  active: "active",
+  archived: "archived",
+});
+
 export const notificationAudienceSchema = z.union([
   z.literal(notificationAudienceEnum.allUsers),
   z.literal(notificationAudienceEnum.selectedUsers),
@@ -21,6 +26,12 @@ export const adminNotificationSearchParamSchema = z
     q: z.string().optional(),
     type: notificationTypeSchema.optional(),
     audience: notificationAudienceSchema.optional(),
+    archived: z
+      .union([
+        z.literal(notificationArchiveFilterEnum.active),
+        z.literal(notificationArchiveFilterEnum.archived),
+      ])
+      .optional(),
     page: z.string().optional(),
   })
   .optional();
@@ -29,6 +40,12 @@ export const adminNotificationListQuerySchema = z.object({
   q: z.string().trim().default(""),
   type: notificationTypeSchema.default("all"),
   audience: notificationAudienceSchema.default(notificationAudienceEnum.all),
+  archived: z
+    .union([
+      z.literal(notificationArchiveFilterEnum.active),
+      z.literal(notificationArchiveFilterEnum.archived),
+    ])
+    .default(notificationArchiveFilterEnum.active),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().min(1).max(50).default(10),
 });
@@ -36,3 +53,17 @@ export const adminNotificationListQuerySchema = z.object({
 export type AdminNotificationListQuery = z.infer<
   typeof adminNotificationListQuerySchema
 >;
+
+export const deleteNotificationSchema = z.object({
+  id: z.uuidv4(),
+});
+
+export const deleteNotificationResponseSchema = z.discriminatedUnion("success", [
+  z.object({
+    success: z.literal(false),
+    message: z.string(),
+  }),
+  z.object({
+    success: z.literal(true),
+  }),
+]);
