@@ -15,6 +15,11 @@ export const AdminNavigation = () => {
           </Link>
         </li>
         <li>
+          <Link href="/admin/notifications" className="link link-hover text-sm">
+            通知一覧
+          </Link>
+        </li>
+        <li>
           <Link href="/account" className="link link-hover text-sm">
             アカウントページ
           </Link>

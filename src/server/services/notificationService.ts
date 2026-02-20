@@ -1,4 +1,8 @@
 import type { Prisma } from "../../generated/prisma/client";
+import {
+  type AdminNotificationListQuery,
+  notificationAudienceEnum,
+} from "../../schemas/admin-notification";
 import type { ListQuery, NotificationType } from "../../schemas/notification";
 import { prisma } from "../infrastructures/db";
 
@@ -250,5 +254,90 @@ export const markAllNotificationsAsRead = async (
   });
   return {
     updated: result?.updated,
+  };
+};
+
+export const listAdminNotifications = async (
+  query: AdminNotificationListQuery,
+): Promise<{
+  total: number;
+  items: {
+    id: string;
+    title: string;
+    body: string;
+    type: "info" | "warn" | "security";
+    audience: "ALL" | "SELECTED";
+    publishedAt: Date | null;
+    archivedAt: Date | null;
+    createdAt: Date;
+    status: "published" | "scheduled" | "archived";
+  }[];
+}> => {
+  const now = new Date();
+  const where = {
+    ...(query.type !== "all"
+      ? {
+          type: query.type,
+        }
+      : {}),
+    ...(query.audience !== notificationAudienceEnum.all
+      ? {
+          audience: query.audience,
+        }
+      : {}),
+    ...(query.q
+      ? {
+          OR: [
+            {
+              title: {
+                contains: query.q,
+                mode: "insensitive" as const,
+              },
+            },
+            {
+              body: {
+                contains: query.q,
+                mode: "insensitive" as const,
+              },
+            },
+          ],
+        }
+      : {}),
+  } satisfies Prisma.NotificationWhereInput;
+
+  const [total, items] = await Promise.all([
+    prisma.notification.count({ where }),
+    prisma.notification.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }],
+      take: query.pageSize,
+      skip: (query.page - 1) * query.pageSize,
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        type: true,
+        audience: true,
+        publishedAt: true,
+        archivedAt: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  return {
+    total,
+    items: items.map((item) => {
+      const status =
+        item.archivedAt !== null && item.archivedAt <= now
+          ? "archived"
+          : item.publishedAt !== null && item.publishedAt > now
+            ? "scheduled"
+            : "published";
+      return {
+        ...item,
+        status,
+      };
+    }),
   };
 };
