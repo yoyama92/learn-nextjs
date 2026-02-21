@@ -372,3 +372,103 @@ export const archiveNotificationByAdmin = async (
     updated: result.count,
   };
 };
+
+export const getAdminNotificationById = async (id: string) => {
+  return await prisma.notification.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      audience: true,
+      title: true,
+      body: true,
+      publishedAt: true,
+      archivedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      recipients: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  });
+};
+
+export const editNotificationByAdmin = async (input: {
+  id: string;
+  title: string;
+  body: string;
+  type: "info" | "warn" | "security";
+  audience: "ALL" | "SELECTED";
+  recipientUserIds: string[];
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): Promise<{
+  updated: number;
+}> => {
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.notification.updateMany({
+      where: {
+        id: input.id,
+      },
+      data: {
+        title: input.title,
+        body: input.body,
+        type: input.type,
+        audience: input.audience,
+        publishedAt: input.publishedAt,
+        archivedAt: input.archivedAt,
+      },
+    });
+
+    if (updated.count === 0) {
+      return {
+        updated: 0,
+      };
+    }
+
+    if (input.audience === "SELECTED") {
+      const uniqueUserIds = Array.from(new Set(input.recipientUserIds));
+      const usersCount = await tx.user.count({
+        where: {
+          id: {
+            in: uniqueUserIds,
+          },
+        },
+      });
+
+      if (usersCount !== uniqueUserIds.length) {
+        throw new Error("選択された対象ユーザーが不正です。");
+      }
+
+      await tx.notificationRecipient.deleteMany({
+        where: {
+          notificationId: input.id,
+        },
+      });
+
+      await tx.notificationRecipient.createMany({
+        data: uniqueUserIds.map((userId) => ({
+          notificationId: input.id,
+          userId,
+          readAt: null,
+        })),
+      });
+    } else {
+      await tx.notificationRecipient.deleteMany({
+        where: {
+          notificationId: input.id,
+        },
+      });
+    }
+
+    return {
+      updated: updated.count,
+    };
+  });
+
+  return {
+    updated: result.updated,
+  };
+};

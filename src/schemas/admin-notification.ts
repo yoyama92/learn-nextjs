@@ -58,12 +58,82 @@ export const deleteNotificationSchema = z.object({
   id: z.uuidv4(),
 });
 
-export const deleteNotificationResponseSchema = z.discriminatedUnion("success", [
-  z.object({
-    success: z.literal(false),
-    message: z.string(),
-  }),
-  z.object({
-    success: z.literal(true),
-  }),
+export const deleteNotificationResponseSchema = z.discriminatedUnion(
+  "success",
+  [
+    z.object({
+      success: z.literal(false),
+      message: z.string(),
+    }),
+    z.object({
+      success: z.literal(true),
+    }),
+  ],
+);
+
+const adminNotificationTypeSchema = z.union([
+  z.literal("info"),
+  z.literal("warn"),
+  z.literal("security"),
 ]);
+
+const dateTimeLocalSchema = z
+  .iso.datetime({ local: true, precision: -1 })
+  .refine((value) => !value.endsWith("Z"), {
+    message: "ローカル日時を入力してください。",
+  });
+
+const nullableDateTimeLocalSchema = z.union([
+  dateTimeLocalSchema,
+  z.literal(""),
+]);
+
+const ianaTimeZoneSchema = z.string().trim().refine((value) => {
+  try {
+    new Intl.DateTimeFormat("ja-JP", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}, "有効なタイムゾーンを指定してください。");
+
+export const editNotificationSchema = z
+  .object({
+    id: z.uuidv4(),
+    title: z.string().trim().min(1),
+    body: z.string().trim().min(1),
+    type: adminNotificationTypeSchema,
+    audience: z.union([
+      z.literal(notificationAudienceEnum.allUsers),
+      z.literal(notificationAudienceEnum.selectedUsers),
+    ]),
+    recipientUserIds: z.array(z.string()),
+    publishedAt: nullableDateTimeLocalSchema,
+    archivedAt: nullableDateTimeLocalSchema,
+    clientTimeZone: ianaTimeZoneSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (
+      value.audience === notificationAudienceEnum.selectedUsers &&
+      value.recipientUserIds.length === 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "対象ユーザーを1名以上選択してください。",
+        path: ["recipientUserIds"],
+      });
+    }
+  });
+
+export const editNotificationFormSchema = editNotificationSchema.omit({
+  id: true,
+});
+
+export const editNotificationResponseSchema = z.object({
+  success: z.literal(true),
+});
+
+export type EditNotificationSchema = z.infer<typeof editNotificationSchema>;
+export type EditNotificationFormSchema = z.infer<
+  typeof editNotificationFormSchema
+>;

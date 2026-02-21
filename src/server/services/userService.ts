@@ -71,6 +71,26 @@ export const getUser = async (id: string): Promise<UserGetResult | null> => {
   return user;
 };
 
+export const getUsersForNotificationTarget = async (): Promise<
+  {
+    id: string;
+    name: string;
+    email: string;
+  }[]
+> => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+  return users;
+};
+
 const usersSelectArg = {
   id: true,
   name: true,

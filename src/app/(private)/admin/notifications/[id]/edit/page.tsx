@@ -1,22 +1,58 @@
-import Link from "next/link";
+import { format } from "date-fns";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { definePrivatePage } from "../../../../../../components/_common/page";
+import { EditNotificationForm } from "../../../../../../components/admin/edit-notification-form";
+import { z } from "../../../../../../lib/zod";
+import { getAdminNotificationById } from "../../../../../../server/services/notificationService";
+import { getUsersForNotificationTarget } from "../../../../../../server/services/userService";
 
-export default definePrivatePage<{ id: string }>({
+export const metadata: Metadata = {
+  title: "Notification Edit Page - Next.js Sample App",
+};
+
+const paramsSchema = z.object({
+  id: z.uuidv4(),
+});
+
+type Params = z.infer<typeof paramsSchema>;
+
+const toDateTimeLocalValue = (value: Date | null): string => {
+  if (!value) {
+    return "";
+  }
+  return format(value, "yyyy-MM-dd'T'HH:mm");
+};
+
+export default definePrivatePage<Params>({
   adminOnly: true,
   name: "admin_notification_edit",
 }).page(async ({ props: { params } }) => {
-  const { id } = await params;
+  const { id } = paramsSchema.parse(await params);
+  const [notification, users] = await Promise.all([
+    getAdminNotificationById(id),
+    getUsersForNotificationTarget(),
+  ]);
+  if (!notification) {
+    notFound();
+  }
 
   return (
-    <main className="mx-auto min-w-xs max-w-2xl p-3 md:p-6 space-y-4">
-      <h2 className="text-lg font-bold">通知編集</h2>
-      <div className="alert">
-        <span>編集機能はこれから実装します。対象ID: {id}</span>
-      </div>
-      <Link href="/admin/notifications" className="link link-hover text-sm">
-        通知一覧へ戻る
-      </Link>
+    <main className="mx-auto w-full min-w-xs max-w-5xl p-3 md:p-6">
+      <EditNotificationForm
+        notification={{
+          id: notification.id,
+          title: notification.title,
+          body: notification.body,
+          type: notification.type,
+          audience: notification.audience,
+          recipientUserIds: notification.recipients.map((item) => item.userId),
+          publishedAt: toDateTimeLocalValue(notification.publishedAt),
+          archivedAt: toDateTimeLocalValue(notification.archivedAt),
+        }}
+        users={users}
+      />
     </main>
   );
 });
