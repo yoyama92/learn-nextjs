@@ -1,6 +1,31 @@
 import type { Prisma } from "../../generated/prisma/client";
+import {
+  type AdminNotificationListQuery,
+  type NotificationAudience,
+  type NotificationStatus,
+  notificationArchiveFilterEnum,
+  notificationAudienceEnum,
+} from "../../schemas/admin-notification";
 import type { ListQuery, NotificationType } from "../../schemas/notification";
 import { prisma } from "../infrastructures/db";
+
+type NotificationDetailType = Exclude<NotificationType, "all">;
+type NotificationDetailAudience = Exclude<
+  NotificationAudience,
+  typeof notificationAudienceEnum.all
+>;
+
+const toNotificationStatus = (input: {
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): NotificationStatus => {
+  const now = new Date();
+  return input.archivedAt !== null && input.archivedAt <= now
+    ? "archived"
+    : input.publishedAt !== null && input.publishedAt > now
+      ? "scheduled"
+      : "published";
+};
 
 const buildNotificationSelectArg = (userId: string) => {
   return {
@@ -250,5 +275,337 @@ export const markAllNotificationsAsRead = async (
   });
   return {
     updated: result?.updated,
+  };
+};
+
+export const listAdminNotifications = async (
+  query: AdminNotificationListQuery,
+): Promise<{
+  total: number;
+  items: {
+    id: string;
+    title: string;
+    body: string;
+    type: NotificationDetailType;
+    audience: NotificationDetailAudience;
+    publishedAt: Date | null;
+    archivedAt: Date | null;
+    createdAt: Date;
+    status: NotificationStatus;
+  }[];
+}> => {
+  const now = new Date();
+  const archivedWhere =
+    query.archived === notificationArchiveFilterEnum.archived
+      ? ({
+          archivedAt: { lte: now },
+        } satisfies Prisma.NotificationWhereInput)
+      : ({
+          OR: [{ archivedAt: null }, { archivedAt: { gt: now } }],
+        } satisfies Prisma.NotificationWhereInput);
+
+  const where = {
+    AND: [archivedWhere],
+    ...(query.type !== "all"
+      ? {
+          type: query.type,
+        }
+      : {}),
+    ...(query.audience !== notificationAudienceEnum.all
+      ? {
+          audience: query.audience,
+        }
+      : {}),
+    ...(query.q
+      ? {
+          OR: [
+            {
+              title: {
+                contains: query.q,
+                mode: "insensitive" as const,
+              },
+            },
+            {
+              body: {
+                contains: query.q,
+                mode: "insensitive" as const,
+              },
+            },
+          ],
+        }
+      : {}),
+  } satisfies Prisma.NotificationWhereInput;
+
+  const [total, items] = await Promise.all([
+    prisma.notification.count({ where }),
+    prisma.notification.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }],
+      take: query.pageSize,
+      skip: (query.page - 1) * query.pageSize,
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        type: true,
+        audience: true,
+        publishedAt: true,
+        archivedAt: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  return {
+    total,
+    items: items.map((item) => {
+      return {
+        ...item,
+        status: toNotificationStatus(item),
+      };
+    }),
+  };
+};
+
+export const archiveNotificationByAdmin = async (
+  id: string,
+): Promise<{
+  updated: number;
+}> => {
+  const result = await prisma.notification.updateMany({
+    where: {
+      id,
+      archivedAt: null,
+    },
+    data: {
+      archivedAt: new Date(),
+    },
+  });
+
+  return {
+    updated: result.count,
+  };
+};
+
+export const getAdminNotificationById = async (id: string) => {
+  return await prisma.notification.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      audience: true,
+      title: true,
+      body: true,
+      publishedAt: true,
+      archivedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      recipients: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  });
+};
+
+export const getAdminNotificationDetailById = async (id: string) => {
+  const notification = await prisma.notification.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      audience: true,
+      title: true,
+      body: true,
+      publishedAt: true,
+      archivedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      recipients: {
+        select: {
+          userId: true,
+          readAt: true,
+          createdAt: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!notification) {
+    return null;
+  }
+
+  return {
+    ...notification,
+    status: toNotificationStatus(notification),
+  };
+};
+
+export const createNotificationByAdmin = async (input: {
+  title: string;
+  body: string;
+  type: NotificationDetailType;
+  audience: NotificationDetailAudience;
+  recipientUserIds: string[];
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): Promise<{
+  createdId: string;
+}> => {
+  const created = await prisma.$transaction(async (tx) => {
+    const uniqueUserIds = Array.from(new Set(input.recipientUserIds));
+
+    if (input.audience === "SELECTED") {
+      const usersCount = await tx.user.count({
+        where: {
+          id: {
+            in: uniqueUserIds,
+          },
+        },
+      });
+
+      if (usersCount !== uniqueUserIds.length) {
+        throw new Error("選択された対象ユーザーが不正です。");
+      }
+    }
+
+    const notification = await tx.notification.create({
+      data: {
+        title: input.title,
+        body: input.body,
+        type: input.type,
+        audience: input.audience,
+        publishedAt: input.publishedAt,
+        archivedAt: input.archivedAt,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (input.audience === "SELECTED" && uniqueUserIds.length > 0) {
+      await tx.notificationRecipient.createMany({
+        data: uniqueUserIds.map((userId) => ({
+          notificationId: notification.id,
+          userId,
+          readAt: null,
+        })),
+      });
+    }
+
+    return notification;
+  });
+
+  return {
+    createdId: created.id,
+  };
+};
+
+export const editNotificationByAdmin = async (input: {
+  id: string;
+  title: string;
+  body: string;
+  type: NotificationDetailType;
+  audience: NotificationDetailAudience;
+  recipientUserIds: string[];
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): Promise<{
+  updated: number;
+}> => {
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.notification.updateMany({
+      where: {
+        id: input.id,
+      },
+      data: {
+        title: input.title,
+        body: input.body,
+        type: input.type,
+        audience: input.audience,
+        publishedAt: input.publishedAt,
+        archivedAt: input.archivedAt,
+      },
+    });
+
+    if (updated.count === 0) {
+      return {
+        updated: 0,
+      };
+    }
+
+    if (input.audience === "SELECTED") {
+      const uniqueUserIds = Array.from(new Set(input.recipientUserIds));
+      const usersCount = await tx.user.count({
+        where: {
+          id: {
+            in: uniqueUserIds,
+          },
+        },
+      });
+
+      if (usersCount !== uniqueUserIds.length) {
+        throw new Error("選択された対象ユーザーが不正です。");
+      }
+
+      await tx.notificationRecipient.deleteMany({
+        where: {
+          notificationId: input.id,
+          userId: {
+            not: {
+              in: uniqueUserIds,
+            },
+          },
+        },
+      });
+
+      const existingRecipients = await tx.notificationRecipient.findMany({
+        where: {
+          notificationId: input.id,
+        },
+        select: {
+          userId: true,
+        },
+      });
+
+      const currentUserIdSet = new Set(
+        existingRecipients.map((item) => item.userId),
+      );
+      const addUserIds = uniqueUserIds.filter(
+        (userId) => !currentUserIdSet.has(userId),
+      );
+
+      if (addUserIds.length > 0) {
+        await tx.notificationRecipient.createMany({
+          data: addUserIds.map((userId) => ({
+            notificationId: input.id,
+            userId,
+            readAt: null,
+          })),
+        });
+      }
+    } else {
+      await tx.notificationRecipient.deleteMany({
+        where: {
+          notificationId: input.id,
+          readAt: null,
+        },
+      });
+    }
+
+    return {
+      updated: updated.count,
+    };
+  });
+
+  return {
+    updated: result.updated,
   };
 };

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { markAllAsRead, markAsRead } from "../notifications";
 import { ActionError } from "../../utils/error";
+import { markAllAsRead, markAsRead } from "../notifications";
 
 vi.mock("../../lib/session", () => {
   return {

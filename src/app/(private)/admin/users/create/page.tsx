@@ -1,5 +1,5 @@
 import { definePrivatePage } from "../../../../../components/_common/page";
-import { NewUserForm } from "../../../../../components/admin/new-user-form";
+import { NewUserForm } from "../../../../../components/admin/users/new-user-form";
 
 /**
  * ユーザー新規作成ページ

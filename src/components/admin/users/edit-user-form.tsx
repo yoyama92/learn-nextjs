@@ -4,12 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { postEditUser } from "../../actions/admin";
+import { postEditUser } from "../../../actions/admin-user";
 import {
   type EditUserSchema,
   type UserSchema,
   userSchema,
-} from "../../schemas/admin";
+} from "../../../schemas/admin";
 import { UserForm } from "./user-form";
 
 export const EditUserForm = ({ user }: { user: EditUserSchema }) => {

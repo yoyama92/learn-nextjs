@@ -7,9 +7,8 @@ import {
   createUser,
   getUsersPaginated,
 } from "../../server/services/userService";
-import { getUsers, postDeleteUser, postEditUser, postNewUser } from "../admin";
+import { getUsers, postDeleteUser, postEditUser, postNewUser } from "../admin-user";
 
-// モック化
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
 }));
@@ -30,10 +29,8 @@ vi.mock("../../lib/session", async (importOriginal) => {
       return actual.assertAdmin(session);
     }),
     getSession: vi.fn(async () => {
-      const mockSession = {
-        session: {
-          id: "session-id",
-        },
+      return {
+        session: { id: "session-id" },
         user: {
           id: "admin-123",
           email: "admin@example.com",
@@ -41,13 +38,10 @@ vi.mock("../../lib/session", async (importOriginal) => {
           name: "Admin User",
         },
       };
-      return mockSession;
     }),
     requestSession: vi.fn(async () => {
-      const mockSession = {
-        session: {
-          id: "session-id",
-        },
+      return {
+        session: { id: "session-id" },
         user: {
           id: "admin-123",
           email: "admin@example.com",
@@ -55,7 +49,6 @@ vi.mock("../../lib/session", async (importOriginal) => {
           name: "Admin User",
         },
       };
-      return mockSession;
     }),
   };
 });
@@ -65,7 +58,7 @@ vi.mock("../../server/services/userService", () => ({
   getUsersPaginated: vi.fn(),
 }));
 
-describe("Admin Actions", () => {
+describe("Admin User Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

@@ -13,6 +13,8 @@
 - Better Auth
 - Prisma
 - Zod
+- date-fns
+- TanStack Table
 
 ## 環境構築ガイド
 
@@ -24,17 +26,28 @@
 - パスワード初期化
 - アカウント情報の表示・更新
 - パスワード変更
-- 管理者画面（ユーザー一覧の表示・ユーザーの登録）
+- 通知センター（一覧・検索・既読化）
+- 管理者向けユーザー管理（一覧・詳細・新規作成・編集）
+- 管理者向け通知管理（一覧・詳細・新規作成・編集・アーカイブ）
 
 ## 画面一覧
 
-| 画面名           | URL               |
-| ---------------- | ----------------- |
-| ログイン         | /sign-in          |
-| パスワード初期化 | /reset-password   |
-| アカウント情報   | /account          |
-| パスワード変更   | /account/password |
-| 管理者画面       | /admin            |
+| 画面名                 | URL                            |
+| ---------------------- | ------------------------------ |
+| ログイン               | /sign-in                       |
+| パスワード初期化       | /reset-password                |
+| アカウント情報         | /account                       |
+| パスワード変更         | /account/password              |
+| 通知センター           | /notifications                 |
+| 管理者画面トップ       | /admin                         |
+| 管理者ユーザー一覧     | /admin/users                   |
+| 管理者ユーザー新規作成 | /admin/users/create            |
+| 管理者ユーザー詳細     | /admin/users/[id]              |
+| 管理者ユーザー編集     | /admin/users/[id]/edit         |
+| 管理者通知一覧         | /admin/notifications           |
+| 管理者通知新規作成     | /admin/notifications/create    |
+| 管理者通知詳細         | /admin/notifications/[id]      |
+| 管理者通知編集         | /admin/notifications/[id]/edit |
 
 ---
 以下テンプレート

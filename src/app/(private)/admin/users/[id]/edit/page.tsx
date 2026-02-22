@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { definePrivatePage } from "../../../../../../components/_common/page";
-import { EditUserForm } from "../../../../../../components/admin/edit-user-form";
+import { EditUserForm } from "../../../../../../components/admin/users/edit-user-form";
 import { z } from "../../../../../../lib/zod";
 import { getUser } from "../../../../../../server/services/userService";
 

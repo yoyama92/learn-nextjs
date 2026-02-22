@@ -1,6 +1,6 @@
-import { getUsers } from "../../../../actions/admin";
+import { getUsers } from "../../../../actions/admin-user";
 import { definePrivatePage } from "../../../../components/_common/page";
-import { UserListWithPagination } from "../../../../components/admin/user-list";
+import { UserListWithPagination } from "../../../../components/admin/users/user-list";
 
 /**
  * 管理者用ユーザー一覧ページ

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { definePrivatePage } from "../../../../../components/_common/page";
-import { UserInfo } from "../../../../../components/admin/user";
+import { UserInfo } from "../../../../../components/admin/users/user";
 import { z } from "../../../../../lib/zod";
 import { getUser } from "../../../../../server/services/userService";
 
