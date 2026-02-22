@@ -85,7 +85,7 @@ export const getUsersForNotificationTarget = async (): Promise<
       email: true,
     },
     orderBy: {
-      createdAt: "asc",
+      name: "asc",
     },
   });
   return users;

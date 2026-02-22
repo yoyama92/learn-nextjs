@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 
 import { postEditNotification } from "../../actions/admin";
@@ -12,10 +13,12 @@ import {
   editNotificationFormSchema,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
+import { PromiseReady } from "../_common/promise-ready";
+import { RecipientUserCheckboxList } from "./recipient-user-checkbox-list";
 
 export const EditNotificationForm = ({
   notification,
-  users,
+  usersPromise,
 }: {
   notification: {
     id: string;
@@ -27,12 +30,15 @@ export const EditNotificationForm = ({
     publishedAt: string;
     archivedAt: string;
   };
-  users: {
-    id: string;
-    name: string;
-    email: string;
-  }[];
+  usersPromise: Promise<
+    {
+      id: string;
+      name: string;
+      email: string;
+    }[]
+  >;
 }) => {
+  const [isUsersLoaded, setIsUsersLoaded] = useState(false);
   const router = useRouter();
   const form = useForm<
     EditNotificationFormInputSchema,
@@ -60,7 +66,7 @@ export const EditNotificationForm = ({
       });
       if (result.success) {
         window.alert("更新に成功しました。");
-        router.push("/admin/notifications");
+        router.refresh();
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -70,7 +76,6 @@ export const EditNotificationForm = ({
       window.alert("更新に失敗しました。");
     }
   };
-
   const {
     register,
     handleSubmit,
@@ -111,32 +116,20 @@ export const EditNotificationForm = ({
               />
             </div>
             {selectedAudience === notificationAudienceEnum.selectedUsers && (
-              <div className="mt-2 max-h-56 overflow-y-auto rounded border border-base-300 p-2">
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                  {users.map((user) => (
-                    <label
-                      key={user.id}
-                      className="label cursor-pointer justify-start gap-3 rounded px-2 py-1"
-                    >
-                      <input
-                        type="checkbox"
-                        value={user.id}
-                        className="checkbox checkbox-sm"
-                        {...register("recipientUserIds")}
-                        disabled={isSubmitting}
-                      />
-                      <span className="label-text">
-                        {user.name} ({user.email})
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-            {errors.recipientUserIds?.message && (
-              <p className="text-error text-xs">
-                {errors.recipientUserIds?.message}
-              </p>
+              <Suspense
+                fallback={
+                  <div className="mt-2 rounded border border-base-300 p-3 text-sm text-base-content/70">
+                    ユーザー一覧を読み込み中...
+                  </div>
+                }
+              >
+                <RecipientUserCheckboxList
+                  usersPromise={usersPromise}
+                  registerReturn={register("recipientUserIds")}
+                  isSubmitting={isSubmitting}
+                  error={errors.recipientUserIds?.message}
+                />
+              </Suspense>
             )}
           </fieldset>
           <fieldset className="fieldset">
@@ -205,15 +198,23 @@ export const EditNotificationForm = ({
       </div>
 
       <div className="flex flex-row justify-end gap-2">
+        <Suspense fallback={null}>
+          <PromiseReady
+            promise={usersPromise}
+            onReady={() => {
+              setIsUsersLoaded(true);
+            }}
+          />
+        </Suspense>
         <Link href="/admin/notifications" className="btn btn-outline">
           一覧に戻る
         </Link>
         <button
           className="btn btn-primary"
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isUsersLoaded}
         >
-          {isSubmitting ? "更新中..." : "更新"}
+          {isSubmitting ? "更新中..." : !isUsersLoaded ? "読込中..." : "更新"}
         </button>
       </div>
     </form>

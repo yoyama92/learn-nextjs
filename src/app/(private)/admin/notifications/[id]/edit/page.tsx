@@ -29,15 +29,19 @@ export default definePrivatePage<Params>({
   adminOnly: true,
   name: "admin_notification_edit",
 }).page(async ({ props: { params } }) => {
-  const { id } = paramsSchema.parse(await params);
-  const [notification, users] = await Promise.all([
-    getAdminNotificationById(id),
-    getUsersForNotificationTarget(),
-  ]);
+  const data = paramsSchema.safeParse(await params).data;
+  const id = data?.id;
+  if (!id) {
+    notFound();
+  }
+
+  const notification = await getAdminNotificationById(id);
+
   if (!notification) {
     notFound();
   }
 
+  const usersPromise = getUsersForNotificationTarget();
   return (
     <main className="mx-auto w-full min-w-xs max-w-5xl p-3 md:p-6">
       <EditNotificationForm
@@ -51,7 +55,7 @@ export default definePrivatePage<Params>({
           publishedAt: toDateTimeLocalValue(notification.publishedAt),
           archivedAt: toDateTimeLocalValue(notification.archivedAt),
         }}
-        users={users}
+        usersPromise={usersPromise}
       />
     </main>
   );
