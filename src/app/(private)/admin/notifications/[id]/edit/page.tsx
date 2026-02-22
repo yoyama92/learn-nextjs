@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { definePrivatePage } from "../../../../../../components/_common/page";
-import { EditNotificationForm } from "../../../../../../components/admin/edit-notification-form";
+import { EditNotificationForm } from "../../../../../../components/admin/notifications/edit-notification-form";
 import { z } from "../../../../../../lib/zod";
 import { getAdminNotificationById } from "../../../../../../server/services/notificationService";
 import { getUsersForNotificationTarget } from "../../../../../../server/services/userService";

@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 
-import { postEditNotification } from "../../actions/admin";
+import { postEditNotification } from "../../../actions/admin";
 import {
   type EditNotificationFormInputSchema,
   type EditNotificationFormSchema,
   editNotificationFormSchema,
   notificationAudienceEnum,
-} from "../../schemas/admin-notification";
-import { PromiseReady } from "../_common/promise-ready";
+} from "../../../schemas/admin-notification";
+import { PromiseReady } from "../../_common/promise-ready";
 import { RecipientUserCheckboxList } from "./recipient-user-checkbox-list";
 
 export const EditNotificationForm = ({

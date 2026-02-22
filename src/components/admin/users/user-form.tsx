@@ -12,7 +12,7 @@ import {
   createUserSchemaKeys,
   type UserSchema,
   userSchemaKeys,
-} from "../../schemas/admin";
+} from "../../../schemas/admin";
 
 const TextInput = ({
   label,

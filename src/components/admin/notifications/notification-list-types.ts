@@ -2,8 +2,8 @@ import {
   type NotificationAudience,
   type notificationArchiveFilterEnum,
   notificationAudienceEnum,
-} from "../../schemas/admin-notification";
-import type { NotificationType } from "../../schemas/notification";
+} from "../../../schemas/admin-notification";
+import type { NotificationType } from "../../../schemas/notification";
 
 export type AdminNotificationRow = {
   id: string;

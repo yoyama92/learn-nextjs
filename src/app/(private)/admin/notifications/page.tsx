@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type z from "zod";
 
 import { definePrivatePage } from "../../../../components/_common/page";
-import { AdminNotificationList } from "../../../../components/admin/notification-list";
+import { AdminNotificationList } from "../../../../components/admin/notifications/notification-list";
 import {
   adminNotificationListQuerySchema,
   adminNotificationSearchParamSchema,

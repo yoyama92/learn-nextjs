@@ -5,9 +5,9 @@ import Link from "next/link";
 import {
   notificationArchiveFilterEnum,
   notificationAudienceEnum,
-} from "../../schemas/admin-notification";
-import { notificationTypeEnum } from "../../schemas/notification";
-import { buildQuery } from "../../utils/searchParams";
+} from "../../../schemas/admin-notification";
+import { notificationTypeEnum } from "../../../schemas/notification";
+import { buildQuery } from "../../../utils/searchParams";
 import type { AdminNotificationSearchParams } from "./notification-list-types";
 
 export const AdminNotificationSearchForm = ({

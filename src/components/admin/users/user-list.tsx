@@ -3,9 +3,9 @@
 import { PlusIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
-import { getUsers } from "../../actions/admin";
-import { usePagination } from "../../hooks/_common/use-pagination";
-import { PaginationControls } from "../_common/pagination-controls";
+import { getUsers } from "../../../actions/admin";
+import { usePagination } from "../../../hooks/_common/use-pagination";
+import { PaginationControls } from "../../_common/pagination-controls";
 import { UserTable } from "./user-table";
 
 type TableData = Awaited<ReturnType<typeof getUsers>>;

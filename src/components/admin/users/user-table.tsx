@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
-import { postDeleteUser } from "../../actions/admin";
+import { postDeleteUser } from "../../../actions/admin";
 
 type Row = {
   id: string;

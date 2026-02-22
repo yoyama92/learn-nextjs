@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { buildQuery } from "../../utils/searchParams";
-import { PaginationControls } from "../_common/pagination-controls";
+import { buildQuery } from "../../../utils/searchParams";
+import { PaginationControls } from "../../_common/pagination-controls";
 import type {
   AdminNotificationRow,
   AdminNotificationSearchParams,

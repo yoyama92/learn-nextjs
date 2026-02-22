@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
-import { postDeleteNotification } from "../../actions/admin";
+import { postDeleteNotification } from "../../../actions/admin";
 import type { AdminNotificationRow } from "./notification-list-types";
 import {
   toAudienceLabel,
