@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
   archiveNotificationByAdmin,
+  createNotificationByAdmin,
   editNotificationByAdmin,
 } from "../../server/services/notificationService";
 import {
+  postCreateNotification,
   postDeleteNotification,
   postEditNotification,
 } from "../admin-notification";
@@ -47,6 +49,7 @@ vi.mock("../../lib/session", async (importOriginal) => {
 
 vi.mock("../../server/services/notificationService", () => ({
   archiveNotificationByAdmin: vi.fn(),
+  createNotificationByAdmin: vi.fn(),
   editNotificationByAdmin: vi.fn(),
 }));
 
@@ -155,6 +158,42 @@ describe("Admin Notification Actions", () => {
           clientTimeZone: "Asia/Tokyo",
         }),
       ).rejects.toThrow("Action failed");
+    });
+  });
+
+  describe("postCreateNotification", () => {
+    test("通知を正常に作成する", async () => {
+      (
+        createNotificationByAdmin as ReturnType<
+          typeof vi.fn<typeof createNotificationByAdmin>
+        >
+      ).mockResolvedValue({
+        createdId: "11111111-1111-4111-8111-111111111111",
+      });
+
+      const result = await postCreateNotification({
+        title: "title",
+        body: "body",
+        type: "info",
+        audience: "SELECTED",
+        recipientUserIds: ["22222222-2222-4222-8222-222222222222"],
+        publishedAt: "2026-02-21T12:34",
+        archivedAt: "",
+        clientTimeZone: "Asia/Tokyo",
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(createNotificationByAdmin).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "title",
+          body: "body",
+          type: "info",
+          audience: "SELECTED",
+          recipientUserIds: ["22222222-2222-4222-8222-222222222222"],
+          publishedAt: new Date("2026-02-21T03:34:00.000Z"),
+          archivedAt: null,
+        }),
+      );
     });
   });
 });

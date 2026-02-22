@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 import z from "zod";
 
 import {
-  editNotificationFormSchema,
-  editNotificationSchema,
+  notificationFormSchema,
+  notificationSchema,
   notificationAudienceEnum,
 } from "../admin-notification";
 
@@ -19,7 +19,7 @@ const baseInput = {
 
 describe("editNotificationSchema datetime-local", () => {
   test("YYYY-MM-DDTHH:mm 形式を受け付ける", () => {
-    const result = editNotificationSchema.safeParse({
+    const result = notificationSchema.safeParse({
       ...baseInput,
       publishedAt: "2026-02-21T12:34",
       archivedAt: "",
@@ -29,7 +29,7 @@ describe("editNotificationSchema datetime-local", () => {
   });
 
   test("UTCのZ付き日時は受け付けない", () => {
-    const result = editNotificationSchema.safeParse({
+    const result = notificationSchema.safeParse({
       ...baseInput,
       publishedAt: "2026-02-21T12:34Z",
       archivedAt: "",
@@ -40,7 +40,7 @@ describe("editNotificationSchema datetime-local", () => {
 });
 
 test("指定ユーザー選択時はrecipientUserIdsが必須", () => {
-  const result = editNotificationSchema.safeParse({
+  const result = notificationSchema.safeParse({
     ...baseInput,
     audience: notificationAudienceEnum.selectedUsers,
     recipientUserIds: undefined,
@@ -58,7 +58,7 @@ test("指定ユーザー選択時はrecipientUserIdsが必須", () => {
 });
 
 test("form schemaでも指定ユーザー選択時はrecipientUserIdsが必須", () => {
-  const result = editNotificationFormSchema.safeParse({
+  const result = notificationFormSchema.safeParse({
     title: "title",
     body: "body",
     type: "info",

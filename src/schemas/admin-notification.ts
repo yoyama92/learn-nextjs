@@ -119,7 +119,7 @@ const validateSelectedAudienceRecipients = (
   }
 };
 
-export const editNotificationSchema = z
+export const notificationSchema = z
   .object({
     id: z.uuidv4(),
     title: z.string().trim().min(1),
@@ -136,7 +136,7 @@ export const editNotificationSchema = z
   })
   .superRefine(validateSelectedAudienceRecipients);
 
-export const editNotificationFormSchema = editNotificationSchema
+export const notificationFormSchema = notificationSchema
   .omit({
     id: true,
   })
@@ -146,10 +146,18 @@ export const editNotificationResponseSchema = z.object({
   success: z.literal(true),
 });
 
-export type EditNotificationSchema = z.infer<typeof editNotificationSchema>;
-export type EditNotificationFormInputSchema = z.input<
-  typeof editNotificationFormSchema
+export const createNotificationSchema = notificationFormSchema;
+
+export const createNotificationResponseSchema = z.object({
+  success: z.literal(true),
+  data: z.object({
+    id: z.string(),
+  }),
+});
+
+export type NotificationSchema = z.infer<typeof notificationSchema>;
+export type NotificationFormInputSchema = z.input<
+  typeof notificationFormSchema
 >;
-export type EditNotificationFormSchema = z.infer<
-  typeof editNotificationFormSchema
->;
+export type NotificationFormSchema = z.infer<typeof notificationFormSchema>;
+export type CreateNotificationSchema = z.infer<typeof createNotificationSchema>;

@@ -1,5 +1,6 @@
 "use client";
 
+import { PlusIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -51,8 +52,18 @@ export const AdminNotificationList = ({
       <AdminNotificationSearchForm searchParams={searchParams} />
 
       <div className="w-full flex flex-col gap-4 p-4 bg-base-100 border-base-300 rounded-box">
-        <div className="text-sm text-gray-600">
-          全 {total} 件中 {from} 〜 {to} 件を表示
+        <div className="flex flex-row justify-between">
+          <div className="text-sm text-gray-600">
+            全 {total} 件中 {from} 〜 {to} 件を表示
+          </div>
+          <Link
+            type="button"
+            className="btn btn-sm max-sm:btn-square btn-primary"
+            href="/admin/notifications/create"
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span className="max-sm:hidden">新規作成</span>
+          </Link>
         </div>
 
         <div className="overflow-x-auto">

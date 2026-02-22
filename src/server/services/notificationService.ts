@@ -402,6 +402,66 @@ export const getAdminNotificationById = async (id: string) => {
   });
 };
 
+export const createNotificationByAdmin = async (input: {
+  title: string;
+  body: string;
+  type: NotificationDetailType;
+  audience: NotificationDetailAudience;
+  recipientUserIds: string[];
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): Promise<{
+  createdId: string;
+}> => {
+  const created = await prisma.$transaction(async (tx) => {
+    const uniqueUserIds = Array.from(new Set(input.recipientUserIds));
+
+    if (input.audience === "SELECTED") {
+      const usersCount = await tx.user.count({
+        where: {
+          id: {
+            in: uniqueUserIds,
+          },
+        },
+      });
+
+      if (usersCount !== uniqueUserIds.length) {
+        throw new Error("選択された対象ユーザーが不正です。");
+      }
+    }
+
+    const notification = await tx.notification.create({
+      data: {
+        title: input.title,
+        body: input.body,
+        type: input.type,
+        audience: input.audience,
+        publishedAt: input.publishedAt,
+        archivedAt: input.archivedAt,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (input.audience === "SELECTED" && uniqueUserIds.length > 0) {
+      await tx.notificationRecipient.createMany({
+        data: uniqueUserIds.map((userId) => ({
+          notificationId: notification.id,
+          userId,
+          readAt: null,
+        })),
+      });
+    }
+
+    return notification;
+  });
+
+  return {
+    createdId: created.id,
+  };
+};
+
 export const editNotificationByAdmin = async (input: {
   id: string;
   title: string;
