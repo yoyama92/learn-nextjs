@@ -2,9 +2,9 @@ import { describe, expect, test } from "vitest";
 import z from "zod";
 
 import {
+  notificationAudienceEnum,
   notificationFormSchema,
   notificationSchema,
-  notificationAudienceEnum,
 } from "../admin-notification";
 
 const baseInput = {
