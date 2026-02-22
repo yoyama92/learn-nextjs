@@ -1,11 +1,18 @@
 import type { Prisma } from "../../generated/prisma/client";
 import {
   type AdminNotificationListQuery,
+  type NotificationAudience,
   notificationArchiveFilterEnum,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
 import type { ListQuery, NotificationType } from "../../schemas/notification";
 import { prisma } from "../infrastructures/db";
+
+type NotificationDetailType = Exclude<NotificationType, "all">;
+type NotificationDetailAudience = Exclude<
+  NotificationAudience,
+  typeof notificationAudienceEnum.all
+>;
 
 const buildNotificationSelectArg = (userId: string) => {
   return {
@@ -266,8 +273,8 @@ export const listAdminNotifications = async (
     id: string;
     title: string;
     body: string;
-    type: "info" | "warn" | "security";
-    audience: "ALL" | "SELECTED";
+    type: NotificationDetailType;
+    audience: NotificationDetailAudience;
     publishedAt: Date | null;
     archivedAt: Date | null;
     createdAt: Date;
@@ -399,8 +406,8 @@ export const editNotificationByAdmin = async (input: {
   id: string;
   title: string;
   body: string;
-  type: "info" | "warn" | "security";
-  audience: "ALL" | "SELECTED";
+  type: NotificationDetailType;
+  audience: NotificationDetailAudience;
   recipientUserIds: string[];
   publishedAt: Date | null;
   archivedAt: Date | null;
@@ -445,20 +452,44 @@ export const editNotificationByAdmin = async (input: {
       await tx.notificationRecipient.deleteMany({
         where: {
           notificationId: input.id,
+          userId: {
+            not: {
+              in: uniqueUserIds,
+            },
+          },
         },
       });
 
-      await tx.notificationRecipient.createMany({
-        data: uniqueUserIds.map((userId) => ({
+      const existingRecipients = await tx.notificationRecipient.findMany({
+        where: {
           notificationId: input.id,
-          userId,
-          readAt: null,
-        })),
+        },
+        select: {
+          userId: true,
+        },
       });
+
+      const currentUserIdSet = new Set(
+        existingRecipients.map((item) => item.userId),
+      );
+      const addUserIds = uniqueUserIds.filter(
+        (userId) => !currentUserIdSet.has(userId),
+      );
+
+      if (addUserIds.length > 0) {
+        await tx.notificationRecipient.createMany({
+          data: addUserIds.map((userId) => ({
+            notificationId: input.id,
+            userId,
+            readAt: null,
+          })),
+        });
+      }
     } else {
       await tx.notificationRecipient.deleteMany({
         where: {
           notificationId: input.id,
+          readAt: null,
         },
       });
     }
