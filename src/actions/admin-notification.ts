@@ -6,10 +6,10 @@ import { isValid, parseISO } from "date-fns";
 import { defineAdminAction } from "../lib/define-action";
 import {
   createNotificationResponseSchema,
-  createNotificationSchema,
   deleteNotificationResponseSchema,
   deleteNotificationSchema,
   editNotificationResponseSchema,
+  notificationFormSchema,
   notificationSchema,
 } from "../schemas/admin-notification";
 import {
@@ -32,7 +32,7 @@ const toDate = (value: string, clientTimeZone: string): Date | null => {
 };
 
 export const postCreateNotification = defineAdminAction({
-  input: createNotificationSchema,
+  input: notificationFormSchema,
   output: createNotificationResponseSchema,
   name: "admin_post_create_notification",
 }).handler(async ({ input }) => {

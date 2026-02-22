@@ -148,10 +148,6 @@ export const editNotificationResponseSchema = z.object({
   success: z.literal(true),
 });
 
-export const createNotificationSchema = notificationFormSchema.safeExtend({
-  // notificationFormSchemaと同一と見なされないようにするために空のextendを設定
-});
-
 export const createNotificationResponseSchema = z.object({
   success: z.literal(true),
   data: z.object({
