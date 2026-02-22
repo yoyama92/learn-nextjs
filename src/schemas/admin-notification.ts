@@ -148,7 +148,9 @@ export const editNotificationResponseSchema = z.object({
   success: z.literal(true),
 });
 
-export const createNotificationSchema = notificationFormSchema;
+export const createNotificationSchema = notificationFormSchema.extend({
+  // notificationFormSchemaと同一と見なされないようにするために空のextendを設定
+});
 
 export const createNotificationResponseSchema = z.object({
   success: z.literal(true),
@@ -157,9 +159,7 @@ export const createNotificationResponseSchema = z.object({
   }),
 });
 
-export type NotificationSchema = z.infer<typeof notificationSchema>;
 export type NotificationFormInputSchema = z.input<
   typeof notificationFormSchema
 >;
 export type NotificationFormSchema = z.infer<typeof notificationFormSchema>;
-export type CreateNotificationSchema = z.infer<typeof createNotificationSchema>;
