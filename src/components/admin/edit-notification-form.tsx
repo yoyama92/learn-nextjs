@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 
 import { postEditNotification } from "../../actions/admin";
 import {
+  type EditNotificationFormInputSchema,
   type EditNotificationFormSchema,
   editNotificationFormSchema,
   notificationAudienceEnum,
@@ -33,7 +34,11 @@ export const EditNotificationForm = ({
   }[];
 }) => {
   const router = useRouter();
-  const form = useForm<EditNotificationFormSchema>({
+  const form = useForm<
+    EditNotificationFormInputSchema,
+    unknown,
+    EditNotificationFormSchema
+  >({
     resolver: zodResolver(editNotificationFormSchema),
     defaultValues: {
       title: notification.title,
@@ -69,18 +74,17 @@ export const EditNotificationForm = ({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = form;
-  const selectedAudience = watch("audience");
+
+  const selectedAudience = useWatch({
+    control: control,
+    name: "audience",
+  });
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, (error) => {
-        console.log(error);
-      })}
-      className="flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <h2 className="text-lg font-bold">通知編集</h2>
       <div className="card bg-base-100">
         <div className="card-body">
@@ -131,7 +135,7 @@ export const EditNotificationForm = ({
             )}
             {errors.recipientUserIds?.message && (
               <p className="text-error text-xs">
-                {errors.recipientUserIds.message}
+                {errors.recipientUserIds?.message}
               </p>
             )}
           </fieldset>
@@ -196,10 +200,7 @@ export const EditNotificationForm = ({
               <p className="text-error text-xs">{errors.archivedAt.message}</p>
             )}
           </fieldset>
-          <input
-            type="hidden"
-            {...register("clientTimeZone")}
-          />
+          <input type="hidden" {...register("clientTimeZone")} />
         </div>
       </div>
 

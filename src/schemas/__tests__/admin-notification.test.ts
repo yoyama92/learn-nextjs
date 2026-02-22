@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
+import z from "zod";
 
 import {
+  editNotificationFormSchema,
   editNotificationSchema,
   notificationAudienceEnum,
 } from "../admin-notification";
@@ -35,4 +37,43 @@ describe("editNotificationSchema datetime-local", () => {
 
     expect(result.success).toBe(false);
   });
+});
+
+test("指定ユーザー選択時はrecipientUserIdsが必須", () => {
+  const result = editNotificationSchema.safeParse({
+    ...baseInput,
+    audience: notificationAudienceEnum.selectedUsers,
+    recipientUserIds: undefined,
+    publishedAt: "2026-02-21T12:34",
+    archivedAt: "",
+  });
+
+  expect(result.success).toBe(false);
+  if (!result.success) {
+    const errors = z.treeifyError(result.error);
+    expect(errors.properties?.recipientUserIds?.errors).toContain(
+      "対象ユーザーを1名以上選択してください。",
+    );
+  }
+});
+
+test("form schemaでも指定ユーザー選択時はrecipientUserIdsが必須", () => {
+  const result = editNotificationFormSchema.safeParse({
+    title: "title",
+    body: "body",
+    type: "info",
+    audience: notificationAudienceEnum.selectedUsers,
+    recipientUserIds: [],
+    publishedAt: "2026-02-21T12:34",
+    archivedAt: "",
+    clientTimeZone: "Asia/Tokyo",
+  });
+
+  expect(result.success).toBe(false);
+  if (!result.success) {
+    const errors = z.treeifyError(result.error);
+    expect(errors.properties?.recipientUserIds?.errors).toContain(
+      "対象ユーザーを1名以上選択してください。",
+    );
+  }
 });

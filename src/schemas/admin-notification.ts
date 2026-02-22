@@ -77,8 +77,8 @@ const adminNotificationTypeSchema = z.union([
   z.literal("security"),
 ]);
 
-const dateTimeLocalSchema = z
-  .iso.datetime({ local: true, precision: -1 })
+const dateTimeLocalSchema = z.iso
+  .datetime({ local: true, precision: -1 })
   .refine((value) => !value.endsWith("Z"), {
     message: "ローカル日時を入力してください。",
   });
@@ -88,14 +88,36 @@ const nullableDateTimeLocalSchema = z.union([
   z.literal(""),
 ]);
 
-const ianaTimeZoneSchema = z.string().trim().refine((value) => {
-  try {
-    new Intl.DateTimeFormat("ja-JP", { timeZone: value });
-    return true;
-  } catch {
-    return false;
+const ianaTimeZoneSchema = z
+  .string()
+  .trim()
+  .refine((value) => {
+    try {
+      new Intl.DateTimeFormat("ja-JP", { timeZone: value });
+      return true;
+    } catch {
+      return false;
+    }
+  }, "有効なタイムゾーンを指定してください。");
+
+const validateSelectedAudienceRecipients = (
+  value: {
+    audience: "ALL" | "SELECTED";
+    recipientUserIds: string[];
+  },
+  ctx: z.core.$RefinementCtx,
+) => {
+  if (
+    value.audience === notificationAudienceEnum.selectedUsers &&
+    value.recipientUserIds.length === 0
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "対象ユーザーを1名以上選択してください。",
+      path: ["recipientUserIds"],
+    });
   }
-}, "有効なタイムゾーンを指定してください。");
+};
 
 export const editNotificationSchema = z
   .object({
@@ -107,33 +129,27 @@ export const editNotificationSchema = z
       z.literal(notificationAudienceEnum.allUsers),
       z.literal(notificationAudienceEnum.selectedUsers),
     ]),
-    recipientUserIds: z.array(z.string()),
+    recipientUserIds: z.preprocess((value) => value ?? [], z.array(z.string())),
     publishedAt: nullableDateTimeLocalSchema,
     archivedAt: nullableDateTimeLocalSchema,
     clientTimeZone: ianaTimeZoneSchema,
   })
-  .superRefine((value, ctx) => {
-    if (
-      value.audience === notificationAudienceEnum.selectedUsers &&
-      value.recipientUserIds.length === 0
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message: "対象ユーザーを1名以上選択してください。",
-        path: ["recipientUserIds"],
-      });
-    }
-  });
+  .superRefine(validateSelectedAudienceRecipients);
 
-export const editNotificationFormSchema = editNotificationSchema.omit({
-  id: true,
-});
+export const editNotificationFormSchema = editNotificationSchema
+  .omit({
+    id: true,
+  })
+  .superRefine(validateSelectedAudienceRecipients);
 
 export const editNotificationResponseSchema = z.object({
   success: z.literal(true),
 });
 
 export type EditNotificationSchema = z.infer<typeof editNotificationSchema>;
+export type EditNotificationFormInputSchema = z.input<
+  typeof editNotificationFormSchema
+>;
 export type EditNotificationFormSchema = z.infer<
   typeof editNotificationFormSchema
 >;
