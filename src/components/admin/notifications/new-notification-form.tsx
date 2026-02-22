@@ -28,7 +28,7 @@ export const NewNotificationForm = ({
       const result = await postCreateNotification(data);
       if (result.success) {
         window.alert("作成に成功しました。");
-        router.push(`/admin/notifications/${result.data.id}/edit`);
+        router.push(`/admin/notifications/${result.data.id}`);
       }
     } catch (error) {
       if (error instanceof Error) {

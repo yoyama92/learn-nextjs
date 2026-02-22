@@ -73,7 +73,9 @@ describe("Admin Notification Actions", () => {
         id: "11111111-1111-4111-8111-111111111111",
       });
 
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({
+        success: true,
+      });
       expect(archiveNotificationByAdmin).toHaveBeenCalledWith(
         "11111111-1111-4111-8111-111111111111",
       );
@@ -182,7 +184,12 @@ describe("Admin Notification Actions", () => {
         clientTimeZone: "Asia/Tokyo",
       });
 
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual({
+        success: true,
+        data: {
+          id: "11111111-1111-4111-8111-111111111111",
+        },
+      });
       expect(createNotificationByAdmin).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "title",

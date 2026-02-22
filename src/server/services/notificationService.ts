@@ -2,6 +2,7 @@ import type { Prisma } from "../../generated/prisma/client";
 import {
   type AdminNotificationListQuery,
   type NotificationAudience,
+  type NotificationStatus,
   notificationArchiveFilterEnum,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
@@ -13,6 +14,18 @@ type NotificationDetailAudience = Exclude<
   NotificationAudience,
   typeof notificationAudienceEnum.all
 >;
+
+const toNotificationStatus = (input: {
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+}): NotificationStatus => {
+  const now = new Date();
+  return input.archivedAt !== null && input.archivedAt <= now
+    ? "archived"
+    : input.publishedAt !== null && input.publishedAt > now
+      ? "scheduled"
+      : "published";
+};
 
 const buildNotificationSelectArg = (userId: string) => {
   return {
@@ -278,7 +291,7 @@ export const listAdminNotifications = async (
     publishedAt: Date | null;
     archivedAt: Date | null;
     createdAt: Date;
-    status: "published" | "scheduled" | "archived";
+    status: NotificationStatus;
   }[];
 }> => {
   const now = new Date();
@@ -346,15 +359,9 @@ export const listAdminNotifications = async (
   return {
     total,
     items: items.map((item) => {
-      const status =
-        item.archivedAt !== null && item.archivedAt <= now
-          ? "archived"
-          : item.publishedAt !== null && item.publishedAt > now
-            ? "scheduled"
-            : "published";
       return {
         ...item,
-        status,
+        status: toNotificationStatus(item),
       };
     }),
   };
@@ -400,6 +407,45 @@ export const getAdminNotificationById = async (id: string) => {
       },
     },
   });
+};
+
+export const getAdminNotificationDetailById = async (id: string) => {
+  const notification = await prisma.notification.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      audience: true,
+      title: true,
+      body: true,
+      publishedAt: true,
+      archivedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      recipients: {
+        select: {
+          userId: true,
+          readAt: true,
+          createdAt: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!notification) {
+    return null;
+  }
+
+  return {
+    ...notification,
+    status: toNotificationStatus(notification),
+  };
 };
 
 export const createNotificationByAdmin = async (input: {

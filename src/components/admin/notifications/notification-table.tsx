@@ -1,12 +1,13 @@
 "use client";
 
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { postDeleteNotification } from "../../../actions/admin-notification";
@@ -26,9 +27,12 @@ const columns = [
     cell: (info) => {
       const row = info.row.original;
       return (
-        <div className="max-w-64 md:max-w-md lg:max-w-xl truncate font-medium">
+        <Link
+          href={`/admin/notifications/${row.id}`}
+          className="max-w-64 md:max-w-md lg:max-w-xl truncate font-medium link link-hover"
+        >
           {row.title}
-        </div>
+        </Link>
       );
     },
   }),
@@ -128,6 +132,17 @@ export const AdminNotificationTable = ({
               ))}
               <td>
                 <div className="flex flex-row">
+                  <div className="tooltip tooltip-top" data-tip="閲覧">
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-square btn-sm"
+                      onClick={() => {
+                        router.push(`/admin/notifications/${row.original.id}`);
+                      }}
+                    >
+                      <EyeIcon className="w-5" />
+                    </button>
+                  </div>
                   <div className="tooltip tooltip-top" data-tip="編集">
                     <button
                       type="button"

@@ -39,7 +39,7 @@ export const EditNotificationForm = ({
       });
       if (result.success) {
         window.alert("更新に成功しました。");
-        router.refresh();
+        router.push(`/admin/notifications/${notification.id}`);
       }
     } catch (error) {
       if (error instanceof Error) {

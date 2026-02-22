@@ -21,6 +21,8 @@ export const notificationAudienceSchema = z.union([
 
 export type NotificationAudience = z.infer<typeof notificationAudienceSchema>;
 
+export type NotificationStatus = "published" | "scheduled" | "archived";
+
 export const adminNotificationSearchParamSchema = z
   .object({
     q: z.string().optional(),
