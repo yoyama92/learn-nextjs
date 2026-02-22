@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 
-import { postEditNotification } from "../../../actions/admin";
+import { postEditNotification } from "../../../actions/admin-notification";
 import {
   type EditNotificationFormInputSchema,
   type EditNotificationFormSchema,

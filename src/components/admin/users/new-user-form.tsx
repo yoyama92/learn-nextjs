@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { postNewUser } from "../../../actions/admin";
+import { postNewUser } from "../../../actions/admin-user";
 import { type CreateUserSchema, createUserSchema } from "../../../schemas/admin";
 import { UserForm } from "./user-form";
 
