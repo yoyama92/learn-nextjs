@@ -6,6 +6,7 @@ import type { SubmitHandler } from "react-hook-form";
 import { postCreateNotification } from "../../../actions/admin-notification";
 import {
   type NotificationFormSchema,
+  type NotificationTargetUser,
   notificationAudienceEnum,
 } from "../../../schemas/admin-notification";
 import { NotificationForm } from "./notification-form";
@@ -13,13 +14,7 @@ import { NotificationForm } from "./notification-form";
 export const NewNotificationForm = ({
   usersPromise,
 }: {
-  usersPromise: Promise<
-    {
-      id: string;
-      name: string;
-      email: string;
-    }[]
-  >;
+  usersPromise: Promise<NotificationTargetUser[]>;
 }) => {
   const router = useRouter();
 

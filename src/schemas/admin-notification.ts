@@ -22,6 +22,11 @@ export const notificationAudienceSchema = z.union([
 export type NotificationAudience = z.infer<typeof notificationAudienceSchema>;
 
 export type NotificationStatus = "published" | "scheduled" | "archived";
+export type NotificationTargetUser = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 export const adminNotificationSearchParamSchema = z
   .object({
@@ -55,6 +60,10 @@ export const adminNotificationListQuerySchema = z.object({
 export type AdminNotificationListQuery = z.infer<
   typeof adminNotificationListQuerySchema
 >;
+export type AdminNotificationSearchParams = Omit<
+  AdminNotificationListQuery,
+  "pageSize"
+>;
 
 export const deleteNotificationSchema = z.object({
   id: z.uuidv4(),
@@ -78,6 +87,37 @@ const adminNotificationTypeSchema = z.union([
   z.literal("warn"),
   z.literal("security"),
 ]);
+
+const adminNotificationAudienceSchema = z.union([
+  z.literal(notificationAudienceEnum.selectedUsers),
+  z.literal(notificationAudienceEnum.allUsers),
+]);
+
+export type AdminNotificationType = z.infer<typeof adminNotificationTypeSchema>;
+export type AdminNotificationTargetAudience = z.infer<
+  typeof adminNotificationAudienceSchema
+>;
+export type AdminNotificationRow = {
+  id: string;
+  title: string;
+  body: string;
+  type: AdminNotificationType;
+  audience: AdminNotificationTargetAudience;
+  publishedAt: Date | null;
+  archivedAt: Date | null;
+  createdAt: Date;
+  status: NotificationStatus;
+};
+export type AdminNotificationRecipient = {
+  userId: string;
+  name: string;
+  email: string;
+  readAt: Date | null;
+};
+export type AdminNotificationDetail = AdminNotificationRow & {
+  updatedAt: Date;
+  recipients: AdminNotificationRecipient[];
+};
 
 const dateTimeLocalSchema = z.iso
   .datetime({ local: true, precision: -1 })
@@ -127,16 +167,15 @@ export const notificationSchema = z
     title: z.string().trim().min(1),
     body: z.string().trim().min(1),
     type: adminNotificationTypeSchema,
-    audience: z.union([
-      z.literal(notificationAudienceEnum.allUsers),
-      z.literal(notificationAudienceEnum.selectedUsers),
-    ]),
+    audience: adminNotificationAudienceSchema,
     recipientUserIds: z.preprocess((value) => value ?? [], z.array(z.string())),
     publishedAt: nullableDateTimeLocalSchema,
     archivedAt: nullableDateTimeLocalSchema,
     clientTimeZone: ianaTimeZoneSchema,
   })
   .superRefine(validateSelectedAudienceRecipients);
+
+export type NotificationSchema = z.infer<typeof notificationSchema>;
 
 export const notificationFormSchema = notificationSchema
   .omit({

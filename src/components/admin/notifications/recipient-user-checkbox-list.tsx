@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
+import type { NotificationTargetUser } from "../../../schemas/admin-notification";
 
 /**
  * ユーザー一覧PromiseをSuspenseで解決し、対象ユーザー選択用チェックボックスだけを描画する。
@@ -15,13 +16,7 @@ export const RecipientUserCheckboxList = ({
   isSubmitting,
   error,
 }: {
-  usersPromise: Promise<
-    {
-      id: string;
-      name: string;
-      email: string;
-    }[]
-  >;
+  usersPromise: Promise<NotificationTargetUser[]>;
   registerReturn: UseFormRegisterReturn<"recipientUserIds">;
   isSubmitting: boolean;
   error?: string;

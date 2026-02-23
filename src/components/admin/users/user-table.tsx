@@ -10,15 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { postDeleteUser } from "../../../actions/admin-user";
-
-type Row = {
-  id: string;
-  name: string;
-  email: string;
-  isAdmin?: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+import type { AdminUserRow } from "./user-types";
 
 const ActionCell = ({
   onEditClick,
@@ -68,7 +60,7 @@ const ActionCell = ({
   );
 };
 
-const columnHelper = createColumnHelper<Row>();
+const columnHelper = createColumnHelper<AdminUserRow>();
 
 const columns = [
   columnHelper.accessor((row) => row.name, {
@@ -79,12 +71,11 @@ const columns = [
     id: "email",
     header: "メールアドレス",
   }),
-  columnHelper.accessor((row) => row.isAdmin, {
+  columnHelper.accessor((row) => row.role, {
     id: "role",
     header: "ユーザー区分",
     cell: (info) => {
-      const isAdmin = info.getValue();
-      return isAdmin ? "管理者" : "一般ユーザー";
+      return info.getValue() === "admin" ? "管理者" : "一般ユーザー";
     },
   }),
   columnHelper.accessor((row) => row.createdAt, {
@@ -108,7 +99,7 @@ const useDeleteDialog = ({
 }: {
   done: () => void;
 }): {
-  showModal: (row: Row) => Promise<void>;
+  showModal: (row: AdminUserRow) => Promise<void>;
 } => {
   return {
     showModal: async (row) => {
@@ -136,7 +127,13 @@ const useDeleteDialog = ({
   };
 };
 
-export const UserTable = ({ rows, total }: { rows: Row[]; total: number }) => {
+export const UserTable = ({
+  rows,
+  total,
+}: {
+  rows: AdminUserRow[];
+  total: number;
+}) => {
   const table = useReactTable({
     data: rows,
     columns: columns,
