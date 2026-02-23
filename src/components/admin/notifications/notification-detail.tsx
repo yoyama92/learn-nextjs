@@ -1,10 +1,6 @@
 import Link from "next/link";
 
-import type {
-  NotificationAudience,
-  NotificationStatus,
-} from "../../../schemas/admin-notification";
-import type { NotificationType } from "../../../schemas/notification";
+import type { AdminNotificationDetail } from "../../../schemas/admin-notification";
 import {
   toAudienceLabel,
   toStatusLabel,
@@ -22,24 +18,7 @@ const toDateTimeLabel = (value: Date | null, nullLabel: string = "未設定") =>
 export const NotificationDetail = ({
   notification,
 }: {
-  notification: {
-    id: string;
-    title: string;
-    body: string;
-    type: Exclude<NotificationType, "all">;
-    audience: Exclude<NotificationAudience, "all">;
-    publishedAt: Date | null;
-    archivedAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-    status: NotificationStatus;
-    recipients: {
-      userId: string;
-      name: string;
-      email: string;
-      readAt: Date | null;
-    }[];
-  };
+  notification: AdminNotificationDetail;
 }) => {
   return (
     <main className="mx-auto w-full min-w-xs max-w-5xl p-3 md:p-6">

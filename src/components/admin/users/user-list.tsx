@@ -7,6 +7,7 @@ import { getUsers } from "../../../actions/admin-user";
 import { usePagination } from "../../../hooks/_common/use-pagination";
 import { PaginationControls } from "../../_common/pagination-controls";
 import { UserTable } from "./user-table";
+import type { AdminUserRow } from "./user-types";
 
 type TableData = Awaited<ReturnType<typeof getUsers>>;
 
@@ -41,14 +42,7 @@ const UserList = ({
   onPageChange,
   isLoading,
 }: {
-  users: {
-    id: string;
-    name: string;
-    email: string;
-    isAdmin?: boolean;
-    createdAt: string;
-    updatedAt: string;
-  }[];
+  users: AdminUserRow[];
   pagination: {
     currentPage: number;
     totalPages: number;

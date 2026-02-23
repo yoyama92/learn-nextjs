@@ -8,6 +8,7 @@ import { type SubmitHandler, useForm, useWatch } from "react-hook-form";
 import {
   type NotificationFormInputSchema,
   type NotificationFormSchema,
+  type NotificationTargetUser,
   notificationAudienceEnum,
   notificationFormSchema,
 } from "../../../schemas/admin-notification";
@@ -26,13 +27,7 @@ export const NotificationForm = ({
   submitLabel: string;
   submittingLabel: string;
   defaultValues: NotificationFormInputSchema;
-  usersPromise: Promise<
-    {
-      id: string;
-      name: string;
-      email: string;
-    }[]
-  >;
+  usersPromise: Promise<NotificationTargetUser[]>;
   onSubmit: SubmitHandler<NotificationFormSchema>;
 }) => {
   const [isUsersLoaded, setIsUsersLoaded] = useState(false);

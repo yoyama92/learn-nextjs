@@ -4,30 +4,19 @@ import { useRouter } from "next/navigation";
 import type { SubmitHandler } from "react-hook-form";
 
 import { postEditNotification } from "../../../actions/admin-notification";
-import type { NotificationFormSchema } from "../../../schemas/admin-notification";
+import type {
+  NotificationFormSchema,
+  NotificationSchema,
+  NotificationTargetUser,
+} from "../../../schemas/admin-notification";
 import { NotificationForm } from "./notification-form";
 
 export const EditNotificationForm = ({
   notification,
   usersPromise,
 }: {
-  notification: {
-    id: string;
-    title: string;
-    body: string;
-    type: "info" | "warn" | "security";
-    audience: "ALL" | "SELECTED";
-    recipientUserIds: string[];
-    publishedAt: string;
-    archivedAt: string;
-  };
-  usersPromise: Promise<
-    {
-      id: string;
-      name: string;
-      email: string;
-    }[]
-  >;
+  notification: Omit<NotificationSchema, "clientTimeZone">;
+  usersPromise: Promise<NotificationTargetUser[]>;
 }) => {
   const router = useRouter();
 

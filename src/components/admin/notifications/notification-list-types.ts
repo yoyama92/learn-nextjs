@@ -1,31 +1,13 @@
 import {
+  type AdminNotificationRow,
+  type AdminNotificationSearchParams,
   type NotificationAudience,
-  type notificationArchiveFilterEnum,
+  type NotificationStatus,
   notificationAudienceEnum,
 } from "../../../schemas/admin-notification";
 import type { NotificationType } from "../../../schemas/notification";
 
-export type AdminNotificationRow = {
-  id: string;
-  title: string;
-  body: string;
-  type: Exclude<NotificationType, "all">;
-  audience: Exclude<NotificationAudience, "all">;
-  publishedAt: Date | null;
-  archivedAt: Date | null;
-  createdAt: Date;
-  status: "published" | "scheduled" | "archived";
-};
-
-export type AdminNotificationSearchParams = {
-  q: string;
-  type: NotificationType;
-  audience: NotificationAudience;
-  archived:
-    | typeof notificationArchiveFilterEnum.active
-    | typeof notificationArchiveFilterEnum.archived;
-  page: number;
-};
+export type { AdminNotificationRow, AdminNotificationSearchParams };
 
 export const toAudienceLabel = (audience: NotificationAudience) => {
   if (audience === notificationAudienceEnum.allUsers) {
@@ -41,7 +23,7 @@ export const toTypeLabel = (type: NotificationType) => {
   return type === "all" ? "すべて" : type.toUpperCase();
 };
 
-export const toStatusLabel = (status: AdminNotificationRow["status"]) => {
+export const toStatusLabel = (status: NotificationStatus) => {
   if (status === "archived") {
     return "アーカイブ";
   }

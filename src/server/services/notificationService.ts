@@ -1,19 +1,16 @@
 import type { Prisma } from "../../generated/prisma/client";
 import {
+  type AdminNotificationDetail,
   type AdminNotificationListQuery,
-  type NotificationAudience,
+  type AdminNotificationRow,
+  type AdminNotificationTargetAudience,
+  type AdminNotificationType,
   type NotificationStatus,
   notificationArchiveFilterEnum,
   notificationAudienceEnum,
 } from "../../schemas/admin-notification";
 import type { ListQuery, NotificationType } from "../../schemas/notification";
 import { prisma } from "../infrastructures/db";
-
-type NotificationDetailType = Exclude<NotificationType, "all">;
-type NotificationDetailAudience = Exclude<
-  NotificationAudience,
-  typeof notificationAudienceEnum.all
->;
 
 const toNotificationStatus = (input: {
   publishedAt: Date | null;
@@ -282,17 +279,7 @@ export const listAdminNotifications = async (
   query: AdminNotificationListQuery,
 ): Promise<{
   total: number;
-  items: {
-    id: string;
-    title: string;
-    body: string;
-    type: NotificationDetailType;
-    audience: NotificationDetailAudience;
-    publishedAt: Date | null;
-    archivedAt: Date | null;
-    createdAt: Date;
-    status: NotificationStatus;
-  }[];
+  items: AdminNotificationRow[];
 }> => {
   const now = new Date();
   const archivedWhere =
@@ -409,7 +396,9 @@ export const getAdminNotificationById = async (id: string) => {
   });
 };
 
-export const getAdminNotificationDetailById = async (id: string) => {
+export const getAdminNotificationDetailById = async (
+  id: string,
+): Promise<AdminNotificationDetail | null> => {
   const notification = await prisma.notification.findUnique({
     where: { id },
     select: {
@@ -443,16 +432,30 @@ export const getAdminNotificationDetailById = async (id: string) => {
   }
 
   return {
-    ...notification,
+    id: notification.id,
+    title: notification.title,
+    body: notification.body,
+    type: notification.type,
+    audience: notification.audience,
+    publishedAt: notification.publishedAt,
+    archivedAt: notification.archivedAt,
+    createdAt: notification.createdAt,
+    updatedAt: notification.updatedAt,
     status: toNotificationStatus(notification),
+    recipients: notification.recipients.map((recipient) => ({
+      userId: recipient.userId,
+      name: recipient.user.name,
+      email: recipient.user.email,
+      readAt: recipient.readAt,
+    })),
   };
 };
 
 export const createNotificationByAdmin = async (input: {
   title: string;
   body: string;
-  type: NotificationDetailType;
-  audience: NotificationDetailAudience;
+  type: AdminNotificationType;
+  audience: AdminNotificationTargetAudience;
   recipientUserIds: string[];
   publishedAt: Date | null;
   archivedAt: Date | null;
@@ -512,8 +515,8 @@ export const editNotificationByAdmin = async (input: {
   id: string;
   title: string;
   body: string;
-  type: NotificationDetailType;
-  audience: NotificationDetailAudience;
+  type: AdminNotificationType;
+  audience: AdminNotificationTargetAudience;
   recipientUserIds: string[];
   publishedAt: Date | null;
   archivedAt: Date | null;

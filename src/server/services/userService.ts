@@ -2,6 +2,7 @@ import type { Prisma } from "../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
 import { getLogger } from "../../lib/request-context";
+import type { NotificationTargetUser } from "../../schemas/admin-notification";
 import { generateRandomPassword } from "../../utils/password";
 import { prisma } from "../infrastructures/db";
 import { SendEmailCommand, sesClient } from "../infrastructures/ses";
@@ -30,7 +31,7 @@ export const getUsersPaginated = async (
   pageSize: number = 10,
 ): Promise<{
   users: Prisma.UserGetPayload<{
-    select: typeof usersSelectArg;
+    select: typeof userSelectArg;
   }>[];
   total: number;
   pageSize: number;
@@ -44,7 +45,7 @@ export const getUsersPaginated = async (
 
   // ページ分のデータを取得
   const users = await prisma.user.findMany({
-    select: usersSelectArg,
+    select: userSelectArg,
     orderBy: {
       createdAt: "asc",
     },
@@ -72,11 +73,7 @@ export const getUser = async (id: string): Promise<UserGetResult | null> => {
 };
 
 export const getUsersForNotificationTarget = async (): Promise<
-  {
-    id: string;
-    name: string;
-    email: string;
-  }[]
+  NotificationTargetUser[]
 > => {
   const users = await prisma.user.findMany({
     select: {
@@ -90,15 +87,6 @@ export const getUsersForNotificationTarget = async (): Promise<
   });
   return users;
 };
-
-const usersSelectArg = {
-  id: true,
-  name: true,
-  email: true,
-  createdAt: true,
-  updatedAt: true,
-  role: true,
-} satisfies Prisma.UserSelect;
 
 export const createUser = async (data: {
   name: string;

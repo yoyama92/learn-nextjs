@@ -4,19 +4,16 @@ import { notFound } from "next/navigation";
 
 import { definePrivatePage } from "../../../../../../components/_common/page";
 import { EditNotificationForm } from "../../../../../../components/admin/notifications/edit-notification-form";
-import { z } from "../../../../../../lib/zod";
+import {
+  type AdminNotificationIdParams,
+  adminNotificationIdParamsSchema,
+} from "../../../../../../schemas/route-params";
 import { getAdminNotificationById } from "../../../../../../server/services/notificationService";
 import { getUsersForNotificationTarget } from "../../../../../../server/services/userService";
 
 export const metadata: Metadata = {
   title: "Notification Edit Page - Next.js Sample App",
 };
-
-const paramsSchema = z.object({
-  id: z.uuidv4(),
-});
-
-type Params = z.infer<typeof paramsSchema>;
 
 const toDateTimeLocalValue = (value: Date | null): string => {
   if (!value) {
@@ -25,11 +22,11 @@ const toDateTimeLocalValue = (value: Date | null): string => {
   return format(value, "yyyy-MM-dd'T'HH:mm");
 };
 
-export default definePrivatePage<Params>({
+export default definePrivatePage<AdminNotificationIdParams>({
   adminOnly: true,
   name: "admin_notification_edit",
 }).page(async ({ props: { params } }) => {
-  const data = paramsSchema.safeParse(await params).data;
+  const data = adminNotificationIdParamsSchema.safeParse(await params).data;
   const id = data?.id;
   if (!id) {
     notFound();

@@ -104,7 +104,7 @@ export const getUsers = defineAdminAction({
       return {
         ...user,
         createdAt: user.createdAt.toISOString(),
-        updatedAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
       };
     }),
   };
