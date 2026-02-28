@@ -31,10 +31,11 @@ services:
       context: ./ses
       dockerfile: Dockerfile
     restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     ports:
       - "8005:8005"
+    environment:
+      - AWS_SES_ACCOUNT=${AWS_SES_ACCOUNT}
+
   s3:
     image: minio/minio
     volumes:
