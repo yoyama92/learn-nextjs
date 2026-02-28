@@ -67,3 +67,7 @@ export const getPaginationResponseSchema = z.object({
   totalPages: z.number().positive(),
   currentPage: z.number().positive(),
 });
+
+export type GetPaginationResponseSchema = z.infer<
+  typeof getPaginationResponseSchema
+>;

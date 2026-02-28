@@ -9,7 +9,6 @@ export const Footer = ({
   searchParams,
 }: {
   total: number;
-
   totalPages: number;
   searchParams: {
     page: number;

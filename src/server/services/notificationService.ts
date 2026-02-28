@@ -42,6 +42,11 @@ const buildNotificationSelectArg = (userId: string) => {
         },
         userId: userId,
       },
+      // 最新の1レコードのみ取得
+      orderBy: {
+        readAt: "desc",
+      },
+      take: 1,
     },
   } satisfies Prisma.NotificationSelect;
 };
