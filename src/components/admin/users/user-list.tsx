@@ -5,21 +5,20 @@ import Link from "next/link";
 
 import { getUsers } from "../../../actions/admin-user";
 import { usePagination } from "../../../hooks/_common/use-pagination";
+import type { GetPaginationResponseSchema } from "../../../schemas/admin";
 import { PaginationControls } from "../../_common/pagination-controls";
 import { UserTable } from "./user-table";
-import type { AdminUserRow } from "./user-types";
-
-type TableData = Awaited<ReturnType<typeof getUsers>>;
 
 export const UserListWithPagination = ({
   initialData,
 }: {
-  initialData: TableData;
+  initialData: GetPaginationResponseSchema;
 }) => {
-  const { handlePageChange, data, isLoading } = usePagination<TableData>({
-    initialData,
-    getPageData: getUsers,
-  });
+  const { handlePageChange, data, isLoading } =
+    usePagination<GetPaginationResponseSchema>({
+      initialData,
+      getPageData: getUsers,
+    });
 
   return (
     <UserList
@@ -42,7 +41,7 @@ const UserList = ({
   onPageChange,
   isLoading,
 }: {
-  users: AdminUserRow[];
+  users: GetPaginationResponseSchema["users"];
   pagination: {
     currentPage: number;
     totalPages: number;

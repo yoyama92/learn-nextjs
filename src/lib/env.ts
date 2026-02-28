@@ -10,7 +10,8 @@ const envSchemaBase = z.object({
       z.literal("production"),
       z.literal("test"),
     ])
-    .optional(),
+    .optional()
+    .describe("実行環境"),
 });
 
 /**
@@ -41,7 +42,7 @@ const envSchema = envSchemaBase.extend({
     ),
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
   DATABASE_URL: z.url().describe("データベースの接続URL"),
-  LOG_LEVEL: z.string().optional(),
+  LOG_LEVEL: z.string().optional().describe("ログレベル"),
 });
 
 const publicEnvSchema = envSchema.pick({

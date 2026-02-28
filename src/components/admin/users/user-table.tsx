@@ -10,7 +10,9 @@ import {
 import { useRouter } from "next/navigation";
 
 import { postDeleteUser } from "../../../actions/admin-user";
-import type { AdminUserRow } from "./user-types";
+import type { GetPaginationResponseSchema } from "../../../schemas/admin";
+
+type Row = GetPaginationResponseSchema["users"][number];
 
 const ActionCell = ({
   onEditClick,
@@ -60,7 +62,7 @@ const ActionCell = ({
   );
 };
 
-const columnHelper = createColumnHelper<AdminUserRow>();
+const columnHelper = createColumnHelper<Row>();
 
 const columns = [
   columnHelper.accessor((row) => row.name, {
@@ -99,7 +101,7 @@ const useDeleteDialog = ({
 }: {
   done: () => void;
 }): {
-  showModal: (row: AdminUserRow) => Promise<void>;
+  showModal: (row: Row) => Promise<void>;
 } => {
   return {
     showModal: async (row) => {
@@ -127,13 +129,7 @@ const useDeleteDialog = ({
   };
 };
 
-export const UserTable = ({
-  rows,
-  total,
-}: {
-  rows: AdminUserRow[];
-  total: number;
-}) => {
+export const UserTable = ({ rows, total }: { rows: Row[]; total: number }) => {
   const table = useReactTable({
     data: rows,
     columns: columns,
