@@ -2,6 +2,7 @@ import { passwordSchema, z } from "../lib/zod";
 
 export const userSchema = z.object({
   name: z.string().min(1),
+  image: z.string().min(1).optional(),
 });
 
 export const userSchemaKeys = userSchema.keyof().enum;
@@ -10,6 +11,30 @@ export type UserSchema = z.infer<typeof userSchema>;
 
 export const postUserResponseSchema = z.object({
   status: z.boolean(),
+});
+
+export const profileImageAllowedContentTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+export const profileImageMaxSizeBytes = 5 * 1024 * 1024;
+
+export const profileImageUploadRequestSchema = z.object({
+  fileName: z.string().min(1),
+  contentType: z.enum(profileImageAllowedContentTypes),
+  size: z.number().int().positive().max(profileImageMaxSizeBytes),
+});
+
+export type ProfileImageUploadRequestSchema = z.infer<
+  typeof profileImageUploadRequestSchema
+>;
+
+export const profileImageUploadResponseSchema = z.object({
+  uploadUrl: z.string().min(1),
+  imageUrl: z.string().min(1),
+  expiresInSeconds: z.number().int().positive(),
 });
 
 export const passwordChangeSchema = z

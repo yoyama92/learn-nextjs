@@ -16,6 +16,7 @@ export const s3Client = new S3Client({
 });
 
 export {
+  GetObjectCommand,
   PutObjectCommand,
   type PutObjectCommandInput,
 } from "@aws-sdk/client-s3";

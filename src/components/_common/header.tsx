@@ -2,6 +2,8 @@ import {
   ArrowRightStartOnRectangleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/solid";
+import Image from "next/image";
+import { Suspense } from "react";
 
 import { signOut } from "../../actions/auth";
 import { getSession } from "../../lib/session";
@@ -50,7 +52,9 @@ export const Header = () => {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-              <UserCircleIcon />
+              <Suspense fallback={<UserCircleIcon />}>
+                <ProfileIcon />
+              </Suspense>
             </div>
           </button>
           <Menu />
@@ -58,4 +62,24 @@ export const Header = () => {
       </div>
     </header>
   );
+};
+
+const ProfileIcon = async () => {
+  const session = await getSession();
+  const image = session?.user.image;
+
+  if (image) {
+    return (
+      <Image
+        src={image}
+        alt="プロフィール画像"
+        width={40}
+        height={40}
+        className="rounded-full object-cover"
+        unoptimized={true}
+      />
+    );
+  }
+
+  return <UserCircleIcon />;
 };

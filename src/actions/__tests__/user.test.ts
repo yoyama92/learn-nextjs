@@ -2,7 +2,22 @@ import { headers } from "next/headers";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { auth } from "../../lib/auth";
-import { changePassword, postUser } from "../user";
+import {
+  changePassword,
+  createProfileImageUploadUrl,
+  postUser,
+} from "../user";
+
+vi.mock("../../server/services/profileImageService", () => ({
+  createProfileImagePresignedUploadUrl: vi.fn(
+    () => ({
+      uploadUrl:
+        "http://localhost:9000/my-bucket/profile-images/user-123/avatar.jpg?X-Amz-Signature=mock",
+      imageUrl: "/api/users/profile-image?key=profile-images%2Fuser-123%2Favatar.jpg",
+      profileImageUploadTokenTtlSeconds: 300,
+    }),
+  ),
+}));
 
 // モック化
 vi.mock("next/headers", () => ({
@@ -65,6 +80,34 @@ describe("User Actions", () => {
       expect(auth.api.updateUser).toHaveBeenCalledWith({
         body: {
           name: "Updated Name",
+        },
+        headers: {},
+      });
+    });
+
+    test("プロフィール画像URLを含めて更新", async () => {
+      (headers as ReturnType<typeof vi.fn>).mockResolvedValue({});
+      (
+        auth.api.updateUser as unknown as ReturnType<
+          typeof vi.fn<typeof auth.api.updateUser>
+        >
+      ).mockResolvedValue({
+        status: true,
+      });
+
+      const result = await postUser({
+        name: "Updated Name",
+        image: "/api/users/profile-image?key=profile-images%2Fuser-123%2Favatar.jpg",
+      });
+
+      expect(result).toEqual({
+        status: true,
+      });
+      expect(auth.api.updateUser).toHaveBeenCalledWith({
+        body: {
+          name: "Updated Name",
+          image:
+            "/api/users/profile-image?key=profile-images%2Fuser-123%2Favatar.jpg",
         },
         headers: {},
       });
@@ -167,6 +210,34 @@ describe("User Actions", () => {
           currentPassword: "OldPassword123!",
           newPassword: "NewPassword123!",
           confirmNewPassword: "NewPassword123!",
+        }),
+      ).rejects.toThrowError();
+    });
+  });
+
+  describe("createProfileImageUploadUrl", () => {
+    test("署名付きURLを正常に発行", async () => {
+      const result = await createProfileImageUploadUrl({
+        fileName: "avatar.jpg",
+        contentType: "image/jpeg",
+        size: 1000,
+      });
+
+      expect(result).toEqual({
+        uploadUrl:
+          "http://localhost:9000/my-bucket/profile-images/user-123/avatar.jpg?X-Amz-Signature=mock",
+        imageUrl:
+          "/api/users/profile-image?key=profile-images%2Fuser-123%2Favatar.jpg",
+        expiresInSeconds: 300,
+      });
+    });
+
+    test("不正なMIMEタイプはバリデーション失敗", async () => {
+      await expect(
+        createProfileImageUploadUrl({
+          fileName: "avatar.gif",
+          contentType: "image/gif" as "image/jpeg",
+          size: 1000,
         }),
       ).rejects.toThrowError();
     });
