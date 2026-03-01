@@ -19,7 +19,7 @@ export const profileImageAllowedContentTypes = [
   "image/webp",
 ] as const;
 
-export const profileImageMaxSizeBytes = 5 * 1024 * 1024;
+const profileImageMaxSizeBytes = 5 * 1024 * 1024;
 
 export const profileImageUploadRequestSchema = z.object({
   fileName: z.string().min(1),
