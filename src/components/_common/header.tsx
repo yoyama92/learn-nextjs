@@ -51,7 +51,7 @@ export const Header = () => {
             type="button"
             className="btn btn-ghost btn-circle avatar"
           >
-            <div className="w-10 rounded-full">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden">
               <Suspense fallback={<UserCircleIcon />}>
                 <ProfileIcon />
               </Suspense>
@@ -73,8 +73,8 @@ const ProfileIcon = async () => {
       <Image
         src={image}
         alt="プロフィール画像"
-        width={40}
-        height={40}
+        fill
+        sizes="40px"
         className="rounded-full object-cover"
         unoptimized={true}
       />

@@ -62,14 +62,23 @@ export const UserInfo = ({
             <legend className="fieldset-legend">プロフィール画像</legend>
             <div className="flex flex-col gap-2">
               <div className="avatar">
-                <div className="w-20 rounded-full border border-base-300">
-                  {currentImage ? (
+                <div className="relative w-20 h-20 rounded-full border border-base-300 overflow-hidden">
+                  {selectedFile ? (
+                    <Image
+                      src={URL.createObjectURL(selectedFile)}
+                      alt="選択中のプロフィール画像"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized={true}
+                    />
+                  ) : currentImage ? (
                     <Image
                       src={currentImage}
                       alt="現在のプロフィール画像"
-                      width={80}
-                      height={80}
-                      className="w-20 h-20"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                       unoptimized={true}
                     />
                   ) : (

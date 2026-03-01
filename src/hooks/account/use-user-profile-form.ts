@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useCallback, useState } from "react";
+import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import type { SubmitHandler, UseFormReset } from "react-hook-form";
 
 import { createProfileImageUploadUrl, postUser } from "../../actions/user";
@@ -25,12 +25,26 @@ export const useUserProfileForm = ({
     initialImage ?? undefined,
   );
 
+  useEffect(() => {
+    // コンポーネントのアンマウント時にURLを解放してメモリリークを防止
+    return () => {
+      if (selectedFile) {
+        URL.revokeObjectURL(URL.createObjectURL(selectedFile));
+      }
+    };
+  }, [selectedFile]);
+
   const handleProfileImageChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0] ?? null;
+      // URLを解放してメモリリークを防止
+      if (selectedFile) {
+        URL.revokeObjectURL(URL.createObjectURL(selectedFile));
+      }
+
       setSelectedFile(file);
     },
-    [],
+    [selectedFile],
   );
 
   const onSubmit = useCallback<SubmitHandler<UserSchema>>(
