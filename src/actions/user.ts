@@ -7,9 +7,12 @@ import { definePrivateAction } from "../lib/define-action";
 import {
   passwordChangeResponseSchema,
   passwordChangeSchema,
+  profileImageUploadRequestSchema,
+  profileImageUploadResponseSchema,
   postUserResponseSchema,
   userSchema,
 } from "../schemas/user";
+import { createProfileImagePresignedUploadUrl } from "../server/services/profileImageService";
 
 /**
  * ユーザー情報を更新する
@@ -22,11 +25,30 @@ export const postUser = definePrivateAction({
   name: "post_user",
 }).handler(async ({ input }) => {
   return await auth.api.updateUser({
-    body: {
-      name: input.name,
-    },
+    body: input,
     headers: await headers(),
   });
+});
+
+/**
+ * プロフィール画像アップロード用の署名付きURLを発行する
+ */
+export const createProfileImageUploadUrl = definePrivateAction({
+  input: profileImageUploadRequestSchema,
+  output: profileImageUploadResponseSchema,
+  name: "create_profile_image_upload_url",
+}).handler(async ({ input, ctx }) => {
+  const { uploadUrl, imageUrl, profileImageUploadTokenTtlSeconds } =
+    await createProfileImagePresignedUploadUrl({
+      userId: ctx.session.user.id,
+      contentType: input.contentType,
+    });
+
+  return {
+    uploadUrl,
+    imageUrl: imageUrl,
+    expiresInSeconds: profileImageUploadTokenTtlSeconds,
+  };
 });
 
 /**

@@ -20,6 +20,13 @@ export class UnauthorizedError extends Error {
   }
 }
 
+export class NotFoundError extends Error {
+  static readonly MESSAGE = "不存在エラー";
+  constructor() {
+    super(NotFoundError.MESSAGE);
+  }
+}
+
 export class ActionError extends Error {
   constructor(public actionName: string) {
     super("Action failed");
@@ -32,6 +39,5 @@ export const toActionError = (err: unknown): ActionError => {
     return err;
   }
 
-  // ZodError はここで VALIDATION_ERROR に寄せる（ZodError import は builder側でもOK）
   return new ActionError("INTERNAL");
 };

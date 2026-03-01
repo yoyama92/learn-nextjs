@@ -46,15 +46,6 @@ const checkDatabase = async (): Promise<HealthCheckResult> => {
 };
 
 const checkS3 = async (): Promise<HealthCheckResult> => {
-  if (!envStore.AWS_S3_BUCKET) {
-    return {
-      service: "s3",
-      status: "skip",
-      ms: 0,
-      reason: "AWS_S3_BUCKET is not set",
-    };
-  }
-
   return runCheck("s3", async () => {
     await s3Client.send(
       new HeadBucketCommand({

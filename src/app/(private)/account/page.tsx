@@ -19,6 +19,7 @@ export default definePrivatePage({
         name: user.name,
         email: user.email,
         isAdmin: user.role === "admin",
+        image: user.image,
       }}
     />
   );

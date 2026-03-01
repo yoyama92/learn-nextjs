@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import Link from "next/link";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { postUser } from "../../actions/user";
+import { useUserProfileForm } from "../../hooks/account/use-user-profile-form";
 import {
+  profileImageAllowedContentTypes,
   type UserSchema,
   userSchema,
   userSchemaKeys,
@@ -17,7 +19,12 @@ import {
 export const UserInfo = ({
   user,
 }: {
-  user: { name: string; email: string; isAdmin: boolean };
+  user: {
+    name: string;
+    email: string;
+    isAdmin: boolean;
+    image?: string | null;
+  };
 }) => {
   const {
     register,
@@ -28,24 +35,20 @@ export const UserInfo = ({
     resolver: zodResolver(userSchema),
     defaultValues: {
       name: user.name,
+      image: user.image ?? undefined,
     },
   });
 
-  const onSubmit: SubmitHandler<UserSchema> = async (data) => {
-    try {
-      const result = await postUser(data);
-      if (result?.status) {
-        reset({ name: data.name });
-        window.alert(`更新しました\n${JSON.stringify(result, null, 2)}`);
-      } else {
-        window.alert("更新に失敗しました");
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        window.alert(`更新に失敗しました: ${error.message}`);
-      }
-    }
-  };
+  const {
+    currentImage,
+    selectedFile,
+    isUploading,
+    handleProfileImageChange,
+    onSubmit,
+  } = useUserProfileForm({
+    initialImage: user.image,
+    reset,
+  });
 
   return (
     <>
@@ -55,6 +58,44 @@ export const UserInfo = ({
           <span>メールアドレス:{user.email}</span>
         </div>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">プロフィール画像</legend>
+            <div className="flex flex-col gap-2">
+              <div className="avatar">
+                <div className="relative w-20 h-20 rounded-full border border-base-300 overflow-hidden">
+                  {selectedFile ? (
+                    <Image
+                      src={URL.createObjectURL(selectedFile)}
+                      alt="選択中のプロフィール画像"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized={true}
+                    />
+                  ) : currentImage ? (
+                    <Image
+                      src={currentImage}
+                      alt="現在のプロフィール画像"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized={true}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-base-200" />
+                  )}
+                </div>
+              </div>
+            </div>
+            <input
+              className="file-input"
+              type="file"
+              accept={profileImageAllowedContentTypes.join(",")}
+              onChange={handleProfileImageChange}
+              disabled={isSubmitting || isUploading}
+            />
+            <p className="text-xs">JPEG / PNG / WebP、最大5MB</p>
+          </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">名前</legend>
             <input
@@ -72,9 +113,11 @@ export const UserInfo = ({
             <button
               className="btn btn-primary"
               type="submit"
-              disabled={!isDirty || isSubmitting}
+              disabled={
+                (!isDirty && !selectedFile) || isSubmitting || isUploading
+              }
             >
-              {isSubmitting ? (
+              {isSubmitting || isUploading ? (
                 <span className="loading loading-spinner loading-md">
                   更新中
                 </span>

@@ -24,7 +24,7 @@ const envSchema = envSchemaBase.extend({
     .boolean()
     .optional()
     .describe("MinioのS3互換APIを使用するためにフラグで制御"),
-  AWS_S3_BUCKET: z.string().optional().describe("S3のバケット名"),
+  AWS_S3_BUCKET: z.string().describe("S3のバケット名"),
   AWS_REGION: z.string().optional().describe("AWSのリージョン名"),
   AWS_ACCESS_KEY_ID: z.string().optional().describe("AWSのアクセスキー"),
   AWS_SECRET_ACCESS_KEY: z
