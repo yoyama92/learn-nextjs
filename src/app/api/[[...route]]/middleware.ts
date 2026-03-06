@@ -35,6 +35,7 @@ export const resolveSessionMiddleware: MiddlewareHandler<AppEnv> = async (
       },
       "Failed to resolve session",
     );
+    return c.json({ message: "internal server error" }, 500);
   }
 
   await next();

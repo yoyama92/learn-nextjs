@@ -20,6 +20,75 @@ type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
 }>;
 
+export const exportUsersCsvHeaders = [
+  "id",
+  "name",
+  "email",
+  "createdAt",
+  "updatedAt",
+  "isAdmin",
+];
+
+const EXPORT_USERS_CHUNK_SIZE = envStore.EXPORT_USERS_CHUNK_SIZE;
+export const toExportUsersCsv = async (
+  controller: {
+    enqueue: (chunk: Uint8Array) => void;
+    close: () => void;
+    error: (error: unknown) => void;
+  },
+  encoder: TextEncoder,
+) => {
+  try {
+    controller.enqueue(encoder.encode(toCsvLine(exportUsersCsvHeaders)));
+
+    let cursor: string | undefined;
+    while (true) {
+      const users = await getUsersForExportChunk({
+        cursor,
+        take: EXPORT_USERS_CHUNK_SIZE,
+      });
+
+      if (users.length === 0) {
+        break;
+      }
+
+      for (const user of users) {
+        controller.enqueue(encoder.encode(toExportUsersCsvLine(user)));
+      }
+
+      const lastUser = users.at(-1);
+      if (!lastUser) {
+        break;
+      }
+
+      cursor = lastUser.id;
+    }
+  } catch (error) {
+    const logger = getLogger();
+    logger.error({ error }, "Error exporting users to CSV");
+    throw error;
+  } finally {
+    controller.close();
+  }
+};
+
+const toExportUsersCsvLine = (user: UserGetResult): string => {
+  return toCsvLine([
+    user.id,
+    user.name,
+    user.email,
+    user.createdAt.toISOString(),
+    user.updatedAt.toISOString(),
+    (user.role === "admin").toString(),
+  ]);
+};
+
+const toCsvLine = (cells: string[]): string => {
+  return `${cells
+    .map((cell) => `"${cell.replaceAll('"', '""')}"`)
+    .join(",")}\n`;
+};
+
 /**
  * ページ指定でユーザー情報を取得する。
  * @param page 取得ページ
@@ -88,12 +157,24 @@ export const getUsersForNotificationTarget = async (): Promise<
   return users;
 };
 
-export const getUsersForExport = async (): Promise<UserGetResult[]> => {
+export const getUsersForExportChunk = async (params: {
+  cursor?: string;
+  take: number;
+}): Promise<UserGetResult[]> => {
+  const { cursor, take } = params;
+
   return await prisma.user.findMany({
     select: userSelectArg,
+    ...(cursor
+      ? {
+          cursor: { id: cursor },
+          skip: 1,
+        }
+      : {}),
     orderBy: {
-      createdAt: "asc",
+      id: "asc",
     },
+    take,
   });
 };
 

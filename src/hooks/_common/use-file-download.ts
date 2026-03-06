@@ -28,7 +28,8 @@ export const useFileDownload = (): {
         throw new Error(`${response.status}`);
       }
 
-      const contentType = response.headers.get("Content-Type") ?? "application/octet-stream";
+      const contentType =
+        response.headers.get("Content-Type") ?? "application/octet-stream";
       const blob = await response.blob();
 
       const contentDisposition = response.headers.get("Content-Disposition");
@@ -36,14 +37,21 @@ export const useFileDownload = (): {
         contentDisposition?.match(/filename="([^"]+)"/)?.[1] ??
         fallbackFileName;
 
-      const blobUrl = URL.createObjectURL(new Blob([blob], { type: contentType }));
+      const blobUrl = URL.createObjectURL(
+        new Blob([blob], { type: contentType }),
+      );
       const anchor = document.createElement("a");
       anchor.href = blobUrl;
       anchor.download = fileName;
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
-      URL.revokeObjectURL(blobUrl);
+
+      // ダウンロード後にURLを解放してメモリリークを防止
+      // ダウンロード処理が完了するまでURLを保持するためにsetTimeoutで遅延させる
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 100);
     } finally {
       setIsDownloading(false);
     }
