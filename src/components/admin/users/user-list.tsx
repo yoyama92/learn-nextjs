@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "@heroicons/react/24/solid";
+import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 import { getUsers } from "../../../actions/admin-user";
@@ -65,14 +65,23 @@ const UserList = ({
             )}{" "}
             件を表示
           </div>
-          <Link
-            type="button"
-            className="btn btn-sm max-sm:btn-square btn-primary"
-            href="/admin/users/create"
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span className="max-sm:hidden">新規登録</span>
-          </Link>
+          <div className="flex flex-row gap-2">
+            <a
+              className="btn btn-sm max-sm:btn-square btn-outline"
+              href="/api/admin/users/export.csv"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              <span className="max-sm:hidden">CSV出力</span>
+            </a>
+            <Link
+              type="button"
+              className="btn btn-sm max-sm:btn-square btn-primary"
+              href="/admin/users/create"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span className="max-sm:hidden">新規登録</span>
+            </Link>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <UserTable rows={users} total={pagination.total} />

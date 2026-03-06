@@ -1,32 +1,52 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
-import { logger } from "hono/logger";
 import { handle } from "hono/vercel";
 import { after } from "next/server";
 
-import { auth } from "../../../lib/auth";
 import { batchHandler } from "../../../lib/batch";
 import { envStore } from "../../../lib/env";
 import { exportUsersRequestSchema } from "../../../schemas/batch";
+import { buildExportUserFile } from "../../../server/domains/batch";
 import { exportUsers } from "../../../server/services/batchService";
 import { getProfileImage } from "../../../server/services/profileImageService";
+import { getUsersForExport } from "../../../server/services/userService";
+import { buildCSVContent } from "../../../utils/csv";
 import { ForbiddenError, NotFoundError } from "../../../utils/error";
+import {
+  type AppEnv,
+  pinoLoggerMiddleware,
+  requireAdmin,
+  resolveSessionMiddleware,
+} from "./middleware";
 
 export const dynamic = "force-dynamic";
 
-const app = new Hono().basePath("/api");
+const app = new Hono<AppEnv>().basePath("/api");
+app.use(resolveSessionMiddleware);
+app.use(pinoLoggerMiddleware);
+app
+  .basePath("/admin")
+  .use(requireAdmin)
+  .get("/users/export.csv", async (c) => {
+    const now = Math.floor(Date.now() / 1000);
+    const users = await getUsersForExport();
+    const { fileName, headers, fileContent } = buildExportUserFile(users, now);
 
-app.use(logger());
+    return c.body(buildCSVContent(headers, fileContent), 200, {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+      "Cache-Control": "private, no-store",
+    });
+  });
+
 app.get("/images/profile-image", async (c) => {
   const key = c.req.query("key");
   if (!key) {
     return c.json({ message: "invalid request" }, 400);
   }
 
-  const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  });
+  const session = c.get("session");
 
   if (!session) {
     return c.json({ message: "unauthorized" }, 401);

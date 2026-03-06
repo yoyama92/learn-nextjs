@@ -88,6 +88,15 @@ export const getUsersForNotificationTarget = async (): Promise<
   return users;
 };
 
+export const getUsersForExport = async (): Promise<UserGetResult[]> => {
+  return await prisma.user.findMany({
+    select: userSelectArg,
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+};
+
 export const createUser = async (data: {
   name: string;
   email: string;
