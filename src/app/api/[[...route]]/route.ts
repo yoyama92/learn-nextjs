@@ -25,7 +25,8 @@ export const dynamic = "force-dynamic";
 const app = new Hono<AppEnv>().basePath("/api");
 app.use(resolveSessionMiddleware);
 app.use(pinoLoggerMiddleware);
-app
+
+const adminRoutes = new Hono<AppEnv>()
   .basePath("/admin")
   .use(requireAdmin)
   .get("/users/export.csv", async (c) => {
@@ -40,7 +41,7 @@ app
     });
   });
 
-app.get("/images/profile-image", async (c) => {
+const imageRoutes = new Hono<AppEnv>().get("/images/profile-image", async (c) => {
   const key = c.req.query("key");
   if (!key) {
     return c.json({ message: "invalid request" }, 400);
@@ -72,7 +73,8 @@ app.get("/images/profile-image", async (c) => {
     }
   }
 });
-app
+
+const batchRoutes = new Hono<AppEnv>()
   .basePath("/batch")
   .use(bearerAuth({ token: envStore.BATCH_API_TOKEN }))
   .post("/export/users", zValidator("json", exportUsersRequestSchema), (c) => {
@@ -92,5 +94,11 @@ app
     });
   });
 
-export const GET = handle(app);
-export const POST = handle(app);
+const route = app
+  .route("/", adminRoutes)
+  .route("/", imageRoutes)
+  .route("/", batchRoutes);
+
+export const GET = handle(route);
+export const POST = handle(route);
+export type AppType = typeof route;

@@ -4,7 +4,9 @@ import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 import { getUsers } from "../../../actions/admin-user";
+import { useFileDownload } from "../../../hooks/_common/use-file-download";
 import { usePagination } from "../../../hooks/_common/use-pagination";
+import { apiClient } from "../../../lib/hono-rpc";
 import type { GetPaginationResponseSchema } from "../../../schemas/admin";
 import { PaginationControls } from "../../_common/pagination-controls";
 import { UserTable } from "./user-table";
@@ -51,6 +53,18 @@ const UserList = ({
   onPageChange: (page: number) => Promise<void>;
   isLoading: boolean;
 }) => {
+  const { isDownloading: isDownloadingCsv, download } = useFileDownload();
+
+  const handleDownloadCsv = async () => {
+    try {
+      await download({
+        request: () => apiClient.api.admin.users["export.csv"].$get(),
+      });
+    } catch {
+      window.alert("ユーザー一覧のダウンロードに失敗しました。");
+    }
+  };
+
   return (
     <>
       <h2 className="text-lg font-bold">ユーザー一覧</h2>
@@ -66,13 +80,17 @@ const UserList = ({
             件を表示
           </div>
           <div className="flex flex-row gap-2">
-            <a
+            <button
+              type="button"
               className="btn btn-sm max-sm:btn-square btn-outline"
-              href="/api/admin/users/export.csv"
+              onClick={handleDownloadCsv}
+              disabled={isDownloadingCsv}
             >
               <ArrowDownTrayIcon className="w-4 h-4" />
-              <span className="max-sm:hidden">CSV出力</span>
-            </a>
+              <span className="max-sm:hidden">
+                {isDownloadingCsv ? "出力中..." : "CSV出力"}
+              </span>
+            </button>
             <Link
               type="button"
               className="btn btn-sm max-sm:btn-square btn-primary"
