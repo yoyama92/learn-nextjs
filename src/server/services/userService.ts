@@ -20,7 +20,7 @@ type UserGetResult = Prisma.UserGetPayload<{
   select: typeof userSelectArg;
 }>;
 
-export const exportUsersCsvHeaders = [
+const EXPORT_USERS_CSV_HEADERS = [
   "id",
   "name",
   "email",
@@ -39,7 +39,7 @@ export const toExportUsersCsv = async (
   encoder: TextEncoder,
 ) => {
   try {
-    controller.enqueue(encoder.encode(toCsvLine(exportUsersCsvHeaders)));
+    controller.enqueue(encoder.encode(toCsvLine(EXPORT_USERS_CSV_HEADERS)));
 
     let cursor: string | undefined;
     while (true) {
@@ -70,6 +70,27 @@ export const toExportUsersCsv = async (
   } finally {
     controller.close();
   }
+};
+
+const getUsersForExportChunk = async (params: {
+  cursor?: string;
+  take: number;
+}): Promise<UserGetResult[]> => {
+  const { cursor, take } = params;
+
+  return await prisma.user.findMany({
+    select: userSelectArg,
+    ...(cursor
+      ? {
+          cursor: { id: cursor },
+          skip: 1,
+        }
+      : {}),
+    orderBy: {
+      id: "asc",
+    },
+    take,
+  });
 };
 
 const toExportUsersCsvLine = (user: UserGetResult): string => {
@@ -155,27 +176,6 @@ export const getUsersForNotificationTarget = async (): Promise<
     },
   });
   return users;
-};
-
-export const getUsersForExportChunk = async (params: {
-  cursor?: string;
-  take: number;
-}): Promise<UserGetResult[]> => {
-  const { cursor, take } = params;
-
-  return await prisma.user.findMany({
-    select: userSelectArg,
-    ...(cursor
-      ? {
-          cursor: { id: cursor },
-          skip: 1,
-        }
-      : {}),
-    orderBy: {
-      id: "asc",
-    },
-    take,
-  });
 };
 
 export const createUser = async (data: {
