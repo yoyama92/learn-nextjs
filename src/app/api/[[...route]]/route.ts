@@ -1,58 +1,93 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
-import { logger } from "hono/logger";
 import { handle } from "hono/vercel";
 import { after } from "next/server";
 
-import { auth } from "../../../lib/auth";
 import { batchHandler } from "../../../lib/batch";
 import { envStore } from "../../../lib/env";
 import { exportUsersRequestSchema } from "../../../schemas/batch";
 import { exportUsers } from "../../../server/services/batchService";
 import { getProfileImage } from "../../../server/services/profileImageService";
+import { toExportUsersCsv } from "../../../server/services/userService";
 import { ForbiddenError, NotFoundError } from "../../../utils/error";
+import {
+  type AppEnv,
+  pinoLoggerMiddleware,
+  requireAdmin,
+  resolveSessionMiddleware,
+} from "./middleware";
 
 export const dynamic = "force-dynamic";
 
-const app = new Hono().basePath("/api");
+const app = new Hono<AppEnv>().basePath("/api");
+app.use(resolveSessionMiddleware);
+app.use(pinoLoggerMiddleware);
 
-app.use(logger());
-app.get("/images/profile-image", async (c) => {
-  const key = c.req.query("key");
-  if (!key) {
-    return c.json({ message: "invalid request" }, 400);
-  }
+const adminRoutes = new Hono<AppEnv>()
+  .basePath("/admin")
+  .use(requireAdmin)
+  .get("/users/export.csv", async (c) => {
+    const now = Math.floor(Date.now() / 1000);
+    const fileName = `users-${now}.csv`;
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      start: async (controller) => {
+        await toExportUsersCsv(
+          {
+            enqueue: (chunk) => controller.enqueue(chunk),
+            close: () => controller.close(),
+            error: (error) => controller.error(error),
+          },
+          encoder,
+        );
+      },
+    });
 
-  const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
+    return c.newResponse(stream, 200, {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+      "Cache-Control": "private, no-store",
+    });
   });
 
-  if (!session) {
-    return c.json({ message: "unauthorized" }, 401);
-  }
-
-  try {
-    const { data, contentType } = await getProfileImage(key, {
-      image: session.user.image,
-    });
-
-    return c.body(data, 200, {
-      "Content-Type": contentType ?? "application/octet-stream",
-      "Cache-Control": "private, max-age=300",
-    });
-  } catch (error) {
-    switch (error instanceof Error) {
-      case error instanceof NotFoundError:
-        return c.json({ message: "not found" }, 404);
-      case error instanceof ForbiddenError:
-        return c.json({ message: "forbidden" }, 403);
-      default:
-        return c.json({ message: "internal server error" }, 500);
+const imageRoutes = new Hono<AppEnv>().get(
+  "/images/profile-image",
+  async (c) => {
+    const key = c.req.query("key");
+    if (!key) {
+      return c.json({ message: "invalid request" }, 400);
     }
-  }
-});
-app
+
+    const session = c.get("session");
+
+    if (!session) {
+      return c.json({ message: "unauthorized" }, 401);
+    }
+
+    try {
+      const { data, contentType } = await getProfileImage(key, {
+        image: session.user.image,
+      });
+
+      return c.body(data, 200, {
+        "Content-Type": contentType ?? "application/octet-stream",
+        "Cache-Control": "private, max-age=300",
+      });
+    } catch (error) {
+      switch (error instanceof Error) {
+        case error instanceof NotFoundError:
+          return c.json({ message: "not found" }, 404);
+        case error instanceof ForbiddenError:
+          return c.json({ message: "forbidden" }, 403);
+        default:
+          return c.json({ message: "internal server error" }, 500);
+      }
+    }
+  },
+);
+
+const batchRoutes = new Hono<AppEnv>()
   .basePath("/batch")
   .use(bearerAuth({ token: envStore.BATCH_API_TOKEN }))
   .post("/export/users", zValidator("json", exportUsersRequestSchema), (c) => {
@@ -72,5 +107,11 @@ app
     });
   });
 
-export const GET = handle(app);
-export const POST = handle(app);
+const route = app
+  .route("/", adminRoutes)
+  .route("/", imageRoutes)
+  .route("/", batchRoutes);
+
+export const GET = handle(route);
+export const POST = handle(route);
+export type AppType = typeof route;

@@ -40,6 +40,12 @@ const envSchema = envSchemaBase.extend({
     .describe(
       "バッチ処理を外部から呼び出せないようにする簡易認証機能のためのトークン",
     ),
+  EXPORT_USERS_CHUNK_SIZE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(1000)
+    .describe("管理者CSVエクスポート時の分割取得件数"),
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
   DATABASE_URL: z.url().describe("データベースの接続URL"),
   LOG_LEVEL: z.string().optional().describe("ログレベル"),
