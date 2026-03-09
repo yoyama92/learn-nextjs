@@ -177,7 +177,8 @@ export const notificationSchema = z
 
 export type NotificationSchema = z.infer<typeof notificationSchema>;
 
-export const notificationFormSchema = notificationSchema
+export const notificationFormSchema = z
+  .object(notificationSchema.shape)
   .omit({
     id: true,
   })
