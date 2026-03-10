@@ -7,7 +7,13 @@ import {
   createUser,
   getUsersPaginated,
 } from "../../server/services/userService";
-import { getUsers, postDeleteUser, postEditUser, postNewUser } from "../admin-user";
+import {
+  getUsers,
+  postBulkCreateUsers,
+  postDeleteUser,
+  postEditUser,
+  postNewUser,
+} from "../admin-user";
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
@@ -54,6 +60,7 @@ vi.mock("../../lib/session", async (importOriginal) => {
 });
 
 vi.mock("../../server/services/userService", () => ({
+  bulkCreateUsers: vi.fn(),
   createUser: vi.fn(),
   getUsersPaginated: vi.fn(),
 }));
@@ -138,6 +145,27 @@ describe("Admin User Actions", () => {
       });
 
       expect(assertAdmin).toHaveBeenCalled();
+    });
+  });
+
+  describe("postBulkCreateUsers", () => {
+    test("ユーザーを一括作成", async () => {
+      await expect(
+        postBulkCreateUsers({
+          users: [
+            {
+              rowNumber: 2,
+              name: "Alice",
+              email: "alice@example.com",
+            },
+            {
+              rowNumber: 3,
+              name: "Alice Duplicate",
+              email: "alice@example.com",
+            },
+          ],
+        }),
+      ).rejects.toThrowError();
     });
   });
 

@@ -49,10 +49,17 @@ const envSchema = envSchemaBase.extend({
   BETTER_AUTH_URL: z.url().describe("Better AuthのベースURL"),
   DATABASE_URL: z.url().describe("データベースの接続URL"),
   LOG_LEVEL: z.string().optional().describe("ログレベル"),
+  MAX_BULK_USERS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(100)
+    .describe("一括ユーザー登録の最大件数"),
 });
 
 const publicEnvSchema = envSchema.pick({
   AWS_SES_FROM_EMAIL: true,
+  MAX_BULK_USERS: true,
 });
 
 /**

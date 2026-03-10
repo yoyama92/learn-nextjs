@@ -5,6 +5,8 @@ import { headers } from "next/headers";
 import { auth } from "../lib/auth";
 import { defineAdminAction } from "../lib/define-action";
 import {
+  bulkCreateUsersResponseSchema,
+  bulkCreateUsersSchema,
   createUserResponseSchema,
   createUserSchema,
   deleteUserResponseSchema,
@@ -14,7 +16,11 @@ import {
   getPaginationResponseSchema,
   getPaginationSchema,
 } from "../schemas/admin";
-import { createUser, getUsersPaginated } from "../server/services/userService";
+import {
+  bulkCreateUsers,
+  createUser,
+  getUsersPaginated,
+} from "../server/services/userService";
 
 /**
  * ユーザーを追加する。
@@ -27,6 +33,17 @@ export const postNewUser = defineAdminAction({
   name: "admin_post_new_user",
 }).handler(async ({ input }) => {
   return await createUser(input);
+});
+
+/**
+ * ユーザーを一括作成する。
+ */
+export const postBulkCreateUsers = defineAdminAction({
+  input: bulkCreateUsersSchema,
+  output: bulkCreateUsersResponseSchema,
+  name: "admin_post_bulk_create_users",
+}).handler(async ({ input }) => {
+  return await bulkCreateUsers(input.users);
 });
 
 /**

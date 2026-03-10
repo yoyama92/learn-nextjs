@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { buildCSVContent } from "../csv";
+import { buildCSVContent, parseCSVContent } from "../csv";
 
 describe("buildCSVContent", () => {
   test("正常系", () => {
@@ -29,5 +29,28 @@ describe("buildCSVContent", () => {
       ["column2_1", "column2_1"],
     ];
     expect(() => buildCSVContent(header, content)).toThrow();
+  });
+});
+
+describe("parseCSVContent", () => {
+  test("正常系", () => {
+    const csv = '"name","email"\n"alice","alice@example.com"\n';
+    expect(parseCSVContent(csv)).toEqual([
+      ["name", "email"],
+      ["alice", "alice@example.com"],
+    ]);
+  });
+
+  test("ダブルクォートのエスケープをパースできる", () => {
+    const csv = '"name","email"\n"alice ""A""","alice@example.com"\n';
+    expect(parseCSVContent(csv)).toEqual([
+      ["name", "email"],
+      ['alice "A"', "alice@example.com"],
+    ]);
+  });
+
+  test("クォートが閉じられていない場合はエラー", () => {
+    const csv = '"name","email"\n"alice","alice@example.com';
+    expect(() => parseCSVContent(csv)).toThrow("CSVのパースに失敗しました。");
   });
 });
