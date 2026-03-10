@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowDownTrayIcon,
+  DocumentArrowUpIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 import { getUsers } from "../../../actions/admin-user";
@@ -91,6 +95,14 @@ const UserList = ({
                 {isDownloadingCsv ? "出力中..." : "CSV出力"}
               </span>
             </button>
+            <Link
+              type="button"
+              className="btn btn-sm max-sm:btn-square btn-outline"
+              href="/admin/users/import"
+            >
+              <DocumentArrowUpIcon className="w-4 h-4" />
+              <span className="max-sm:hidden">CSV取込</span>
+            </Link>
             <Link
               type="button"
               className="btn btn-sm max-sm:btn-square btn-primary"

@@ -1,3 +1,4 @@
+import { APIError } from "better-auth";
 import type { Prisma } from "../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
@@ -227,4 +228,88 @@ export const createUser = async (data: {
       mailSent: false,
     };
   }
+};
+
+const DUPLICATE_EMAIL_ERROR_MESSAGE = "メールアドレスが重複しています。";
+const CREATE_USER_ERROR_MESSAGE = "ユーザー作成に失敗しました。";
+
+const userExistsByEmail = async (email: string): Promise<boolean> => {
+  try {
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: "insensitive",
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    return existingUser !== null;
+  } catch (error) {
+    const logger = getLogger();
+    logger.error({ error }, "Error checking if user exists by email");
+    return false;
+  }
+};
+
+export const bulkCreateUsers = async (
+  users: {
+    rowNumber: number;
+    name: string;
+    email: string;
+  }[],
+): Promise<{
+  total: number;
+  successCount: number;
+  failedCount: number;
+  failures: {
+    rowNumber: number;
+    email: string;
+    reason: string;
+  }[];
+}> => {
+  const failures: {
+    rowNumber: number;
+    email: string;
+    reason: string;
+  }[] = [];
+
+  let successCount = 0;
+  for (const user of users) {
+    try {
+      await createUser({
+        name: user.name,
+        email: user.email,
+      });
+      successCount += 1;
+    } catch (error) {
+      const logger = getLogger();
+      logger.error({ error }, "Error creating user in bulk operation");
+      if (error instanceof APIError && error.status !== "BAD_REQUEST") {
+        failures.push({
+          rowNumber: user.rowNumber,
+          email: user.email,
+          reason: CREATE_USER_ERROR_MESSAGE,
+        });
+      } else {
+        const isDuplicate = await userExistsByEmail(user.email);
+        failures.push({
+          rowNumber: user.rowNumber,
+          email: user.email,
+          reason: isDuplicate
+            ? DUPLICATE_EMAIL_ERROR_MESSAGE
+            : CREATE_USER_ERROR_MESSAGE,
+        });
+      }
+    }
+  }
+
+  return {
+    total: users.length,
+    successCount,
+    failedCount: failures.length,
+    failures: failures.sort((a, b) => a.rowNumber - b.rowNumber),
+  };
 };

@@ -22,6 +22,70 @@ export const createUserSchemaKeys = createUserSchema.keyof().enum;
 
 export type CreateUserSchema = z.infer<typeof createUserSchema>;
 
+const bulkCreateUserSchema = z.object({
+  rowNumber: z.number().int().min(1),
+  name: z.string().trim().min(1),
+  email: z.email().trim().toLowerCase(),
+});
+
+const deprecatedEmailCheck = (
+  users: z.infer<typeof bulkCreateUserSchema>[],
+  ctx: z.RefinementCtx,
+) => {
+  const duplicatedEmailIndexes = new Map<string, number[]>();
+
+  users.forEach((user, index) => {
+    const normalizedEmail = user.email.trim().toLowerCase();
+    const indexes = duplicatedEmailIndexes.get(normalizedEmail);
+    if (indexes) {
+      indexes.push(index);
+    } else {
+      duplicatedEmailIndexes.set(normalizedEmail, [index]);
+    }
+  });
+
+  for (const indexes of duplicatedEmailIndexes.values()) {
+    if (indexes.length < 2) {
+      continue;
+    }
+    indexes.forEach((index) => {
+      ctx.addIssue({
+        code: "custom",
+        path: ["users", index, "email"],
+        message: "メールアドレスがCSV内で重複しています。",
+      });
+    });
+  }
+};
+
+export const bulkCreateUsersSchema = z
+  .object({
+    users: z
+      .array(bulkCreateUserSchema)
+      .min(1, "CSVにユーザー行がありません。")
+      .max(100, "1回の取り込み上限は100名です。"),
+  })
+  .superRefine(({ users }, ctx) => {
+    deprecatedEmailCheck(users, ctx);
+  });
+
+export const bulkCreateUsersResponseSchema = z.object({
+  total: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  failedCount: z.number().int().nonnegative(),
+  failures: z.array(
+    z.object({
+      rowNumber: z.number().int().min(1),
+      email: z.string(),
+      reason: z.string(),
+    }),
+  ),
+});
+
+export type BulkCreateUsersResponseSchema = z.infer<
+  typeof bulkCreateUsersResponseSchema
+>;
+
 export const deleteUserSchema = z.object({
   id: z.string(),
 });
