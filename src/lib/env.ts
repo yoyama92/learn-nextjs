@@ -55,6 +55,12 @@ const envSchema = envSchemaBase.extend({
     .min(1)
     .default(100)
     .describe("一括ユーザー登録の最大件数"),
+  INITIAL_ADMIN_EMAIL: z
+    .email()
+    .describe("起動時に初期管理者ユーザーとして保証するメールアドレス"),
+  INITIAL_ADMIN_NAME: z
+    .string()
+    .describe("起動時に初期管理者ユーザーとして保証するユーザー名"),
 });
 
 const publicEnvSchema = envSchema.pick({

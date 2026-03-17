@@ -1,8 +1,10 @@
 import { HeadBucketCommand } from "@aws-sdk/client-s3";
 import { GetAccountCommand } from "@aws-sdk/client-sesv2";
 
+import { auth } from "../../lib/auth";
 import { envStore } from "../../lib/env";
 import { baseLogger } from "../../lib/logger";
+import { roleEnum } from "../../schemas/auth";
 import { prisma } from "./db";
 import { s3Client } from "./s3";
 import { sesClient } from "./ses";
@@ -10,10 +12,56 @@ import { sesClient } from "./ses";
 type HealthCheckStatus = "ok" | "ng" | "skip";
 
 type HealthCheckResult = {
-  service: "database" | "s3" | "ses";
+  service: "database" | "s3" | "ses" | "initial_data";
   status: HealthCheckStatus;
   ms: number;
   reason?: string;
+};
+
+const ensureInitialAdminUser = async () => {
+  const email = envStore.INITIAL_ADMIN_EMAIL;
+
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+    select: {
+      id: true,
+      role: true,
+    },
+  });
+
+  if (!existingUser) {
+    await auth.api.createUser({
+      body: {
+        name: envStore.INITIAL_ADMIN_NAME,
+        email,
+        password: crypto.randomUUID(),
+        role: roleEnum.admin,
+      },
+    });
+  }
+};
+
+const ensureInitialData = async (): Promise<void> => {
+  await ensureInitialAdminUser();
+};
+
+const checkInitialData = async (
+  databaseStatus: HealthCheckStatus,
+): Promise<HealthCheckResult> => {
+  if (databaseStatus !== "ok") {
+    return {
+      service: "initial_data",
+      status: "skip",
+      ms: 0,
+      reason: "database check failed",
+    };
+  }
+
+  return runCheck("initial_data", async () => {
+    await ensureInitialData();
+  });
 };
 
 const runCheck = async (
@@ -73,7 +121,10 @@ export const runStartupHealthChecks = async () => {
 
   log.info("Startup health checks started");
 
-  const results = await Promise.all([checkDatabase(), checkS3(), checkSes()]);
+  const baseResults = await Promise.all([checkS3(), checkSes()]);
+  const databaseResult = await checkDatabase();
+  const initialDataResult = await checkInitialData(databaseResult.status);
+  const results = [...baseResults, databaseResult, initialDataResult];
 
   for (const result of results) {
     if (result.status === "ok") {
